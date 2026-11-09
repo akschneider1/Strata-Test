@@ -1,0 +1,55 @@
+name: Claude Code Review
+
+# Automatic Claude review of every non-draft pull request. Findings are posted
+# as inline PR comments; the review is advisory and never blocks a merge.
+# Review guidance lives in CLAUDE.md ("Code review" section).
+#
+# One-time setup (repo admin):
+#   1. Install the Claude GitHub App on this repo: https://github.com/apps/claude
+#   2. Run `claude setup-token` locally and save the token as the Actions secret
+#      CLAUDE_CODE_OAUTH_TOKEN (Settings > Secrets and variables > Actions).
+# Until the secret exists (and on fork PRs, which get no secrets) the job
+# skips with a notice instead of failing.
+# Docs: https://code.claude.com/docs/en/github-actions
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+concurrency:
+  # A new push supersedes an in-flight review of the same PR.
+  group: claude-code-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Review
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+    env:
+      HAS_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+    steps:
+      - name: Check for Claude token
+        if: env.HAS_TOKEN != 'true'
+        run: echo "::notice::CLAUDE_CODE_OAUTH_TOKEN is not set (or this is a fork PR); skipping Claude review. See the setup notes at the top of this workflow."
+
+      - uses: actions/checkout@v6
+        if: env.HAS_TOKEN == 'true'
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        if: env.HAS_TOKEN == 'true'
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          plugin_marketplaces: "https://github.com/anthropics/claude-plugins-official.git"
+          plugins: "code-review@claude-plugins-official"
+          prompt: "/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+          # Required: the inline-comment tool only starts when it is allowed here.
+          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment"'
