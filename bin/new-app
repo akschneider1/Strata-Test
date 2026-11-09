@@ -54,6 +54,35 @@ registerControllers(application)
 JS
   fi
 
+  # The SDK's engine controllers (e.g. Strata::TasksController) inherit from a
+  # host-app ::StaffController. Without it the app fails to boot whenever Rails
+  # eager loads (production, and CI where test.rb eager loads). Create a
+  # minimal one, no routes, so nothing new is reachable; never overwrite it.
+  # `bin/rails generate strata:staff` scaffolds the full staff dashboard.
+  local staff="$app/app/controllers/staff_controller.rb"
+  if [[ ! -f "$staff" ]]; then
+    cat >"$staff" <<'RUBY'
+# frozen_string_literal: true
+
+# Base controller for staff-facing pages, required by the Strata SDK's engine
+# controllers (e.g. Strata::TasksController). It is not routed by default.
+#
+# To scaffold the Strata staff dashboard (routes, tasks UI, specs), run:
+#   bin/rails generate strata:staff
+# and keep authentication and Pundit authorization in place here.
+class StaffController < Strata::StaffController
+  before_action :authenticate_user!
+
+  protected
+
+  # Case models to link in the staff header, e.g. [ BenefitsCase ].
+  def case_classes
+    []
+  end
+end
+RUBY
+  fi
+
   log "$app: switching USWDS styles to the Colorado Design System"
   install -m 0755 stack/cods/cods-css.cjs "$app/bin/cods-css"
   install -m 0644 stack/cods/_cods-compat.scss "$app/app/assets/stylesheets/_cods-compat.scss"
@@ -182,6 +211,8 @@ verify_rails() {
   bin/rails db:prepare >/dev/null
   # shellcheck disable=SC2209 # env assignment for one command
   RAILS_ENV=test bin/rails db:prepare >/dev/null
+  log "$app: eager-load check (as in production and CI)"
+  RAILS_ENV=test CI=true bin/rails zeitwerk:check
   log "$app: rspec"
   bundle exec rspec
   log "$app: production asset precompile smoke test"
