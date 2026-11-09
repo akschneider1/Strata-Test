@@ -55,7 +55,7 @@ JS
   fi
 
   log "$app: switching USWDS styles to the Colorado Design System"
-  install -m 0755 stack/cods/cods-css.mjs "$app/bin/cods-css"
+  install -m 0755 stack/cods/cods-css.cjs "$app/bin/cods-css"
   install -m 0644 stack/cods/_cods-compat.scss "$app/app/assets/stylesheets/_cods-compat.scss"
 
   # CoDS ships compiled USWDS + Colorado overrides; keep uswds-core only for
@@ -185,14 +185,16 @@ verify_rails() {
   log "$app: rspec"
   bundle exec rspec
   log "$app: production asset precompile smoke test"
-  RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile >/dev/null
+  RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile >/dev/null 2>&1
   local css
   css="$(find public/assets -maxdepth 1 -name 'colorado-design-system-*.css' | head -1)"
   [[ -n "$css" ]] || die "$app: CoDS stylesheet missing from precompiled assets"
   if grep -o 'url([^)]*)' "$css" | grep -v -e '^url()$' -e '/assets/' -e 'data:' | grep -q .; then
     die "$app: unresolved asset URLs in $css"
   fi
-  RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails assets:clobber >/dev/null
+  RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails assets:clobber >/dev/null 2>&1
+  # clobber also empties app/assets/builds; rebuild so dev/test keep working
+  npm run build:css >/dev/null
   ok "$app: verified"
 }
 
