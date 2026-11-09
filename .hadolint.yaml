@@ -1,0 +1,10 @@
+# List of settings and ignore or safelist findings for the hadolint scanner
+
+# For more information on any settings you can specify, see the actions' documentation here
+# https://github.com/hadolint/hadolint#configure
+failure-threshold: warning
+ignored:
+  # not necessarily a bad idea, but can be brittle and a maintenance burden
+  - DL3008
+  # doesn't account for variables or explicitly created users, so tends to be noise
+  - DL3066
