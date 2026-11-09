@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Report whether the toolchain matches stack/versions.env and list the apps.
+# Exits non-zero if a required tool is missing. Usage: bin/doctor
+set -uo pipefail
+# shellcheck disable=SC1091 # shared helpers; checked separately
+source "$(dirname "$0")/../stack/lib/common.sh"
+setup_path
+
+fail=0
+check() { # check <label> <required:1|0> <command...>
+  local label="$1" required="$2" out
+  shift 2
+  if out="$("$@" 2>/dev/null | head -1)" && [[ -n "$out" ]]; then
+    ok "$label: $out"
+  elif [[ "$required" == 1 ]]; then
+    printf '\033[1;31mmiss\033[0m %s (run bin/setup-env)\n' "$label" >&2
+    fail=1
+  else
+    warn "$label: not found (optional)"
+  fi
+}
+
+check "git" 1 git --version
+check "node (>= $NODE_MIN_MAJOR)" 1 node -v
+check "npm" 1 npm -v
+check "uv" 1 uv --version
+check "nava-platform" 1 sh -c 'command -v nava-platform'
+check "python $PYTHON_VERSION" 1 "python$PYTHON_VERSION" --version
+check "poetry" 1 poetry --version
+check "rbenv" 1 rbenv --version
+for v in $({ echo "$RUBY_VERSION"; cat "$REPO_ROOT"/*/.ruby-version 2>/dev/null; } | sort -u); do
+  check "ruby $v" 1 sh -c "RBENV_VERSION=$v rbenv exec ruby -v"
+done
+check "terraform $TERRAFORM_VERSION" 0 sh -c "terraform version | grep -F $TERRAFORM_VERSION"
+check "actionlint" 0 actionlint --version
+check "shellcheck" 0 sh -c 'shellcheck --version | sed -n 2p'
+check "docker" 0 docker --version
+check "postgres (127.0.0.1:5432)" 0 pg_isready -h 127.0.0.1 -p 5432
+
+echo >&2
+log "Pinned: CoDS $CODS_VERSION (USWDS $USWDS_VERSION), Strata SDK ${STRATA_SDK_REF:0:12}, templates rails $RAILS_TEMPLATE_VERSION / nextjs $NEXTJS_TEMPLATE_VERSION / flask $FLASK_TEMPLATE_VERSION"
+apps="$(app_names)"
+if [[ -z "$apps" ]]; then
+  log "No apps yet. Create one with: bin/new-app <rails|nextjs|flask> <app-name>"
+else
+  log "Apps:"
+  for a in $apps; do
+    cods=""
+    [[ -f "$REPO_ROOT/$a/package.json" ]] &&
+      cods="$(sed -n 's/.*colorado-design-system-\([0-9.]*\)\.tgz.*/ CoDS \1/p' "$REPO_ROOT/$a/package.json" | head -1)"
+    printf '     %-24s %s%s\n' "$a" "$(app_type "$a")" "$cods" >&2
+  done
+fi
+exit "$fail"

@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+# Install / check the toolchain needed to generate, build and test every
+# Strata app in this repo. Idempotent; safe to re-run. Also used as the
+# Claude Code cloud environment's setup script.
+#
+# Usage: bin/setup-env [--postgres] [--skip-infra-tools]
+#   --postgres          start a local Postgres server and create the `app`
+#                       role the templates expect (for machines without
+#                       Docker, e.g. cloud sessions)
+#   --skip-infra-tools  don't install terraform / shellcheck / actionlint
+#
+# Installs (user-level where possible):
+#   - nava-platform CLI (via uv)            - Ruby for every Rails app (rbenv)
+#   - Poetry (via uv) for Flask apps         - terraform, shellcheck, actionlint
+# Expects already present: git, node >= NODE_MIN_MAJOR, npm, python3.13, uv
+# (https://docs.astral.sh/uv/), and rbenv or ruby-build on macOS.
+set -euo pipefail
+# shellcheck disable=SC1091 # shared helpers; checked separately
+source "$(dirname "$0")/../stack/lib/common.sh"
+setup_path
+
+POSTGRES=0
+INFRA_TOOLS=1
+for arg in "$@"; do
+  case "$arg" in
+    --postgres) POSTGRES=1 ;;
+    --skip-infra-tools) INFRA_TOOLS=0 ;;
+    -h | --help) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) die "unknown option $arg" ;;
+  esac
+done
+
+OS="$(uname -s)"
+ARCH="$(uname -m)"
+BIN_DIR="$HOME/.local/bin"
+mkdir -p "$BIN_DIR"
+
+# --- Node -----------------------------------------------------------------
+have node || die "node not found; install Node.js >= $NODE_MIN_MAJOR"
+node_major="$(node -p 'process.versions.node.split(".")[0]')"
+((node_major >= NODE_MIN_MAJOR)) || die "Node $node_major found; need >= $NODE_MIN_MAJOR"
+ok "node $(node -v)"
+
+# --- uv, nava-platform, poetry --------------------------------------------
+have uv || die "uv not found; install it from https://docs.astral.sh/uv/getting-started/installation/"
+if ! uv tool list 2>/dev/null | grep -q "^nava-platform-cli" ||
+  [[ "$(cat "$HOME/.local/share/strata-nava-platform-ref" 2>/dev/null)" != "$NAVA_PLATFORM_CLI_REF" ]]; then
+  log "Installing nava-platform CLI @ ${NAVA_PLATFORM_CLI_REF:0:12}"
+  uv tool install --force --quiet "git+https://github.com/navapbc/platform-cli@$NAVA_PLATFORM_CLI_REF"
+  mkdir -p "$HOME/.local/share"
+  echo "$NAVA_PLATFORM_CLI_REF" >"$HOME/.local/share/strata-nava-platform-ref"
+fi
+ok "nava-platform (platform-cli @ ${NAVA_PLATFORM_CLI_REF:0:12})"
+
+if ! have poetry; then
+  log "Installing Poetry"
+  uv tool install --quiet poetry
+fi
+ok "$(poetry --version)"
+have "python$PYTHON_VERSION" || uv python install "$PYTHON_VERSION"
+ok "python $PYTHON_VERSION"
+
+# --- Ruby -----------------------------------------------------------------
+# One Ruby per distinct .ruby-version in the repo, plus the pinned default.
+install_ruby() {
+  local v="$1"
+  if have rbenv && [[ -x "$(rbenv root)/versions/$v/bin/ruby" ]]; then
+    return
+  fi
+  if [[ "$OS" == Linux && "$ARCH" == x86_64 ]] && grep -q 'VERSION_ID="24.04"' /etc/os-release 2>/dev/null &&
+    have rbenv && [[ -w /opt || -w /opt/hostedtoolcache ]]; then
+    # Prebuilt Ruby (same builds GitHub's setup-ruby uses). These binaries
+    # expect to live under /opt/hostedtoolcache, so link rbenv to them.
+    log "Installing prebuilt Ruby $v"
+    local dest="/opt/hostedtoolcache/Ruby/$v"
+    mkdir -p "$dest"
+    curl -fsSL "https://github.com/ruby/ruby-builder/releases/download/ruby-$v/ruby-$v-ubuntu-24.04-x64.tar.gz" |
+      tar xz -C "$dest"
+    ln -sfn "$dest/x64" "$(rbenv root)/versions/$v"
+  elif have rbenv; then
+    log "Building Ruby $v with rbenv (this can take a while)"
+    rbenv install --skip-existing "$v"
+  else
+    die "rbenv not found; install rbenv (https://github.com/rbenv/rbenv) then re-run"
+  fi
+}
+rubies="$({
+  echo "$RUBY_VERSION"
+  cat "$REPO_ROOT"/*/.ruby-version 2>/dev/null || true
+} | sort -u)"
+for v in $rubies; do
+  install_ruby "$v"
+  ok "ruby $v"
+done
+rbenv rehash 2>/dev/null || true
+
+# --- Infra lint tools -----------------------------------------------------
+if ((INFRA_TOOLS)); then
+  tf_os="$(echo "$OS" | tr '[:upper:]' '[:lower:]')"
+  tf_arch="$ARCH"
+  [[ "$tf_arch" == x86_64 ]] && tf_arch=amd64
+  [[ "$tf_arch" == aarch64 ]] && tf_arch=arm64
+
+  if ! have terraform || [[ "$(terraform version -json 2>/dev/null | sed -n 's/.*"terraform_version": *"\([^"]*\)".*/\1/p')" != "$TERRAFORM_VERSION" ]]; then
+    log "Installing terraform $TERRAFORM_VERSION"
+    tmp="$(mktemp -d)"
+    curl -fsSL -o "$tmp/tf.zip" "https://releases.hashicorp.com/terraform/$TERRAFORM_VERSION/terraform_${TERRAFORM_VERSION}_${tf_os}_${tf_arch}.zip"
+    python3 -c 'import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extract("terraform", sys.argv[2])' "$tmp/tf.zip" "$BIN_DIR"
+    chmod +x "$BIN_DIR/terraform"
+    rm -r "$tmp"
+  fi
+  ok "terraform $TERRAFORM_VERSION"
+
+  if ! have actionlint; then
+    log "Installing actionlint $ACTIONLINT_VERSION"
+    curl -fsSL "https://github.com/rhysd/actionlint/releases/download/v$ACTIONLINT_VERSION/actionlint_${ACTIONLINT_VERSION}_${tf_os}_${tf_arch}.tar.gz" |
+      tar xz -C "$BIN_DIR" actionlint
+  fi
+  ok "actionlint"
+
+  if ! have shellcheck; then
+    if have apt-get && [[ "$(id -u)" == 0 ]]; then
+      log "Installing shellcheck"
+      apt-get install -y -qq shellcheck >/dev/null || (apt-get update -qq && apt-get install -y -qq shellcheck >/dev/null)
+    elif have brew; then
+      brew install shellcheck
+    else
+      warn "shellcheck not installed (needed for 'make infra-lint-scripts')"
+    fi
+  fi
+  have shellcheck && ok "shellcheck"
+fi
+
+# --- Postgres -------------------------------------------------------------
+if ((POSTGRES)); then
+  if have pg_lsclusters && have pg_ctlcluster; then
+    read -r pg_ver pg_name _ < <(pg_lsclusters --no-header | head -1)
+    [[ -n "${pg_ver:-}" ]] || die "no Postgres cluster found (pg_lsclusters)"
+    pg_ctlcluster "$pg_ver" "$pg_name" start 2>/dev/null || true
+    pg_su() { if [[ "$(id -u)" == 0 ]]; then su postgres -c "$1"; else sudo -u postgres sh -c "$1"; fi; }
+    pg_su "psql -qtAc \"select 1 from pg_roles where rolname='app'\"" | grep -q 1 ||
+      pg_su "psql -qc \"create role app login superuser password 'secret123'\""
+  elif have brew; then
+    brew services start postgresql@16 >/dev/null
+    psql -d postgres -qtAc "select 1 from pg_roles where rolname='app'" | grep -q 1 ||
+      psql -d postgres -qc "create role app login superuser password 'secret123'"
+  else
+    die "no local Postgres found; install PostgreSQL 16 or use each app's docker compose"
+  fi
+  pg_isready -q -h 127.0.0.1 -p 5432 || die "Postgres did not start"
+  ok "postgres on 127.0.0.1:5432 (role app / secret123, matching the templates' local env files)"
+fi
+
+if [[ ":$ORIG_PATH:" != *":$HOME/.local/bin:"* || ":$ORIG_PATH:" != *"/shims:"* ]]; then
+  warn "add this to your shell profile so the tools are on PATH:"
+  # shellcheck disable=SC2016 # printed literally for the user's profile
+  echo '  export PATH="$HOME/.local/bin:$PATH"; eval "$(rbenv init - bash)"' >&2
+fi
+ok "toolchain ready. Next: bin/new-app <rails|nextjs|flask> <app-name>"

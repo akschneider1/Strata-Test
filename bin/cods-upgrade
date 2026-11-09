@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Move every app to a different Colorado Design System release.
+#
+# Usage: bin/cods-upgrade <version>     e.g. bin/cods-upgrade 0.2.19
+#
+# 1. Downloads the release's SHA256SUMS and verifies both package archives.
+# 2. Reads the USWDS version that release depends on.
+# 3. Updates stack/versions.env (CODS_VERSION, USWDS_VERSION).
+# 4. Re-applies customizations to every Rails / Next.js app (bin/new-app --reapply),
+#    which rewrites package.json and refreshes package-lock.json.
+# Review the diff, run `bin/new-app --verify <app>` for each app, then commit.
+set -euo pipefail
+# shellcheck disable=SC1091 # shared helpers; checked separately
+source "$(dirname "$0")/../stack/lib/common.sh"
+setup_path
+cd "$REPO_ROOT"
+
+ver="${1:-}"
+[[ "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "usage: bin/cods-upgrade <version> (e.g. 0.2.19)"
+
+base="https://github.com/coloradodigitalservice/colorado-design-system/releases/download/v$ver"
+tmp="$(mktemp -d)"
+trap 'rm -r "$tmp"' EXIT
+
+log "Downloading CoDS v$ver release archives"
+curl -fsSL -o "$tmp/SHA256SUMS" "$base/SHA256SUMS" || die "release v$ver not found"
+for pkg in system tokens; do
+  f="coloradodigitalservice-colorado-design-$pkg-$ver.tgz"
+  curl -fsSL -o "$tmp/$f" "$base/$f"
+  (cd "$tmp" && grep " $f\$" SHA256SUMS | sha256sum -c --quiet -) || die "checksum mismatch for $f"
+done
+ok "checksums verified"
+
+uswds="$(tar -xOzf "$tmp/coloradodigitalservice-colorado-design-system-$ver.tgz" package/package.json |
+  node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).dependencies["@uswds/uswds"]||""))')"
+[[ -n "$uswds" ]] || die "could not read @uswds/uswds version from the release"
+ok "CoDS $ver depends on @uswds/uswds $uswds"
+
+perl -pi -e "s/^CODS_VERSION=.*/CODS_VERSION=$ver/; s/^USWDS_VERSION=.*/USWDS_VERSION=$uswds/" stack/versions.env
+ok "stack/versions.env updated"
+
+for app in $(app_names); do
+  case "$(app_type "$app")" in
+    rails | nextjs) bin/new-app --reapply "$app" ;;
+  esac
+done
+ok "Done. Review 'git diff', run 'bin/new-app --verify <app>' for each app, then commit."

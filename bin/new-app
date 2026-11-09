@@ -1,0 +1,322 @@
+#!/usr/bin/env bash
+# Create (or re-customize) an application from a Nava Strata template, wired
+# up to the Colorado Design System (CoDS) and, for Rails, the Strata SDK.
+#
+# Usage:
+#   bin/new-app <rails|nextjs|flask> <app-name> [--port N] [--skip-verify]
+#       Install the template + its infra, apply customizations, commit, and
+#       verify (install deps, run tests).
+#
+#   bin/new-app --reapply <app-name>
+#       Re-apply the customizations (idempotent). Run after
+#       `nava-platform app update . <app-name>` or after bumping
+#       stack/versions.env (bin/cods-upgrade does this for you).
+#
+#   bin/new-app --verify <app-name>
+#       Install dependencies and run the app's checks/tests.
+#
+# Requires the toolchain from bin/setup-env and a clean git working tree.
+set -euo pipefail
+# shellcheck disable=SC1091 # shared helpers; checked separately
+source "$(dirname "$0")/../stack/lib/common.sh"
+setup_path
+cd "$REPO_ROOT"
+
+usage() {
+  sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+  exit "${1:-0}"
+}
+
+# ---------------------------------------------------------------------------
+# Customizations (all idempotent)
+# ---------------------------------------------------------------------------
+
+customize_rails() {
+  local app="$1" db
+  db="$(db_ident "$app")"
+  log "$app: adding Strata SDK"
+  local gem_line="gem \"strata\", git: \"https://github.com/navapbc/strata-sdk-rails.git\", ref: \"$STRATA_SDK_REF\""
+  if grep -q '^gem "strata"' "$app/Gemfile"; then
+    perl -pi -e "s|^gem \"strata\".*|$gem_line|" "$app/Gemfile"
+  else
+    printf '\n# Strata SDK for government digital services (Rails engine)\n# https://github.com/navapbc/strata-sdk-rails (pinned in stack/versions.env)\n%s\n' \
+      "$gem_line" >>"$app/Gemfile"
+  fi
+
+  local stim="$app/app/javascript/controllers/index.js"
+  if ! grep -q 'registerControllers' "$stim"; then
+    cat >>"$stim" <<'JS'
+
+// Register the Strata SDK's Stimulus controllers (e.g. conditional fields).
+// The strata engine pins "strata" into the importmap automatically.
+import { registerControllers } from "strata"
+registerControllers(application)
+JS
+  fi
+
+  log "$app: switching USWDS styles to the Colorado Design System"
+  install -m 0755 stack/cods/cods-css.mjs "$app/bin/cods-css"
+  install -m 0644 stack/cods/_cods-compat.scss "$app/app/assets/stylesheets/_cods-compat.scss"
+
+  # CoDS ships compiled USWDS + Colorado overrides; keep uswds-core only for
+  # Sass functions/mixins used by the app's own styles.
+  local scss="$app/app/assets/stylesheets/application.scss"
+  perl -ni -e 'print unless /^\@forward "uswds";\s*$/' "$scss"
+  if ! grep -q '@forward "cods-compat";' "$scss"; then
+    perl -0pi -e 's/^(\@forward "uswds-theme";\n)/$1\@forward "cods-compat";\n/m' "$scss"
+    grep -q '@forward "cods-compat";' "$scss" || perl -0pi -e 's/\A/\@forward "cods-compat";\n/' "$scss"
+  fi
+
+  # Load the CoDS stylesheet before the app's in every layout that links it.
+  local layout
+  for layout in "$app"/app/views/layouts/*.html.erb; do
+    grep -q 'stylesheet_link_tag "application"' "$layout" || continue
+    grep -q 'stylesheet_link_tag "colorado-design-system"' "$layout" && continue
+    perl -pi -e 's/^(\s*)(<%= stylesheet_link_tag "application".*)$/$1<%= stylesheet_link_tag "colorado-design-system", "data-turbo-track": "reload" %>\n$1$2/' "$layout"
+  done
+
+  local manifest="$app/app/assets/config/manifest.js"
+  if ! grep -q 'colorado-design-system/dist/icons' "$manifest"; then
+    cat >>"$manifest" <<'JS'
+
+// Colorado Design System assets referenced by builds/colorado-design-system.css
+//= link_tree ../../../node_modules/@coloradodigitalservice/colorado-design-system/dist/icons
+//= link_tree ../../../node_modules/@coloradodigitalservice/colorado-design-system/dist/img
+//= link_tree ../../../node_modules/@coloradodigitalservice/colorado-design-system/dist/fonts
+JS
+  fi
+
+  # Give each app its own test database so several apps can share a server.
+  perl -pi -e "s/^(\s*database:\s*)app_rails_test\s*$/\${1}${db}_test\n/" "$app/config/database.yml"
+
+  node stack/lib/cods-package-json.mjs "$app/package.json" \
+    --cods "$CODS_VERSION" --uswds "$USWDS_VERSION" --sass "$SASS_RANGE" --rails
+
+  customize_rails_infra "$app"
+
+  log "$app: updating lockfiles"
+  (cd "$app" && npm install --no-audit --no-fund >/dev/null)
+  (cd "$app" && bundle lock >/dev/null)
+}
+
+# Infra settings the Rails template's Deployment.md asks for that do not
+# depend on the environment. Domain/HTTPS are set per environment later.
+customize_rails_infra() {
+  local cfg="infra/$1/app-config"
+  [[ -d "$cfg" ]] || return 0
+  perl -pi -e 's/^(\s*has_external_non_aws_service\s*=\s*)false/${1}true/' "$cfg/main.tf"
+  perl -pi -e 's/^(\s*enable_identity_provider\s*=\s*)false/${1}true/' "$cfg/main.tf"
+  perl -pi -e 's|^(\s*ephemeral_write_volumes\s*=\s*)\[\]|${1}["/rails/tmp"]|' "$cfg/env-config/service.tf"
+  local envf="$cfg/env-config/environment_variables.tf"
+  if ! grep -q 'DB_AUTH_METHOD' "$envf"; then
+    perl -0pi -e 's/(default_extra_environment_variables = \{\n)/$1    DB_AUTH_METHOD = "aws_iam"\n/' "$envf"
+  fi
+  if ! grep -q 'SECRET_KEY_BASE' "$envf"; then
+    perl -0pi -e 's|(\n  secrets = \{\n)|$1    SECRET_KEY_BASE = {\n      manage_method     = "generated"\n      secret_store_name = "/\${var.app_name}-\${var.environment}/service/rails-secret-key-base"\n    }\n\n|' "$envf"
+  fi
+}
+
+customize_nextjs() {
+  local app="$1"
+  log "$app: switching USWDS styles to the Colorado Design System"
+  install -m 0644 stack/cods/_cods-compat.scss "$app/src/styles/_cods-compat.scss"
+
+  local scss="$app/src/styles/styles.scss"
+  perl -ni -e 'print unless /^\@forward "uswds";\s*$/' "$scss"
+  if ! grep -q '@forward "cods-compat";' "$scss"; then
+    perl -0pi -e 's/^(\@forward "uswds-theme";\n)/$1\@forward "cods-compat";\n/m' "$scss"
+    grep -q '@forward "cods-compat";' "$scss" || perl -0pi -e 's/\A/\@forward "cods-compat";\n/' "$scss"
+  fi
+
+  # Import the compiled CoDS stylesheet ahead of the app's global styles.
+  # Next.js/webpack resolves its relative icon/font/image URLs itself.
+  local f
+  for f in "$app/src/app/[locale]/layout.tsx" "$app/.storybook/preview.tsx"; do
+    [[ -f "$f" ]] || continue
+    grep -q 'colorado-design-system/styles.css' "$f" && continue
+    perl -pi -e 's#^(import "(?:src|\.\./src)/styles/styles\.scss";)$#import "\@coloradodigitalservice/colorado-design-system/styles.css";\n$1#' "$f"
+    grep -q 'colorado-design-system/styles.css' "$f" || warn "$f: could not find the styles.scss import; add the CoDS import manually"
+  done
+
+  node stack/lib/cods-package-json.mjs "$app/package.json" \
+    --cods "$CODS_VERSION" --uswds "$USWDS_VERSION" --sass "$SASS_RANGE"
+
+  log "$app: updating lockfile"
+  (cd "$app" && npm install --no-audit --no-fund >/dev/null)
+}
+
+customize_flask() {
+  # API-only template: no UI to restyle and no Strata SDK (Rails-only).
+  # Installed exactly as Nava ships it.
+  :
+}
+
+# ---------------------------------------------------------------------------
+# Verification
+# ---------------------------------------------------------------------------
+
+require_postgres() {
+  if have pg_isready && pg_isready -q -h "${DB_HOST:-127.0.0.1}" -p "${DB_PORT:-5432}"; then
+    return
+  fi
+  die "Postgres is not reachable on ${DB_HOST:-127.0.0.1}:${DB_PORT:-5432}. Run 'bin/setup-env --postgres' (native) or start the app's docker compose database."
+}
+
+verify_rails() {
+  local app="$1" db
+  db="$(db_ident "$app")"
+  cd "$REPO_ROOT/$app"
+  local want
+  want="$(cat .ruby-version)"
+  [[ "$(ruby -e 'print RUBY_VERSION')" == "$want" ]] || die "$app needs Ruby $want; run bin/setup-env"
+  if [[ ! -f .env ]]; then
+    sed -e "s/^DB_NAME=.*/DB_NAME=${db}_development/" local.env.example >.env
+    ok "$app: created .env from local.env.example (DB_NAME=${db}_development)"
+  fi
+  require_postgres
+  log "$app: bundle install / npm install"
+  bundle install --quiet
+  npm install --no-audit --no-fund >/dev/null
+  log "$app: building CSS and preparing databases"
+  npm run build:css >/dev/null
+  bin/rails db:prepare >/dev/null
+  # shellcheck disable=SC2209 # env assignment for one command
+  RAILS_ENV=test bin/rails db:prepare >/dev/null
+  log "$app: rspec"
+  bundle exec rspec
+  log "$app: production asset precompile smoke test"
+  RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile >/dev/null
+  local css
+  css="$(find public/assets -maxdepth 1 -name 'colorado-design-system-*.css' | head -1)"
+  [[ -n "$css" ]] || die "$app: CoDS stylesheet missing from precompiled assets"
+  if grep -o 'url([^)]*)' "$css" | grep -v -e '^url()$' -e '/assets/' -e 'data:' | grep -q .; then
+    die "$app: unresolved asset URLs in $css"
+  fi
+  RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bin/rails assets:clobber >/dev/null
+  ok "$app: verified"
+}
+
+verify_nextjs() {
+  local app="$1"
+  cd "$REPO_ROOT/$app"
+  log "$app: npm install"
+  npm install --no-audit --no-fund >/dev/null
+  log "$app: lint, typecheck, test, build"
+  npm run lint
+  npm run ts:check
+  npm test -- --silent
+  npm run build
+  ok "$app: verified"
+}
+
+verify_flask() {
+  local app="$1" db
+  db="$(db_ident "$app")"
+  cd "$REPO_ROOT/$app"
+  log "$app: poetry install"
+  poetry install --no-interaction --quiet
+  require_postgres
+  export PY_RUN_APPROACH=local DB_NAME="$db"
+  if ! PGPASSWORD=secret123 psql -h "${DB_HOST:-127.0.0.1}" -U app -d postgres -tAc "select 1 from pg_database where datname='$db'" | grep -q 1; then
+    PGPASSWORD=secret123 createdb -h "${DB_HOST:-127.0.0.1}" -U app "$db"
+  fi
+  log "$app: migrate, lint, test"
+  make db-migrate >/dev/null
+  make lint
+  make test
+  ok "$app: verified"
+}
+
+# ---------------------------------------------------------------------------
+
+next_port() {
+  local max
+  max="$(cat .template-application-*/*.yml 2>/dev/null | sed -n 's/^app_local_port: *//p' | sort -n | tail -1)"
+  echo $((${max:-2900} + 100))
+}
+
+template_version() {
+  case "$1" in
+    rails) echo "$RAILS_TEMPLATE_VERSION" ;;
+    nextjs) echo "$NEXTJS_TEMPLATE_VERSION" ;;
+    flask) echo "$FLASK_TEMPLATE_VERSION" ;;
+  esac
+}
+
+commit_if_changed() {
+  git add -A
+  if ! git diff --cached --quiet; then
+    git commit -q -m "$1"
+    ok "committed: $1"
+  fi
+}
+
+create_app() {
+  local type="$1" app="$2" port="$3" skip_verify="$4"
+  [[ "$type" =~ ^(rails|nextjs|flask)$ ]] || die "unknown template '$type' (use rails, nextjs or flask)"
+  [[ "$app" =~ ^[a-z0-9][a-z0-9_-]*$ ]] || die "app name must be lower case letters, digits, dashes, underscores"
+  [[ ! -e "$app" ]] || die "'$app' already exists"
+  have nava-platform || die "nava-platform not found; run bin/setup-env"
+  [[ -z "$(git status --porcelain)" ]] || die "git working tree is not clean; commit or stash first"
+  [[ -n "$port" ]] || port="$(next_port)"
+
+  local ver extra=()
+  ver="$(template_version "$type")"
+  [[ "$type" == nextjs ]] && extra=(--data app_enable_storybook_cd=false)
+
+  log "Installing template-application-$type@$ver as '$app' (port $port)"
+  nava-platform app install --commit \
+    --template-uri "https://github.com/navapbc/template-application-$type" \
+    --version "$ver" --data "app_local_port=$port" ${extra[@]+"${extra[@]}"} . "$app" </dev/null
+
+  log "Adding infra for '$app' (template-infra app layer)"
+  nava-platform infra add-app --commit \
+    --data "app_local_port=$port" --data app_has_dev_env_setup=false . "$app" </dev/null
+
+  "customize_$type" "$app"
+  case "$type" in
+    rails) commit_if_changed "$app: use Colorado Design System and Strata SDK" ;;
+    nextjs) commit_if_changed "$app: use Colorado Design System" ;;
+  esac
+
+  if [[ "$skip_verify" == 1 ]]; then
+    warn "skipping verification; run 'bin/new-app --verify $app' later"
+  else
+    "verify_$type" "$app"
+  fi
+  ok "'$app' is ready. See $app/README.md and docs/$app/."
+}
+
+main() {
+  [[ $# -gt 0 ]] || usage 1
+  case "$1" in
+    -h | --help) usage ;;
+    --reapply | --verify)
+      local mode="$1" app="${2:-}" type
+      [[ -n "$app" ]] || usage 1
+      type="$(app_type "$app")"
+      [[ -n "$type" ]] || die "'$app' was not created from a Strata application template"
+      if [[ "$mode" == --reapply ]]; then
+        "customize_$type" "$app"
+        ok "$app: customizations applied (review and commit the changes)"
+      else
+        "verify_$type" "$app"
+      fi
+      ;;
+    *)
+      local type="$1" app="${2:-}" port="" skip=0
+      [[ -n "$app" ]] || usage 1
+      shift 2
+      while [[ $# -gt 0 ]]; do
+        case "$1" in
+          --port) port="$2"; shift 2 ;;
+          --skip-verify) skip=1; shift ;;
+          *) die "unknown option $1" ;;
+        esac
+      done
+      create_app "$type" "$app" "$port" "$skip"
+      ;;
+  esac
+}
+
+main "$@"
