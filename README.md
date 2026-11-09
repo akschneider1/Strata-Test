@@ -105,13 +105,90 @@ Everything that is pinned lives in [`stack/versions.env`](stack/versions.env).
   `bin/new-app --reapply <rails-app>`. That updates the Gemfile and
   `Gemfile.lock`.
 
-## Deploying
+## CI/CD
 
-Follow `infra/README.md` ("First time initialization") to set up AWS
-accounts and environments. For Rails apps, `bin/new-app` has already applied the
-environment-independent settings from the Rails template's deployment guide:
-NAT gateway, Cognito, `/rails/tmp` volume, `SECRET_KEY_BASE`, and RDS IAM auth.
-Set the domain and HTTPS per environment in `infra/<app>/app-config/<env>.tf`.
+All pipelines are GitHub Actions in `.github/workflows/`.
+
+### What runs on every pull request
+
+| Workflow | Runs when | Checks |
+| --- | --- | --- |
+| `ci-stack.yml` (CI Stack) | `bin/new-app`, other repo scripts, or `stack/` change | Generates a Rails, a Next.js and a Flask app with `bin/new-app` against a Postgres service, runs each app's lint and tests, then confirms `--reapply` changes nothing |
+| `ci-infra.yml` | `bin/`, `infra/` or workflows change | shellcheck, actionlint, terraform fmt/validate, checkov, tfsec |
+| `ci-docs.yml` | always | Markdown link check |
+| `claude-code-review.yml` (Claude Code Review) | every non-draft PR, on each push | Claude reviews the diff using the "Code review" rules in [`CLAUDE.md`](CLAUDE.md) and posts inline comments. It's advisory and never blocks a merge. |
+| `claude.yml` | a comment mentioning `@claude` | Claude answers questions or pushes requested changes (only users with write access can trigger it) |
+
+Each app created with `bin/new-app` adds its own workflows through the Nava
+templates:
+- `ci-<app>.yml`: lint and test on changes under `<app>/`.
+- `ci-<app>-vulnerability-scans.yml`: container scanning.
+- `ci-<app>-infra-service.yml`, `ci-<app>-pr-environment-*.yml` and `cd-<app>.yml`: these need AWS (see below).
+
+### Turning on Claude Code Review (one-time, repo admin)
+
+1. Install the Claude GitHub App on this repository:
+   <https://github.com/apps/claude>.
+2. Create a token with your Claude subscription. Reviews count against that
+   plan's usage.
+
+   ```bash
+   claude setup-token
+   ```
+
+3. Save it as the repository secret `CLAUDE_CODE_OAUTH_TOKEN`
+   (**Settings → Secrets and variables → Actions → New repository secret**).
+
+Until the secret exists, both Claude workflows skip with a notice instead of
+failing. Fork PRs never get secrets, so they are skipped too. To change what
+the reviewer looks for, edit the "Code review" section of `CLAUDE.md`.
+
+### Turning on CD (once AWS is ready)
+
+The deploy workflows are installed but dormant: each `cd-<app>.yml` only runs
+manually until its app has a `dev` environment. To switch them on:
+
+1. Follow [`infra/README.md`](infra/README.md) → "Getting started":
+   - set up the AWS account (this creates the Terraform backend and the GitHub
+     Actions OIDC role named in `infra/project-config/main.tf`);
+   - set up the network;
+   - set up the app build repository;
+   - set up the database;
+   - set up the `dev` application environment.
+
+   The region (`us-east-1`) and role come from `infra/project-config/main.tf`,
+   so workflows need no edits.
+2. Check that GitHub can reach AWS. Run the **Check CI/CD AWS authentication**
+   workflow from the Actions tab, or:
+
+   ```bash
+   make infra-check-github-actions-auth
+   ```
+
+3. Enable push-to-main deploys, PR environments and the infra service checks
+   for each app. Then review the diff and commit.
+
+   ```bash
+   nava-platform infra update-app --answers-only --data app_has_dev_env_setup=true . <app>
+   ```
+
+After that, merging to `main` builds, scans and deploys the app to `dev`.
+Staging and production are deployed from the same `cd-<app>.yml` with
+`workflow_dispatch`. See [`docs/releases.md`](docs/releases.md).
+
+For Rails apps, `bin/new-app` has already applied the environment-independent
+settings from the Rails template's deployment guide: NAT gateway, Cognito,
+`/rails/tmp` volume, `SECRET_KEY_BASE`, and RDS IAM auth. Set the domain and
+HTTPS per environment in `infra/<app>/app-config/<env>.tf`.
+
+### Recommended branch protection for `main`
+
+Under **Settings → Branches → Add rule**:
+- Require a pull request before merging.
+- Require status checks to pass: the `CI Stack`, `CI Infra Checks` and docs
+  checks, plus each app's `CI <app>` once it exists.
+
+Don't make `Claude Code Review` a required check. It reviews but never blocks.
 
 ## Repo layout
 
