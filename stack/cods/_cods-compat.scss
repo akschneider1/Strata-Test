@@ -23,21 +23,21 @@
     background-color: transparent;
   }
 
-  // USWDS "global link styles" replacement: color unclassed links with the
-  // CoDS link tokens. :where() keeps specificity at zero.
-  :where(a:not([class])) {
+  // USWDS "global link styles" replacement: color links with the CoDS link
+  // tokens. :where() keeps specificity at zero, so any component rule wins.
+  :where(a) {
     color: var(--cods-color-text-action-link);
   }
 
-  :where(a:not([class])):visited {
+  :where(a):visited {
     color: var(--cods-color-text-action-link-visited);
   }
 
-  :where(a:not([class])):hover {
+  :where(a):hover {
     color: var(--cods-color-text-action-link-hover);
   }
 
-  :where(a:not([class])):active {
+  :where(a):active {
     color: var(--cods-color-text-action-link-active);
   }
 }

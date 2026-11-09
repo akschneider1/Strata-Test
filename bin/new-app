@@ -215,8 +215,17 @@ verify_flask() {
   local app="$1" db
   db="$(db_ident "$app")"
   cd "$REPO_ROOT/$app"
+  # Every Flask app shares the template's pyproject name, so keep each app's
+  # virtualenv in its own (gitignored) .venv instead of Poetry's shared cache.
+  export POETRY_VIRTUALENVS_IN_PROJECT=true
   log "$app: poetry install"
   poetry install --no-interaction --quiet
+  # Native mode: load the template's local settings, but give each app its
+  # own database on the shared local server.
+  set -a
+  # shellcheck disable=SC1091
+  source ./local.env
+  set +a
   require_postgres
   export PY_RUN_APPROACH=local DB_NAME="$db"
   if ! PGPASSWORD=secret123 psql -h "${DB_HOST:-127.0.0.1}" -U app -d postgres -tAc "select 1 from pg_database where datname='$db'" | grep -q 1; then
@@ -285,6 +294,9 @@ create_app() {
     warn "skipping verification; run 'bin/new-app --verify $app' later"
   else
     "verify_$type" "$app"
+    cd "$REPO_ROOT"
+    # First builds can regenerate tracked files (e.g. Next.js next-env.d.ts).
+    commit_if_changed "$app: update generated files after first build"
   fi
   ok "'$app' is ready. See $app/README.md and docs/$app/."
 }
