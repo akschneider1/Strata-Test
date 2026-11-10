@@ -6,14 +6,15 @@ current tax.colorado.gov. Nothing is taken from the look of Revenue Online.
 
 ## What we compared, and how
 
-- We read the published HTML and stylesheet of tax.colorado.gov (the home
-  page and the Individual Income Tax page) and took its fonts, colors,
-  sizes and page structure from them.
-- **We have not seen it in a browser.** The site's bot check blocked an
-  automated browser and we did not work around it. So there are no
-  side-by-side screenshots, and nothing here has been checked by eye
-  against the live site. A person should do that before this is called
-  done.
+- We saved the HTML, stylesheets, fonts and images that tax.colorado.gov
+  serves for its home page and its Individual Income Tax page, and opened
+  that saved copy in a browser at phone and desktop width. The values below
+  were measured from it, and the layout was compared by eye.
+- **We have not seen the live site in a browser.** Its bot check blocks
+  automated browsers and we did not disguise ours to get past it. The saved
+  copy ran with scripts off, so anything the site does with scripts (menus
+  opening, search) was not seen. A person should still look at the two side
+  by side.
 - The prototype's values come from its own stylesheet and from screenshots
   of every taxpayer page at phone, tablet and desktop width.
 
@@ -36,9 +37,11 @@ Most of the gap was the prototype not using what CoDS already had.
 | Title band | Dark blue `#001049`, white title, breadcrumb above it | The same, using the CoDS hero |
 | Buttons | `#001970`, white bold text, 4px corners | The same |
 | Outline buttons | 2px `#001970` outline, clear background | The same |
-| Links in text | `#001970`, underlined | `#001970`, underlined |
+| Links in text | `#173bb3`, underlined | `#173bb3`, underlined |
+| Text boxes | 1px `#565c65` border, 4px corners (the search box) | 1px `#565c65` border, 4px corners |
+| Breadcrumb on phones | A back arrow and the page above | The same |
 | Header | White, soft shadow underneath | The same |
-| Page width | 75rem | 75rem |
+| Page width | 90rem (1440px) | 90rem |
 | Footer | "Return to top", link columns, a line of notices | The same layout |
 | Tags | 2px corners | 2px corners |
 
@@ -48,9 +51,8 @@ Most of the gap was the prototype not using what CoDS already had.
 | --- | --- | --- | --- |
 | Logo | Department of Revenue logo | The service name in text | The prototype is not a Department service. Using the logo would make it look like one. If the Department agrees, it is a small change. |
 | Top banner | Department notices (office closures) | "Prototype: this is a demonstration" | It must be clear this can't file a real return. |
-| Text boxes and dropdowns | Square corners (plain USWDS) | 4px corners (the CoDS field) | The site has almost no forms beyond search. CoDS is the State's system for forms, so the prototype follows it. Switching to square is a one-line change. |
 | Cards | 8px corners, heavier shadow, no border | 4px corners, lighter shadow, thin border (the CoDS card) | CoDS card. Close, not identical. |
-| Section headings | 2.03rem to 2.54rem | 28px to 32px (one step smaller) | The prototype's pages are forms and short lists. The site's size is tuned for landing pages and crowded a phone screen. |
+| Section headings | 32px on phones, 40px on desktop | 28px and 32px (one step smaller) | The prototype's pages are forms and short lists. The site's size is tuned for landing pages and crowded a phone screen. |
 | Navigation | Menus for individuals, businesses, forms | Language and log out only | The prototype does one thing. |
 | Search, language menu with ten languages | Yes | No search; English and Spanish | Not built. |
 | Footer links | The Department's full set | Four links to tax.colorado.gov and the About page | The rest would point to pages about services the prototype doesn't offer. |
@@ -92,7 +94,6 @@ USWDS field markup, a step indicator, a header and a footer.
 
 ## Still to do
 
-- Look at the two side by side in a browser, on a phone and a desktop.
+- Look at the live site and the prototype side by side in a browser, on a
+  phone and a desktop.
 - Ask the Department whether its logo may be used.
-- Ask the CoDS team whether fields in State services should be square, as
-  on tax.colorado.gov, or rounded, as in CoDS.

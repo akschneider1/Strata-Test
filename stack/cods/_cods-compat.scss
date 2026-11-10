@@ -272,10 +272,10 @@
     font-weight: var(--cods-font-weight-semibold);
   }
 
-  // Page width: 75rem, as on the State's site.
+  // Page width: 90rem (1440px), as on the State's site.
   .co-site .grid-container,
   .co-site .usa-header .usa-nav-container {
-    max-width: 75rem;
+    max-width: 90rem;
   }
 
   // Type scale: the page title in Museo Slab, other headings in Open Sans
@@ -343,14 +343,10 @@
     line-height: 1.25;
   }
 
-  // Links: the State's navy, underlined.
+  // Links in text are underlined, in the CoDS link color (the State's site
+  // uses the same blue).
   .co-site :where(main a:not(.usa-button)) {
-    color: var(--cods-color-text-action-link-standalone);
     text-decoration: underline;
-  }
-
-  .co-site :where(main a:not(.usa-button)):hover {
-    color: var(--cods-color-text-action-link-standalone-hover);
   }
 
   // Footer, after the State's: "Return to top", link columns, then a line
@@ -391,7 +387,8 @@
 
   .co-footer__primary {
     padding-block: var(--cods-space-2xl);
-    background-color: var(--cods-color-co-gray-5);
+    // The State's footer color. CoDS has no token this light.
+    background-color: #fbfcfd;
   }
 
   .co-footer__columns {
@@ -432,8 +429,7 @@
 
   .co-footer__notices {
     padding-block: var(--cods-space-md);
-    background-color: var(--cods-color-white);
-    border-top: 1px solid var(--cods-color-co-gray-10);
+    background-color: var(--cods-color-co-gray-5);
     font-size: 0.89rem;
     line-height: 1.43;
   }
@@ -452,7 +448,7 @@
 // The CoDS hero centers its content at 1280px. Line it up with the page
 // content instead. Not in a layer, so it wins over the CoDS component rule.
 .co-site .cods-hero__content {
-  max-width: 75rem;
+  max-width: 90rem;
   padding-inline: 1rem;
 }
 

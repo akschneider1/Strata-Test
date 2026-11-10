@@ -6,7 +6,7 @@
         <ol class="cods-hero__breadcrumb-list">
           <% hero[:crumbs].each_with_index do |(name, path), index| %>
             <li class="cods-hero__breadcrumb-item">
-              <%= link_to path do %><% if index == hero[:crumbs].size - 1 %><span class="cods-hero__breadcrumb-previous"><%= t("breadcrumbs.previous") %> </span><% end %><%= name %><% end %>
+              <%= link_to name, path %>
             </li>
           <% end %>
           <li class="cods-hero__breadcrumb-item" aria-current="page"><%= hero[:title] %></li>
