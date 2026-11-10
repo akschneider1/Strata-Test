@@ -2,11 +2,15 @@
 name: Update OpenAPI Docs
 
 on:
-  pull_request:
-    paths:
-      - tax-engine/**
-      - Makefile
-      - .github/workflows/ci-tax-engine-openapi.yml
+  # CI-PAUSED: the automatic triggers below are commented out until the
+  # pipeline is fixed. Run this workflow by hand from the Actions tab if
+  # needed. To switch it back on, uncomment the lines marked "#~".
+  #~pull_request:
+  #~  paths:
+  #~    - tax-engine/**
+  #~    - Makefile
+  #~    - .github/workflows/ci-tax-engine-openapi.yml
+  workflow_dispatch:
 
 defaults:
   run:

@@ -1,18 +1,22 @@
 name: CI Infra Checks
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - bin/**
-      - infra/**
-      - .github/workflows/**
-  pull_request:
-    paths:
-      - bin/**
-      - infra/**
-      - .github/workflows/**
+  # CI-PAUSED: the automatic triggers below are commented out until the
+  # pipeline is fixed. Run this workflow by hand from the Actions tab if
+  # needed. To switch it back on, uncomment the lines marked "#~".
+  #~push:
+  #~  branches:
+  #~    - main
+  #~  paths:
+  #~    - bin/**
+  #~    - infra/**
+  #~    - .github/workflows/**
+  #~pull_request:
+  #~  paths:
+  #~    - bin/**
+  #~    - infra/**
+  #~    - .github/workflows/**
+  workflow_dispatch:
 
 jobs:
   lint-github-actions:

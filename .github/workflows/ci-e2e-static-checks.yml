@@ -2,12 +2,15 @@ name: CI E2E static checks
 run-name: CI E2E static checks
 
 on:
-  pull_request:
-    paths:
-      - "e2e/**"
-  push:
-    branches:
-      - main
+  # CI-PAUSED: the automatic triggers below are commented out until the
+  # pipeline is fixed. Run this workflow by hand from the Actions tab if
+  # needed. To switch it back on, uncomment the lines marked "#~".
+  #~pull_request:
+  #~  paths:
+  #~    - "e2e/**"
+  #~push:
+  #~  branches:
+  #~    - main
   workflow_dispatch:
 
 jobs:

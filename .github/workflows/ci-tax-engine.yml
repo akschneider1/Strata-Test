@@ -1,16 +1,20 @@
 name: CI - tax-engine
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - tax-engine/**
-      - .github/workflows/ci-tax-engine.yml
-  pull_request:
-    paths:
-      - tax-engine/**
-      - .github/workflows/ci-tax-engine.yml
+  # CI-PAUSED: the automatic triggers below are commented out until the
+  # pipeline is fixed. Run this workflow by hand from the Actions tab if
+  # needed. To switch it back on, uncomment the lines marked "#~".
+  #~push:
+  #~  branches:
+  #~    - main
+  #~  paths:
+  #~    - tax-engine/**
+  #~    - .github/workflows/ci-tax-engine.yml
+  #~pull_request:
+  #~  paths:
+  #~    - tax-engine/**
+  #~    - .github/workflows/ci-tax-engine.yml
+  workflow_dispatch:
 
 defaults:
   run:

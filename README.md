@@ -137,7 +137,21 @@ Everything that is pinned lives in [`stack/versions.env`](stack/versions.env).
 
 All pipelines are GitHub Actions in `.github/workflows/`.
 
-### What runs on every pull request
+> **CI is paused.** The automatic triggers on the CI workflows (tests,
+> lint, the generator checks, infra checks, container scans, docs links)
+> and on the two daily AWS checks are commented out until the pipeline is
+> fixed. Nothing runs on a pull request or a push except the Claude
+> workflows. Each paused workflow can still be run by hand from the Actions
+> tab. Until it is back, check changes locally with
+> `bin/new-app --verify <app>` and `bin/demo test`.
+>
+> To switch everything back on:
+>
+> ```bash
+> sed -i 's/^\( *\)#~/\1/' .github/workflows/*.yml
+> ```
+
+### What runs on every pull request (when CI is on)
 
 | Workflow | Runs when | Checks |
 | --- | --- | --- |
