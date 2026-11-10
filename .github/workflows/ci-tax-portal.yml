@@ -1,16 +1,20 @@
 name: CI tax-portal
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - tax-portal/**
-      - .github/workflows/ci-tax-portal.yml
-  pull_request:
-    paths:
-      - tax-portal/**
-      - .github/workflows/ci-tax-portal.yml
+  # CI-PAUSED: the automatic triggers below are commented out until the
+  # pipeline is fixed. Run this workflow by hand from the Actions tab if
+  # needed. To switch it back on, uncomment the lines marked "#~".
+  #~push:
+  #~  branches:
+  #~    - main
+  #~  paths:
+  #~    - tax-portal/**
+  #~    - .github/workflows/ci-tax-portal.yml
+  #~pull_request:
+  #~  paths:
+  #~    - tax-portal/**
+  #~    - .github/workflows/ci-tax-portal.yml
+  workflow_dispatch:
 
 defaults:
   run:

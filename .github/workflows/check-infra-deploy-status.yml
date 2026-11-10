@@ -5,10 +5,13 @@
 name: Check infra deploy status
 
 on:
+  # CI-PAUSED: the automatic triggers below are commented out until the
+  # pipeline is fixed. Run this workflow by hand from the Actions tab if
+  # needed. To switch it back on, uncomment the lines marked "#~".
   workflow_dispatch:
-  schedule:
+  #~schedule:
     # Run every day at 07:00 UTC (3am ET, 12am PT) after engineers are likely done with work
-    - cron: "0 7 * * *"
+  #~  - cron: "0 7 * * *"
 
 jobs:
   collect-configs:

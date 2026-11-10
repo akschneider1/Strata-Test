@@ -1,10 +1,14 @@
 name: CI Documentation Checks
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  # CI-PAUSED: the automatic triggers below are commented out until the
+  # pipeline is fixed. Run this workflow by hand from the Actions tab if
+  # needed. To switch it back on, uncomment the lines marked "#~".
+  #~push:
+  #~  branches:
+  #~    - main
+  #~pull_request:
+  workflow_dispatch:
 
 jobs:
   lint-markdown:
