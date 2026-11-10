@@ -1,5 +1,6 @@
 import logging
 import os
+import threading
 from typing import Optional
 
 from apiflask import APIFlask
@@ -12,8 +13,11 @@ import src.logging
 import src.logging.flask_logger as flask_logger
 from src.api.healthcheck import healthcheck_blueprint
 from src.api.schemas import response_schema
+from src.api.tax import tax_blueprint
+from src.api.tax.tax_routes import CALCULATOR_KEY
 from src.api.users import user_blueprint
 from src.auth.api_key_auth import User, get_app_security_scheme
+from src.tax.calculator import PolicyEngineCalculator
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +33,7 @@ def create_app() -> APIFlask:
 
     configure_app(app)
     register_blueprints(app)
+    register_tax_calculator(app)
     register_index(app)
 
     return app
@@ -53,8 +58,8 @@ def configure_app(app: APIFlask) -> None:
 
     # Set various general OpenAPI config values
     app.info = {
-        "title": "Template Application Flask",
-        "description": "Template API for a Flask Application",
+        "title": "Colorado Tax Engine (prototype)",
+        "description": "Calculates Colorado individual income tax returns using PolicyEngine US. Prototype: not for filing.",
         "contact": {
             "name": "Nava PBC Engineering",
             "url": "https://www.navapbc.com",
@@ -71,6 +76,20 @@ def configure_app(app: APIFlask) -> None:
 def register_blueprints(app: APIFlask) -> None:
     app.register_blueprint(healthcheck_blueprint)
     app.register_blueprint(user_blueprint)
+    app.register_blueprint(tax_blueprint)
+
+
+def register_tax_calculator(app: APIFlask) -> None:
+    """Attach the tax rules engine to the app.
+
+    PolicyEngine takes tens of seconds to import, so when TAX_ENGINE_PRELOAD
+    is set we load it in the background at startup instead of making the
+    first taxpayer wait. GET /v1/engine reports when it is ready.
+    """
+    calculator = PolicyEngineCalculator()
+    app.extensions[CALCULATOR_KEY] = calculator
+    if os.getenv("TAX_ENGINE_PRELOAD", "").lower() in ("1", "true"):
+        threading.Thread(target=calculator.load, name="tax-engine-preload", daemon=True).start()
 
 
 def get_project_root_dir() -> str:

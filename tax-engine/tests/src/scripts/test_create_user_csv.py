@@ -4,7 +4,6 @@ import re
 
 import flask.testing
 import pytest
-from pytest_lazyfixture import lazy_fixture
 from smart_open import open as smart_open
 
 import src.adapters.db as db
@@ -35,17 +34,21 @@ def tmp_s3_folder(mock_s3_bucket):
 
 
 @pytest.mark.parametrize(
-    "dir",
+    "dir_fixture",
     [
-        pytest.param(lazy_fixture("tmp_s3_folder"), id="write-to-s3"),
-        pytest.param(lazy_fixture("tmp_path"), id="write-to-local"),
+        pytest.param("tmp_s3_folder", id="write-to-s3"),
+        pytest.param("tmp_path", id="write-to-local"),
     ],
 )
 def test_create_user_csv(
     prepopulate_user_table: list[User],
     cli_runner: flask.testing.FlaskCliRunner,
-    dir: str,
+    dir_fixture: str,
+    request: pytest.FixtureRequest,
 ):
+    # pytest-lazy-fixture does not support pytest 8 (required by policyengine-core),
+    # so resolve the parametrized fixture by name instead.
+    dir = str(request.getfixturevalue(dir_fixture))
     cli_runner.invoke(args=["user", "create-csv", "--dir", dir, "--filename", "test.csv"])
     output = smart_open(path.join(dir, "test.csv")).read()
     expected_output = open(

@@ -22,6 +22,7 @@ marshmallow = "^3.20.1"
 gunicorn = "^23.0.0"
 psycopg = {extras = ["binary"], version = "^3.1.10"}
 pydantic-settings = "^2.0.3"
+policyengine-us = "2.116.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.9.1"
@@ -33,9 +34,8 @@ coverage = "^7.3.2"
 Faker = "^19.8.0"
 factory-boy = "^3.3.0"
 bandit = "^1.7.5"
-pytest = "^7.4.2"
+pytest = "^8.3"
 pytest-watch = "^4.2.0"
-pytest-lazy-fixture = "^0.6.3"
 types-pyyaml = "^6.0.12.11"
 setuptools = ">=70.0.0"
 debugpy = "^1.8.1"
