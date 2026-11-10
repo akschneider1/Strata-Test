@@ -4,6 +4,8 @@ class ApplicationController < ActionController::Base
   include Pundit::Authorization
 
   around_action :switch_locale
+  before_action :keep_demo_space
+  before_action :back_to_demo_start
   after_action :verify_authorized, except: :index
   after_action :verify_policy_scoped, only: :index
 
@@ -30,6 +32,27 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  # A demo person belongs to one visitor's copy of the demo. Note that the
+  # copy is in use. If it has been discarded, or belongs to another visitor,
+  # go back to the start.
+  def keep_demo_space
+    return unless current_user&.demo_space_id
+    return if DemoMode.space_for(cookies)&.id == current_user.demo_space_id
+
+    sign_out(current_user)
+    redirect_to root_path
+  end
+
+  # A demo visitor whose session has ended would land on the sign-in form,
+  # which they can't use. Send them to the demo's start page instead.
+  def back_to_demo_start
+    return unless devise_controller? && controller_name == "sessions" && action_name == "new"
+    return unless DemoMode.enabled? && cookies.signed[DemoMode::COOKIE].present?
+
+    flash.discard
+    redirect_to root_path
+  end
 
   # Send people to the part of the site their role can use instead of
   # showing an error page.

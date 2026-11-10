@@ -22,11 +22,5 @@ else
   puts "🌲 No seeding necessary"
 end
 
-# Demo people for the tax prototype (see app/services/demo_data.rb).
-# Only on request (bin/demo sets SEED_DEMO_DATA): loading them wipes existing
-# tax data and submits returns, which needs the tax engine to be running
-# (or TAX_ENGINE_ADAPTER=fake).
-if ENV["SEED_DEMO_DATA"] == "true"
-  DemoData.load!
-  puts "Loaded demo data: #{User.where(provider: 'demo').count} people, #{TaxReturn.count} returns"
-end
+# The demo people are not seeded. Each visitor gets their own copy the first
+# time they choose a person on the home page (see DemoSpace and DemoData).

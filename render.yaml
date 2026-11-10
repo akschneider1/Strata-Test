@@ -53,7 +53,6 @@ services:
     healthCheckPath: /health
     dockerCommand: >-
       sh -c "./bin/rails db:prepare &&
-      ./bin/rails runner 'DemoData.load! if User.where(provider: \"demo\").none?' &&
       exec ./bin/rails server -b 0.0.0.0"
     envVars:
       - key: RAILS_ENV

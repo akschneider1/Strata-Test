@@ -1,7 +1,7 @@
 <% content_for :title, t(".title") %>
 <%= content_for :content_col_class, "desktop:grid-col-10" %>
-<%# While the demo people are still loading, check again shortly. Turbo ignores a refresh tag swapped in, so ask for a full load. %>
-<% loading = @demo_mode && @demo_users.none? %>
+<%# A visitor's first choice files a few returns, which needs the tax engine. While it loads its rules, check again shortly. Turbo ignores a refresh tag swapped in, so ask for a full load. %>
+<% loading = @demo_mode && !@demo_ready && !@has_space %>
 <% if loading %>
   <% content_for :head do %>
     <%= tag.meta name: "turbo-visit-control", content: "reload" %>
@@ -22,20 +22,21 @@
     <% end %>
 
     <% { taxpayer: t(".demo_taxpayers"), examiner: t(".demo_examiners") }.each do |role, heading| %>
-      <% users = @demo_users.select { |user| user.role == role.to_s } %>
-      <% next if users.empty? %>
+      <% people = @people.select { |person| person.role == role.to_s } %>
       <h3 class="font-heading-md margin-top-3"><%= heading %></h3>
       <ul class="usa-list usa-list--unstyled" data-testid="demo-<%= role %>s">
-        <% users.each do |user| %>
+        <% people.each do |person| %>
           <li class="border-1px border-base-light radius-md padding-2 margin-bottom-2 maxw-none">
             <div class="grid-row grid-gap flex-align-center">
               <div class="tablet:grid-col-fill">
-                <h4 class="font-heading-md margin-0"><%= user.full_name %></h4>
-                <p class="margin-top-05 margin-bottom-0"><%= t("demo_users.#{user.uid.delete_prefix('demo-')}", default: "") %></p>
+                <h4 class="font-heading-md margin-0"><%= person.name %></h4>
+                <p class="margin-top-05 margin-bottom-0"><%= t("demo_users.#{person.key}") %></p>
               </div>
-              <div class="tablet:grid-col-auto margin-top-2 tablet:margin-top-0">
-                <%= button_to t(".demo_sign_in", name: user.full_name.split.first), demo_sign_in_path(user_id: user.id), class: "usa-button cods-button text-no-wrap margin-0" %>
-              </div>
+              <% unless loading %>
+                <div class="tablet:grid-col-auto margin-top-2 tablet:margin-top-0">
+                  <%= button_to t(".demo_sign_in", name: person.first_name), demo_sign_in_path(person: person.key), class: "usa-button cods-button text-no-wrap margin-0" %>
+                </div>
+              <% end %>
             </div>
           </li>
         <% end %>
@@ -46,6 +47,16 @@
     <ul class="usa-list measure-5">
       <% t(".demo_how").each do |item| %><li><%= item %></li><% end %>
     </ul>
+
+    <p class="margin-top-2"><%= link_to t(".about_link"), about_path, class: "usa-link display-inline-block padding-y-105" %></p>
+
+    <% if @has_space %>
+      <details class="margin-top-2" data-testid="demo-reset">
+        <summary class="usa-link padding-y-105"><%= t(".demo_reset_summary") %></summary>
+        <p class="measure-5"><%= t(".demo_reset_lead") %></p>
+        <%= button_to t(".demo_reset"), demo_reset_path, class: "usa-button usa-button--outline cods-button cods-button--secondary" %>
+      </details>
+    <% end %>
   </section>
 <% end %>
 

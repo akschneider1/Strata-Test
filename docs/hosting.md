@@ -57,8 +57,10 @@ bin/serve
 ```
 
 Then open port 3100. `bin/serve` builds the portal's assets, prepares the
-database, starts both apps and loads the demo people if there are none.
-`bin/serve --reset` reloads the demo people.
+database and starts both apps. Nothing else has to be loaded: each visitor
+gets their own copy of the demo people the first time they choose one, and
+a copy is erased after two hours without use. `bin/serve --reset` discards
+every copy when starting.
 
 - `PORT` sets the portal's port. Most hosts set it for you.
 - `DATABASE_URL` points both apps at a hosted Postgres. Without it,
@@ -98,7 +100,7 @@ The engine needs a plan with at least 4 GB of memory; the blueprint asks for
 
 Not yet tested on Replit. The same launcher has been run end to end on a
 Linux development machine: the home page answered 7 seconds after start, the
-demo people were ready after about 75 seconds, and both apps together used
+tax engine was ready after about 75 seconds, and both apps together used
 about 2.8 GB of memory.
 
 ### Set it up in the workspace
@@ -112,8 +114,8 @@ about 2.8 GB of memory.
 4. Make sure the workspace has at least 4 GB of memory.
 5. Press **Run**. The first run installs dependencies and builds the
    portal, which takes several minutes. The portal then opens on port 3100;
-   the demo people appear about a minute later, once the tax engine has
-   loaded.
+   visitors can choose a demo person about a minute later, once the tax
+   engine has loaded.
 
 ### Publish it
 
@@ -133,7 +135,10 @@ about 2.8 GB of memory.
    already says so; check that the publish screen shows the same.)
 5. Make sure the published app has the database and the secrets attached.
 
-To reload the demo people on a running workspace: `bin/serve --reset`.
+Every visitor has their own copy of the demo, so there is nothing to reset
+between showings. A visitor can choose **Start the demo over** on the home
+page to put their own copy back to the start. From a shell,
+`bin/serve --reset` discards everyone's copies when starting.
 
 ### If something fails
 
@@ -147,7 +152,7 @@ Replit:
 | A gem or Python package fails to install | A system library is missing | Add it to `replit.nix` |
 | "an open port was not detected" when publishing | The run command isn't `bin/serve`, or the build step was skipped and the first start is slow | Set the build command to `bin/serve --build` |
 | The app stops or restarts after a minute | Out of memory while the tax engine loads | Use a larger machine |
-| No demo people on the home page | The tax engine hasn't finished loading, or failed | Wait a minute; then look at `tmp/serve/engine.log` and `tmp/serve/seed.log` |
+| The home page says "The demo is getting ready" and has no buttons | The tax engine hasn't finished loading, or failed | Wait a minute; then look at `tmp/serve/engine.log` |
 
 Logs are in `tmp/serve/`. Send the last lines of the one that failed and it
 can usually be fixed quickly.
@@ -192,7 +197,7 @@ Where they come from:
 | Another host | Run `bin/hosting-secrets` and paste the values into the host's secret store |
 
 If the encryption keys change, the demo people's stored SSNs can no longer
-be read. For a demo the fix is to reload them: `bin/serve --reset`.
+be read. For a demo the fix is to discard them: `bin/serve --reset`.
 
 ## Settings
 
