@@ -13,12 +13,12 @@ class TaxReturnCasesController < StaffController
   end
 
   def index
-    @cases = TaxReturnCase.submitted.where(status: :open).includes(:tax_return, :review_flags).newest_first
+    @cases = paginate(TaxReturnCase.submitted.where(status: :open)).includes(:tax_return, :review_flags).newest_first
     @showing = :open
   end
 
   def closed
-    @cases = TaxReturnCase.where(status: :closed).includes(:tax_return, :review_flags).newest_first
+    @cases = paginate(TaxReturnCase.where(status: :closed)).includes(:tax_return, :review_flags).newest_first
     @showing = :closed
     render :index
   end

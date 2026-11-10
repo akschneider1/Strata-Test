@@ -81,6 +81,15 @@ en:
       open: "Open"
       process_heading: "How returns are processed"
       process_lead: "Every return follows this process. Returns with no flags never reach the queue."
+    pagination:
+      label: "Pages"
+      showing: "Showing %{first} to %{last} of %{total}"
+      previous: "Previous"
+      next: "Next"
+      previous_label: "Previous page"
+      next_label: "Next page"
+      page_label: "Page %{number}"
+      gap: "More pages"
     measures:
       title: "Service measures"
       lead: "How returns are moving through processing, from what the system already records."

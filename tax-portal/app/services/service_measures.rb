@@ -3,27 +3,31 @@
 # How the service is doing, worked out from what processing already records:
 # cases, flags, adjustments, questions to taxpayers and decision times.
 #
-# Read-only. Dollar figures are differences between results the tax engine
-# produced; nothing here calculates tax.
+# Read-only. Everything is counted by the database, so the page costs the
+# same whether there are a hundred returns or millions. Dollar figures are
+# differences between results the tax engine produced; nothing here
+# calculates tax.
 class ServiceMeasures
   def initialize(cases: TaxReturnCase.submitted)
-    @cases = cases.includes(:tax_return, :review_flags, :return_adjustments, :information_requests).to_a
+    # Strata cases load their tasks by default. In totals that would join the
+    # tasks in and count a case once per task.
+    @cases = cases.unscope(:includes)
   end
 
-  def filed = @cases.size
-  def decided = decided_cases.size
-  def waiting_to_be_processed = @cases.count { |kase| kase.step == ReturnProcessing::PENDING_STEP }
-  def in_review = @cases.count { |kase| kase.step == "review_return" }
-  def waiting_on_taxpayer = @cases.count { |kase| kase.step == "provide_information" }
+  def filed = @filed ||= @cases.count
+  def decided = decided_cases.count
+  def waiting_to_be_processed = by_step[ReturnProcessing::PENDING_STEP].to_i
+  def in_review = by_step["review_return"].to_i
+  def waiting_on_taxpayer = by_step["provide_information"].to_i
 
   # Decided with no flag, so no person touched the return.
-  def accepted_automatically = automatic_cases.size
+  def accepted_automatically = decided_cases.where.not(id: flagged_ids).count
 
   # Sent to an examiner by the automatic checks, whatever happened next.
-  def flagged = flagged_cases.size
+  def flagged = flagged_cases.count
 
-  def accepted_after_review = reviewed_cases.count { |kase| kase.outcome == "accepted" }
-  def accepted_with_adjustments = reviewed_cases.count { |kase| kase.outcome == "accepted_with_adjustments" }
+  def accepted_after_review = flagged_cases.where(outcome: "accepted").count
+  def accepted_with_adjustments = flagged_cases.where(outcome: "accepted_with_adjustments").count
 
   # Share of filed returns, as a whole percentage, or nil when none are filed.
   def share(count)
@@ -32,57 +36,50 @@ class ServiceMeasures
 
   # [[flag code, number of returns it was raised on]], most common first.
   def flags_by_code
-    flagged_cases.flat_map { |kase| kase.review_flags.map(&:code).uniq }.tally.sort_by { |code, count| [ -count, code ] }
+    ReviewFlag.where(tax_return_case_id: @cases.select(:id)).group(:code).distinct.count(:tax_return_case_id)
+      .sort_by { |code, count| [ -count, code ] }
   end
 
   # Median time from filing to a decision, in seconds.
-  def median_time_to_decision_automatic = median(automatic_cases.filter_map { |kase| time_to_decision(kase) })
-  def median_time_to_decision_reviewed = median(reviewed_cases.filter_map { |kase| time_to_decision(kase) })
+  def median_time_to_decision_automatic = median_time_to_decision(decided_cases.where.not(id: flagged_ids))
+  def median_time_to_decision_reviewed = median_time_to_decision(decided_cases.where(id: flagged_ids))
 
-  def returns_adjusted = adjusted_cases.size
+  def returns_adjusted = adjusted_cases.count
 
   # Total change to what taxpayers receive (refund less amount owed) from
   # examiner adjustments. Negative means taxpayers received less than filed.
   def net_change_from_adjustments
-    adjusted_cases.sum do |kase|
-      net(kase.adjusted_calculation) - net(kase.filed_calculation)
-    end
+    net = ->(calculation) { "((facts->'#{calculation}'->>'refund')::numeric - (facts->'#{calculation}'->>'amount_owed')::numeric)" }
+    adjusted_cases.sum(Arel.sql("#{net.call('adjusted_calculation')} - #{net.call('filed_calculation')}")).to_i
   end
 
-  def questions_asked = requests.size
-  def questions_open = open_requests.size
-  def oldest_open_question_asked_at = open_requests.map(&:created_at).min
+  def questions_asked = requests.count
+  def questions_open = requests.where(responded_at: nil).count
+  def oldest_open_question_asked_at = requests.where(responded_at: nil).minimum(:created_at)
 
   # Median time a taxpayer took to answer, in seconds.
   def median_time_to_answer
-    median(requests.select(&:answered?).map { |request| request.responded_at - request.created_at })
+    median(requests.where.not(responded_at: nil), "information_requests.responded_at - information_requests.created_at")
   end
 
   private
 
-  def decided_cases = @decided_cases ||= @cases.select { |kase| kase.outcome.present? }
-  def flagged_cases = @flagged_cases ||= @cases.select { |kase| kase.review_flags.any? }
-  def automatic_cases = decided_cases - flagged_cases
-  def reviewed_cases = decided_cases & flagged_cases
-  def requests = @requests ||= @cases.flat_map(&:information_requests)
-  def open_requests = requests.reject(&:answered?)
+  def by_step = @by_step ||= @cases.group(:business_process_current_step).count
+  def decided_cases = @cases.where.not(outcome: nil)
+  def flagged_ids = ReviewFlag.select(:tax_return_case_id)
+  def flagged_cases = @cases.where(id: flagged_ids)
+  def requests = InformationRequest.where(tax_return_case_id: @cases.select(:id))
 
   def adjusted_cases
-    @adjusted_cases ||= @cases.select { |kase| kase.return_adjustments.any? && kase.adjusted_calculation && kase.filed_calculation }
+    @cases.where(id: ReturnAdjustment.select(:tax_return_case_id)).where("facts ? 'adjusted_calculation' AND facts ? 'filed_calculation'")
   end
 
-  def time_to_decision(kase)
-    submitted_at = kase.tax_return.submitted_at
-    kase.decided_at - submitted_at if kase.decided_at && submitted_at
+  def median_time_to_decision(cases)
+    median(cases.joins(:tax_return).where.not(tax_returns: { submitted_at: nil }), "tax_return_cases.decided_at - tax_returns.submitted_at")
   end
 
-  def net(calculation) = calculation.refund - calculation.amount_owed
-
-  def median(values)
-    return nil if values.empty?
-
-    sorted = values.sort
-    middle = sorted.size / 2
-    sorted.size.odd? ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2.0
+  # Median of an interval expression over a relation, in seconds.
+  def median(relation, interval)
+    relation.pick(Arel.sql("percentile_cont(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (#{interval})))"))&.to_f
   end
 end

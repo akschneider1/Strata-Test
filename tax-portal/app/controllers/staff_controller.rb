@@ -36,6 +36,12 @@ class StaffController < Strata::StaffController
     ]
   end
 
+  # Shows one page of a long list. The staff layout adds the page links.
+  def paginate(scope)
+    @pagination = Pagination.new(page: params[:page], total: scope.count)
+    @pagination.apply(scope)
+  end
+
   private
 
   def authorize_staff

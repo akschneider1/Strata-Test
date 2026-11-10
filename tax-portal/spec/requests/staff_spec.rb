@@ -39,6 +39,27 @@ RSpec.describe "Examiner portal" do
       expect(response.body).to include("Review flagged return")
     end
 
+    it "shows long lists one page at a time" do
+      stub_const("Pagination::PER_PAGE", 2)
+      3.times { create(:tax_return, :submitted) }
+      newest = TaxReturnCase.newest_first.first.tax_return.confirmation_number
+
+      get closed_tax_return_cases_path
+      expect(response.body).to include("Showing 1 to 2 of 3", "Next page", newest)
+      expect(response.body.scan("<tr>").size).to eq(3)
+
+      get closed_tax_return_cases_path(page: 2)
+      expect(response.body).to include("Showing 3 to 3 of 3", "Previous page")
+      expect(response.body).not_to include(newest)
+
+      get closed_tax_return_cases_path(page: 99)
+      expect(response.body).to include("Showing 3 to 3 of 3")
+
+      3.times { create(:tax_return, :flagged) }
+      get tasks_path
+      expect(response.body).to include("Showing 1 to 2 of 3")
+    end
+
     it "shows service measures" do
       get staff_measures_path
       expect(response.body).to include("No returns have been filed yet.")

@@ -21,6 +21,7 @@
           <div class="grid-container-widescreen">
             <%= render partial: "application/flash" %>
             <%= yield %>
+            <%= render "staff/pagination", pagination: @pagination if @pagination&.total&.positive? %>
           </div>
         </section>
       </main>
