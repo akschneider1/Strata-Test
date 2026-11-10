@@ -33,4 +33,11 @@ class User < ApplicationRecord
 
     expiration_time < Time.now + minutes.minutes
   end
+
+  # Demo people stay signed in for as long as their copy of the demo lasts,
+  # so a presenter isn't signed out mid-conversation. Everyone else gets the
+  # normal session timeout.
+  def timeout_in
+    demo_space_id ? DemoSpace::IDLE_LIMIT : Devise.timeout_in
+  end
 end

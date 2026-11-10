@@ -71,6 +71,7 @@ module ReturnProcessing
         other = Dependent.joins(:tax_return)
           .where(ssn: dependent.ssn, tax_returns: { tax_year: @tax_return.tax_year, status: TaxReturn.statuses[:submitted] })
           .where.not(tax_return_id: @tax_return.id)
+          .where(tax_returns: { user_id: User.where(demo_space_id: @tax_return.user.demo_space_id).select(:id) })
           .first
         next unless other
 

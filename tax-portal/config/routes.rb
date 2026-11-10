@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   localized do
     # Defines the root path route ("/")
     root "home#index"
+    get "about" => "home#about", as: :about
 
     # Session management
     devise_for :users, controllers: { sessions: "users/sessions" }
@@ -78,7 +79,8 @@ Rails.application.routes.draw do
     end
   end
 
-  # One-click sign-in as a seeded person (demo mode only; see DemoMode)
+  # One-click sign-in as a demo person, in the visitor's own copy of the demo
+  # (demo mode only; see DemoMode and DemoSpace)
   post "demo/sign_in" => "demo_sessions#create", as: :demo_sign_in
   delete "demo/sign_out" => "demo_sessions#destroy", as: :demo_sign_out
   post "demo/reset" => "demo_sessions#reset", as: :demo_reset

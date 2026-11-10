@@ -3,10 +3,13 @@
 # (tax-engine, PolicyEngine) and the portal (tax-portal), with demo people.
 #
 # Usage:
-#   bin/demo          Start both apps and load fresh demo data. Ctrl-C stops them.
-#   bin/demo test     Start both apps, load fresh demo data, run the browser
-#                     walkthrough tests (e2e/tax-portal), then stop.
-#   bin/demo reset    Reload the demo data while the demo is running.
+#   bin/demo          Start both apps. Ctrl-C stops them.
+#   bin/demo test     Start both apps, run the browser walkthrough tests
+#                     (e2e/tax-portal), then stop.
+#   bin/demo reset    Discard every visitor's copy of the demo.
+#
+# Each visitor gets their own copy of the demo people the first time they
+# choose one on the home page, so nothing is loaded up front.
 #
 # Needs the toolchain from bin/setup-env and a local Postgres
 # (bin/setup-env --postgres). Open http://localhost:3100 when it says ready.
@@ -23,13 +26,13 @@ export DB_HOST="${DB_HOST:-127.0.0.1}"
 export DEMO_MODE=true
 export TAX_ENGINE_URL="http://127.0.0.1:$ENGINE_PORT"
 
-seed() {
-  log "Loading demo people and returns"
-  (cd "$REPO_ROOT/tax-portal" && SEED_DEMO_DATA=true bin/rails db:seed) | grep -v DEBUG || true
+reset_demo() {
+  log "Discarding every copy of the demo"
+  (cd "$REPO_ROOT/tax-portal" && bin/rails tax:demo_reset) | grep -v DEBUG || true
 }
 
 if [[ "$MODE" == reset ]]; then
-  seed
+  reset_demo
   exit 0
 fi
 [[ "$MODE" == run || "$MODE" == test ]] || die "usage: bin/demo [test|reset]"
@@ -89,7 +92,7 @@ engine_ready() { curl -fsS "$TAX_ENGINE_URL/v1/engine" | grep -q '"ready": *true
 wait_for "The tax engine" 180 engine_ready
 ok "tax engine ready"
 
-seed
+reset_demo
 
 log "Starting the portal on port $PORTAL_PORT"
 (cd "$REPO_ROOT/tax-portal" && exec bin/rails server -p "$PORTAL_PORT" -b 127.0.0.1) >"$LOG_DIR/portal.log" 2>&1 &

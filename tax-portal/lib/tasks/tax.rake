@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 namespace :tax do
+  desc "Discard every visitor's copy of the demo. Each visitor starts fresh the next time they choose a person."
+  task demo_reset: :environment do
+    raise "Not available in production" if Rails.env.production?
+
+    copies = DemoSpace.count
+    DemoSpace.discard_all
+    puts "Discarded #{copies} copies of the demo"
+  end
+
   desc "Process filed returns that have not been calculated yet (run on a schedule)"
   task process_pending: :environment do
     processed = ReturnProcessing.process_pending

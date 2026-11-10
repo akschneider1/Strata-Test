@@ -19,12 +19,12 @@ class TaxReturnCasesController < StaffController
   end
 
   def index
-    @cases = paginate(TaxReturnCase.submitted.where(status: :open)).includes(:tax_return, :review_flags).newest_first
+    @cases = paginate(visible_cases.submitted.where(status: :open)).includes(:tax_return, :review_flags).newest_first
     @showing = :open
   end
 
   def closed
-    @cases = paginate(TaxReturnCase.where(status: :closed)).includes(:tax_return, :review_flags).newest_first
+    @cases = paginate(visible_cases.where(status: :closed)).includes(:tax_return, :review_flags).newest_first
     @showing = :closed
     render :index
   end
@@ -95,7 +95,7 @@ class TaxReturnCasesController < StaffController
   private
 
   def set_case
-    @case = TaxReturnCase.find(params[:id])
+    @case = visible_cases.find(params[:id])
   end
 
   def actions

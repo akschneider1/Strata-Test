@@ -13,5 +13,9 @@ class WageRecord < ApplicationRecord
   validates :payer_name, :tax_year, presence: true
   validates :amount, :colorado_withholding, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
-  scope :for_return, ->(tax_return) { where(ssn: tax_return.ssns_on_return, tax_year: tax_return.tax_year) }
+  # Records for the people on a return. In the demo, only records in the
+  # same copy of the demo as the person filing.
+  scope :for_return, ->(tax_return) {
+    where(ssn: tax_return.ssns_on_return, tax_year: tax_return.tax_year, demo_space_id: tax_return.user.demo_space_id)
+  }
 end

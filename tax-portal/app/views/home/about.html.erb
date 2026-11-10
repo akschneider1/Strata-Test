@@ -1,0 +1,21 @@
+<% content_for :title, t(".title") %>
+<%= content_for :content_col_class, "desktop:grid-col-10" %>
+
+<h1 class="font-heading-xl"><%= t(".title") %></h1>
+<p class="font-body-md line-height-sans-5 measure-5"><%= t(".lead") %></p>
+
+<% %w[can real simulated not_covered].each do |section| %>
+  <section class="margin-top-4" aria-labelledby="<%= section %>-heading">
+    <h2 id="<%= section %>-heading" class="font-heading-lg"><%= t(".#{section}_heading") %></h2>
+    <ul class="usa-list measure-5">
+      <% t(".#{section}").each do |item| %><li><%= item %></li><% end %>
+    </ul>
+  </section>
+<% end %>
+
+<section class="margin-top-4" aria-labelledby="copy-heading">
+  <h2 id="copy-heading" class="font-heading-lg"><%= t(".copy_heading") %></h2>
+  <p class="measure-5"><%= t(".copy") %></p>
+</section>
+
+<p class="margin-top-4"><%= link_to t(".back"), root_path, class: "usa-link display-inline-block padding-y-105" %></p>

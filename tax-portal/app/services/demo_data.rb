@@ -3,7 +3,9 @@
 # Made-up people for demonstrating the prototype. Social Security numbers use
 # area 000, which the SSA never issues, so they can't belong to anyone.
 #
-#   DemoData.load!   # wipes tax data and recreates the demo people
+# Each visitor gets their own copy of these people (see DemoSpace):
+#
+#   DemoSpace.start!   # a new copy, with everyone in their starting state
 #
 # Never runs in production.
 class DemoData
@@ -30,19 +32,27 @@ class DemoData
     { ssn: "000001006", kind: "w2", payer_name: "Pikes Peak Design", amount: 72_000, colorado_withholding: 1_500 }
   ].freeze
 
-  def self.load!
-    raise "Demo data can't be loaded in production" if Rails.env.production?
+  # The examiners in every copy of the demo.
+  EXAMINERS = { examiner: "Priya Shah", examiner2: "Marcus Reed" }.freeze
 
-    new.load!
+  # A demo person's sign-in id. Each copy of the demo has its own people.
+  def self.uid(key, space)
+    space ? "demo-#{space.id}-#{key}" : "demo-#{key}"
   end
 
+  # `space` is the visitor's copy of the demo (a DemoSpace) these people
+  # belong to.
+  def initialize(space = nil)
+    @space = space
+  end
+
+  # Creates the demo people in their starting state.
   def load!
-    reset
+    raise "Demo data can't be loaded in production" if Rails.env.production?
+
     users = PEOPLE.to_h { |key, person| [ key, create_user(key, person[:name].join(" "), :taxpayer) ] }
-    create_user(:examiner, "Priya Shah", :examiner)
-    # A second examiner, to confirm large changes.
-    create_user(:examiner2, "Marcus Reed", :examiner)
-    WAGE_RECORDS.each { |record| WageRecord.create!(record.merge(tax_year: TaxReturn::CURRENT_TAX_YEAR)) }
+    EXAMINERS.each { |key, name| create_user(key, name, :examiner) }
+    WAGE_RECORDS.each { |record| WageRecord.create!(record.merge(tax_year: TaxReturn::CURRENT_TAX_YEAR, demo_space_id: @space&.id)) }
 
     # Maya starts from nothing: she is the live "file a return" demo.
     # Daniela has answered everything and is ready to review and sign.
@@ -100,13 +110,12 @@ class DemoData
 
   private
 
-  def reset
-    [ CaseNote, ReturnAdjustment, InformationRequest, ReviewFlag, Strata::Task, Strata::AuditLine, TaxReturnCase, IncomeDocument, Dependent, TaxReturn, WageRecord ].each(&:delete_all)
-    User.where(provider: "demo").delete_all
-  end
-
   def create_user(key, full_name, role)
-    User.create!(uid: "demo-#{key}", provider: "demo", email: "#{key}@demo.example", full_name: full_name, role: role, mfa_preference: :opt_out)
+    suffix = @space ? "+#{@space.id}" : ""
+    User.create!(
+      uid: self.class.uid(key, @space), provider: "demo", email: "#{key}#{suffix}@demo.example",
+      full_name: full_name, role: role, mfa_preference: :opt_out, demo_space_id: @space&.id
+    )
   end
 
   def start(user, key, **attributes)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_10_050000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_10_060000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,6 +49,13 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_10_050000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["tax_return_case_id"], name: "index_case_notes_on_tax_return_case_id"
+  end
+
+  create_table "demo_spaces", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "last_used_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["last_used_at"], name: "index_demo_spaces_on_last_used_at"
   end
 
   create_table "dependents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -246,6 +253,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_10_050000) do
     t.datetime "updated_at", null: false
     t.integer "role", default: 0, null: false
     t.string "full_name"
+    t.uuid "demo_space_id"
+    t.index ["demo_space_id"], name: "index_users_on_demo_space_id"
     t.index ["role"], name: "index_users_on_role"
     t.index ["uid"], name: "index_users_on_uid", unique: true
   end
@@ -260,6 +269,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_10_050000) do
     t.integer "colorado_withholding", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "demo_space_id"
+    t.index ["demo_space_id"], name: "index_wage_records_on_demo_space_id"
     t.index ["ssn"], name: "index_wage_records_on_ssn"
   end
 

@@ -4,15 +4,15 @@
  * taxpayer sees the outcome. Also scans the main pages for accessibility
  * problems.
  *
- * Needs the demo running with fresh demo data, so playwright.config.js only
- * includes it when DEMO_WALKTHROUGH=true. Use `bin/demo test` from the repo root, which
- * starts both apps, reloads the demo data and runs this file.
+ * Needs the demo running, so playwright.config.js only includes it when
+ * DEMO_WALKTHROUGH=true. Use `bin/demo test` from the repo root, which starts
+ * both apps and runs this file. Each test is a new browser, so each gets its
+ * own fresh copy of the demo people and the tests don't depend on each other.
  */
 import { Page, expect, test } from '@playwright/test';
 
 import AxeBuilder from '@axe-core/playwright';
 
-test.describe.configure({ mode: 'serial' });
 test.setTimeout(120_000);
 
 const signIn = async (page: Page, firstName: string) => {
