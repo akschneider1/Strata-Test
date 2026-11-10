@@ -73,6 +73,17 @@ CoDS/USWDS output.
   what to do in error messages, no personal data in titles, links or buttons.
 - After changing either app: `bin/demo test` (set
   `E2E_CHROMIUM_PATH=/opt/pw-browsers/chromium` in cloud sessions).
+- Filing queues `ProcessReturnJob`; nothing is calculated inside the submit
+  request. Tests run jobs inline. `bin/rails tax:process_pending` picks up
+  returns a job missed.
+- Examiner actions go through `ReturnProcessing::ExaminerActions`, which
+  enforces assignment and the second-examiner rule. Don't change a case from
+  a controller.
+- Hosting outside AWS is a demo deployment only (`bin/serve`,
+  `docker-compose.yml`, `render.yaml`; see docs/hosting.md). It uses the
+  `mock-production` environment and demo sign-in, never real data.
+- Tax year 2027 and the graduated rates (Amendment 87) exist in the engine
+  for the "new rates" preview only. The portal still files 2025 returns.
 
 ## Running things
 

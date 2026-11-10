@@ -99,6 +99,29 @@ def test_engine_status(client, fake_calculator):
         "engine": "fake",
         "engine_version": "0",
         "ready": True,
-        "supported_tax_years": [2025],
+        "supported_tax_years": [2025, 2027],
         "qualifying_relative_income_limits": {"2025": 5200},
     }
+
+
+def test_rate_schedule_is_passed_through_and_validated(client, api_auth_token, fake_calculator):
+    body = BODY | {"tax_year": 2027, "rate_schedule": "graduated"}
+    response = client.post("/v1/returns/calculate", json=body, headers={"X-Auth": api_auth_token})
+
+    assert response.status_code == 200
+    assert fake_calculator.seen[-1].rate_schedule == "graduated"
+    assert response.get_json()["data"]["rate_schedule"] == "flat"  # what the fake reports
+
+    response = client.post(
+        "/v1/returns/calculate",
+        json=BODY | {"rate_schedule": "graduated"},
+        headers={"X-Auth": api_auth_token},
+    )
+    assert response.status_code == 422
+
+    response = client.post(
+        "/v1/returns/calculate",
+        json=BODY | {"rate_schedule": "progressive"},
+        headers={"X-Auth": api_auth_token},
+    )
+    assert response.status_code == 422

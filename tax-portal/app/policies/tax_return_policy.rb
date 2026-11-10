@@ -8,6 +8,7 @@ class TaxReturnPolicy < ApplicationPolicy
   def show? = owner?
   def update? = owner? && record.in_progress?
   def summary? = show?
+  def new_rates? = show?
   def review? = update?
   def submit? = update?
   def respond? = owner? && record.submitted?

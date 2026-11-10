@@ -110,3 +110,75 @@ def test_situation_puts_spouses_in_one_marital_unit():
     assert situation["marital_units"] == {"adults": {"members": ["filer", "spouse"]}}
     assert situation["tax_units"]["tax_unit"]["filing_status"] == {"2025": "JOINT"}
     assert situation["households"]["household"]["state_name"] == {"2025": "CO"}
+
+
+# -- Graduated rates (Amendment 87), tax year 2027 ---------------------------
+#
+# Expected amounts are PolicyEngine US 2.116.0 results. The first is also
+# checked by hand below. 2027 deductions are PolicyEngine's projections.
+
+
+def test_graduated_rates_for_a_middle_income_filer(engine):
+    facts = F(2027, "SINGLE", P(40, wages=48000))
+    graduated = engine.calculate(facts)
+    flat = engine.calculate(F(2027, "SINGLE", P(40, wages=48000), rate_schedule="flat"))
+
+    assert graduated.rate_schedule == "graduated"
+    assert flat.rate_schedule == "flat"
+    assert graduated.amount("colorado_taxable_income") == flat.amount("colorado_taxable_income")
+    assert graduated.amount("colorado_taxable_income") == 31450
+    # By hand: 25,000 x 3.7% = 925, plus 6,450 x 4.2% = 270.90, total 1,195.90.
+    assert graduated.amount("tax") == 1196
+    assert flat.amount("tax") == 1384
+
+    line = next(line for line in graduated.lines if line.id == "tax")
+    assert line.source_title.startswith("Colorado Amendment 87")
+    assert [b for b in line.facts["brackets"] if b["income"] > 0] == [
+        {"from": 0.0, "to": 25000.0, "rate": 0.037, "income": 25000.0, "tax": 925.0},
+        {"from": 25000.0, "to": 100000.0, "rate": 0.042, "income": 6450.0, "tax": 271.0},
+    ]
+    assert len(line.facts["brackets"]) == 6
+
+
+def test_graduated_rates_for_a_high_income_filer(engine):
+    graduated = engine.calculate(F(2027, "SINGLE", P(40, wages=1_500_000)))
+    flat = engine.calculate(F(2027, "SINGLE", P(40, wages=1_500_000), rate_schedule="flat"))
+
+    assert flat.amount("tax") == 65956
+    assert graduated.amount("tax") == 101841
+    line = next(line for line in graduated.lines if line.id == "tax")
+    assert line.facts["brackets"][-1] == {
+        "from": 1_000_000.0,
+        "to": None,
+        "rate": 0.084,
+        "income": 499000.0,
+        "tax": 41916.0,
+    }
+    assert abs(sum(b["tax"] for b in line.facts["brackets"]) - graduated.amount("tax")) <= 3
+
+
+def test_2025_returns_keep_the_flat_rate(engine):
+    result = engine.calculate(SINGLE_W2)
+
+    assert result.rate_schedule == "flat"
+    line = next(line for line in result.lines if line.id == "tax")
+    assert line.facts == {"rate": 0.044, "rate_schedule": "flat"}
+
+
+def test_graduated_rates_cannot_be_applied_before_2027():
+    with pytest.raises(c.UnsupportedReturnError, match="starts with tax year 2027"):
+        c.validate(F(2025, "SINGLE", P(30), rate_schedule="graduated"))
+    with pytest.raises(c.UnsupportedReturnError, match="Unknown rate schedule"):
+        c.validate(F(2027, "SINGLE", P(30), rate_schedule="progressive"))
+
+
+def test_tax_by_bracket_splits_income_across_brackets():
+    brackets = c.tax_by_bracket(120_000, [0, 25_000, 100_000], [0.037, 0.042, 0.044])
+
+    assert [(b["income"], b["tax"]) for b in brackets] == [
+        (25_000.0, 925.0),
+        (75_000.0, 3150.0),
+        (20_000.0, 880.0),
+    ]
+    assert brackets[-1]["to"] is None
+    assert [b["income"] for b in c.tax_by_bracket(0, [0, 25_000], [0.037, 0.042])] == [0.0, 0.0]

@@ -51,6 +51,7 @@ Rails.application.routes.draw do
         end
 
         get :summary
+        get :new_rates
         get :review
         patch :submit
         patch :respond

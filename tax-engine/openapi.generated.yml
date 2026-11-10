@@ -867,6 +867,7 @@ components:
           type: integer
           enum:
           - 2025
+          - 2027
         filing_status:
           type: string
           enum:
@@ -906,6 +907,17 @@ components:
           minimum: 0.0
           maximum: 10000000.0
           description: Colorado income tax withheld (Form W-2 box 17 and 1099s)
+        rate_schedule:
+          type: string
+          default: null
+          enum:
+          - flat
+          - graduated
+          - null
+          description: 'How taxable income is taxed: ''flat'' or ''graduated'' (the
+            Amendment 87 brackets, tax year 2027 on). Leave out for the schedule in
+            law for the tax year.'
+          nullable: true
       required:
       - filer
       - filing_status
@@ -951,6 +963,9 @@ components:
           description: Rules engine that produced the result
         engine_version:
           type: string
+        rate_schedule:
+          type: string
+          description: 'The rate schedule applied: ''flat'' or ''graduated'''
     UserUpdate:
       type: object
       properties:

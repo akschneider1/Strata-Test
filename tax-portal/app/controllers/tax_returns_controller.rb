@@ -49,6 +49,15 @@ class TaxReturnsController < ApplicationController
     @filed_calculation = @tax_return.tax_return_case.filed_calculation if @tax_return.submitted?
   end
 
+  # What the graduated rates that start in 2027 would mean for this household.
+  def new_rates
+    authorize @tax_return
+    return redirect_to(tax_return_path(@tax_return)) unless @tax_return.submitted? || @tax_return.ready_to_calculate?
+
+    facts = @tax_return.submitted? ? @tax_return.tax_return_case.adjusted_facts : TaxEngine::Facts.from_tax_return(@tax_return)
+    @preview = TaxEngine::RatePreview.for(facts)
+  end
+
   def review
     authorize @tax_return
     return redirect_to(tax_return_path(@tax_return)) unless @flow.completed?

@@ -21,3 +21,9 @@
 </section>
 
 <%= render "calculation", calculation: @calculation, tax_year: @tax_return.tax_year %>
+
+<section class="margin-top-4 border-top-1px border-base-light padding-top-2">
+  <h2 class="font-heading-md margin-bottom-1"><%= t(".new_rates_heading") %></h2>
+  <p class="margin-top-0"><%= t(".new_rates_lead") %></p>
+  <p><%= link_to t(".new_rates_link"), new_rates_tax_return_path(@tax_return), class: "usa-link" %></p>
+</section>

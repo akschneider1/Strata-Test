@@ -126,6 +126,21 @@ RSpec.describe "Taxpayer portal" do
       expect(response.body).to include("Your filing status: Single", "Colorado income tax", "4.4% of your Colorado taxable income", "$231")
     end
 
+    it "shows what the graduated rates starting in 2027 would mean" do
+      tax_return = create(:tax_return, :complete, user: taxpayer)
+
+      get summary_tax_return_path(tax_return)
+      expect(response.body).to include("tax rates change in 2027")
+
+      # Fake engine: 48,000 of income less a 15,750 deduction is 32,250 taxable.
+      # Flat: 32,250 x 4.4% = 1,419. Graduated: 925 + 7,250 x 4.2% = 1,230 (rounded per bracket).
+      get new_rates_tax_return_path(tax_return)
+      expect(response.body).to include("Amendment 87", "$32,250", "$1,419", "$1,230", "would be $189 lower", "Over $1,000,000", "8.4%")
+
+      get "/es-us/tax_returns/#{tax_return.id}/new_rates"
+      expect(response.body).to include("Enmienda 87", "sería $189 menor")
+    end
+
     it "submits a signed return and shows its status" do
       tax_return = create(:tax_return, :complete, user: taxpayer)
 

@@ -158,6 +158,16 @@ test.describe('Taxpayer on a phone', () => {
     }
     await expect(page.getByTestId('refund')).toHaveText('$7,162');
 
+    // What the graduated rates that start in 2027 would mean for her
+    await page.getByRole('link', { name: 'See what the new rates would mean for you' }).click();
+    await expect(
+      page.getByRole('heading', { name: "Colorado's new income tax rates", level: 1 })
+    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByTestId('brackets').locator('tbody tr')).toHaveCount(6);
+    await expect(page.getByTestId('difference')).toContainText('With the new rates');
+    await expectAccessible(page);
+    await page.getByRole('link', { name: 'Back' }).first().click();
+
     await page.getByRole('button', { name: 'Español' }).first().click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'es-US');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(

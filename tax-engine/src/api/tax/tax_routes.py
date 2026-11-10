@@ -30,6 +30,7 @@ def to_facts(params: dict[str, Any]) -> calculator.ReturnFacts:
         taxable_interest=params["taxable_interest"],
         childcare_expenses=params["childcare_expenses"],
         colorado_tax_withheld=params["colorado_tax_withheld"],
+        rate_schedule=params.get("rate_schedule"),
     )
 
 
