@@ -25,7 +25,7 @@ export TAX_ENGINE_URL="http://127.0.0.1:$ENGINE_PORT"
 
 seed() {
   log "Loading demo people and returns"
-  (cd "$REPO_ROOT/tax-portal" && bin/rails db:seed) | grep -v DEBUG || true
+  (cd "$REPO_ROOT/tax-portal" && SEED_DEMO_DATA=true bin/rails db:seed) | grep -v DEBUG || true
 }
 
 if [[ "$MODE" == reset ]]; then

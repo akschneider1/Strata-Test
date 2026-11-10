@@ -23,9 +23,10 @@ else
 end
 
 # Demo people for the tax prototype (see app/services/demo_data.rb).
-# Submitting the demo returns calculates them, so the tax engine must be
-# running (or set TAX_ENGINE_ADAPTER=fake).
-if ENV["DEMO_MODE"] == "true"
+# Only on request (bin/demo sets SEED_DEMO_DATA): loading them wipes existing
+# tax data and submits returns, which needs the tax engine to be running
+# (or TAX_ENGINE_ADAPTER=fake).
+if ENV["SEED_DEMO_DATA"] == "true"
   DemoData.load!
   puts "Loaded demo data: #{User.where(provider: 'demo').count} people, #{TaxReturn.count} returns"
 end
