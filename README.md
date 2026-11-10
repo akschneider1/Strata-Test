@@ -24,6 +24,10 @@ It contains the full Strata suite, ready to generate apps from:
 
 To see the prototype, run the two commands below and open <http://localhost:3100>.
 The click-by-click script is in [docs/tax-portal/demo-guide.md](docs/tax-portal/demo-guide.md).
+What to learn from the IRS's own free filing service is in
+[docs/tax-portal/direct-file-lessons.md](docs/tax-portal/direct-file-lessons.md),
+and a script for testing the prototype with people is in
+[docs/tax-portal/usability-test-kit.md](docs/tax-portal/usability-test-kit.md).
 
 ```bash
 bin/setup-env --postgres

@@ -61,6 +61,8 @@ CoDS/USWDS output.
 ## Tax prototype (tax-portal + tax-engine)
 
 - Read docs/tax-portal/tax-prototype-architecture.md before changing it.
+- docs/tax-portal/direct-file-lessons.md lists what the prototype still lacks
+  compared with IRS Direct File; keep it current when you close a gap.
 - The portal never does tax math. All amounts come from tax-engine
   (`TaxEngine.client`); specs use `TaxEngine::FakeClient`.
 - Every expected dollar amount in tax-engine tests came from PolicyEngine and
