@@ -77,8 +77,40 @@ lessons.
   Afterwards the team kept a "no-surprises" tracker, shared weekly (pp. 17,
   28).
 - **The code is still there.** The IRS published Direct File so that states
-  could "build from the platform if they so choose" (p. 25). We have not
-  evaluated it for reuse. That is worth doing before building more.
+  could "build from the platform if they so choose" (p. 25). See the next
+  section for what is in it.
+
+## What is in the Direct File code
+
+From a read of <https://github.com/IRS-Public/direct-file> (last commit June
+2026). We read the code and documents; we did not build or run it.
+
+Know these first:
+
+- It is public domain (CC0), so anything in it can be copied.
+- The repository is archived. Its README says the code "may contain
+  unpatched or unknown vulnerabilities" and "should not be used in
+  production systems".
+- It covers federal returns for tax year 2024. This prototype is a Colorado
+  return for tax year 2025.
+- Code touching taxpayer data or sensitive systems was removed before
+  publication, so some parts are incomplete.
+- It is a Java and Scala backend with a React client. This prototype is
+  Rails and Python.
+
+| Part | What it is | Use for us |
+| --- | --- | --- |
+| Design documents (`docs/design/`) | The content style guide (about 1,000 lines, with an A–Z word list), design guidelines, taxpayer research findings, and moderation guides for research sessions | **Use now.** Check our wording against the style guide and word list. Their moderation guides are fuller than our [usability test kit](usability-test-kit.md). |
+| Spanish text (`df-client-app/src/locales/es.yaml`) | About 27,000 lines of Spanish reviewed for a live tax service | **Use now.** A reference for tax terms in Spanish until ours is professionally reviewed. |
+| Tax rules (`backend/src/main/resources/tax/`) | About 3,000 facts in 36 XML files: filing status, dependents, standard deduction, Social Security, earned income and child credits, child care credit, written with IRS Chief Counsel | **Use as a reference.** Our filing status and dependent rules are simplified and say so. Theirs are the full federal tests. Good source for the questions we would need to ask. |
+| Test scenarios (`docs/testing/`, backend test resources) | Worked households with expected results, and a written testing strategy built around the facts that decide eligibility | **Use as a reference** for our own test households and edge cases (for example, a taxpayer born on January 1). |
+| Fact Graph (`fact-graph-scala/`) | A rules engine that reasons over a partly finished return, running on both server and browser. About 30,000 lines of Scala | **Not now.** It solves a real problem we have (what to ask next, what is still missing), but adopting it means taking on an unmaintained Scala codebase. Revisit if the interview outgrows the Strata flow. |
+| State API (`state-api/`) | How a finished federal return was handed to a state's own filing tool, with the taxpayer's consent | **Study the data format.** The federal service behind it is gone, so there is nothing to connect to. The export format shows what states asked for from a federal return, which is what our federal figures would need to cover. |
+| Data import design (`docs/adr/data-import-system.md`) | How they planned to fetch records the IRS already holds: one hub, one module per source system, a short timeout so the taxpayer never waits | **Use as a reference** when connecting our records-on-file service to real Department data. |
+| Decision records (`docs/adr/`) | Accessibility targets and methods, encryption of taxpayer data, error messages, resubmission | **Use as a reference** for the same decisions here. |
+
+Nothing in it covers a state examiner's work, so the review half of this
+prototype has no counterpart there either.
 
 ## What the report cannot tell us
 
