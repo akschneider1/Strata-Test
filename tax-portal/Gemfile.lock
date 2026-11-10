@@ -1,3 +1,14 @@
+GIT
+  remote: https://github.com/navapbc/strata-sdk-rails.git
+  revision: fab9c6b09a2266164eabd41a607b13058b19b25a
+  ref: fab9c6b09a2266164eabd41a607b13058b19b25a
+  specs:
+    strata (0.1.0)
+      pundit (>= 2.5.0)
+      rails (>= 7.2.2.2)
+      validates_timeliness (>= 7.0.0)
+      view_component (>= 4.0.2)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -487,6 +498,7 @@ GEM
       railties (>= 6.0.0)
     stringio (3.2.0)
     thor (1.5.0)
+    timeliness (0.5.3)
     timeout (0.4.4)
     tsort (0.2.0)
     turbo-rails (2.0.23)
@@ -499,10 +511,13 @@ GEM
     unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
-    view_component (3.23.2)
-      activesupport (>= 5.2.0, < 8.1)
-      concurrent-ruby (~> 1)
-      method_source (~> 1.0)
+    validates_timeliness (8.0.0)
+      activemodel (>= 8.0.0, < 9)
+      timeliness (>= 0.3.10, < 1)
+    view_component (4.23.0)
+      actionview (>= 7.1.0)
+      activesupport (>= 7.1.0)
+      prism (>= 1.0)
     warden (1.2.9)
       rack (>= 2.0.9)
     web-console (4.2.1)
@@ -575,6 +590,7 @@ DEPENDENCIES
   simplecov
   sprockets-rails
   stimulus-rails
+  strata!
   turbo-rails (>= 2.0)
   tzinfo-data
   web-console
@@ -583,4 +599,4 @@ RUBY VERSION
    ruby 3.4.9p82
 
 BUNDLED WITH
-   2.5.22
+   2.6.9

@@ -62,7 +62,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
-  database: app_rails_test
+  database: tax_portal_test
 
 # For mock-production: To test a "production"-like environment on a local machine,
 # allow the use of a non-RDS database.

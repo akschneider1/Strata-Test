@@ -3,6 +3,7 @@ locals {
   # This is a map rather than a list so that variables can be easily
   # overridden per environment using terraform's `merge` function
   default_extra_environment_variables = {
+    DB_AUTH_METHOD = "aws_iam"
     # Example environment variables
     # WORKER_THREADS_COUNT    = 4
     # LOG_LEVEL               = "info"
@@ -19,6 +20,11 @@ locals {
   #   }
   # }
   secrets = {
+    SECRET_KEY_BASE = {
+      manage_method     = "generated"
+      secret_store_name = "/${var.app_name}-${var.environment}/service/rails-secret-key-base"
+    }
+
     # Example generated secret
     # RANDOM_SECRET = {
     #   manage_method     = "generated"

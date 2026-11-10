@@ -16,3 +16,8 @@
 // Compiled CSS and JS
 //= link_tree ../builds
 //= link application.css
+
+// Colorado Design System assets referenced by builds/colorado-design-system.css
+//= link_tree ../../../node_modules/@coloradodigitalservice/colorado-design-system/dist/icons
+//= link_tree ../../../node_modules/@coloradodigitalservice/colorado-design-system/dist/img
+//= link_tree ../../../node_modules/@coloradodigitalservice/colorado-design-system/dist/fonts

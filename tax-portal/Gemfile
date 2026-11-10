@@ -126,3 +126,7 @@ group :production do
   # Add plugin for pg gem to support AWS RDS IAM
   gem "pg-aws_rds_iam", "~> 0.7.0"
 end
+
+# Strata SDK for government digital services (Rails engine)
+# https://github.com/navapbc/strata-sdk-rails (pinned in stack/versions.env)
+gem "strata", git: "https://github.com/navapbc/strata-sdk-rails.git", ref: "fab9c6b09a2266164eabd41a607b13058b19b25a"

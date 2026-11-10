@@ -3,12 +3,17 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build:css": "sass ./app/assets/stylesheets/application.scss:./app/assets/builds/application.css --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages"
+    "build:css": "node ./bin/cods-css && sass ./app/assets/stylesheets/application.scss:./app/assets/builds/application.css --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages"
   },
   "dependencies": {
-    "@uswds/uswds": "^3.7.1"
+    "@coloradodigitalservice/colorado-design-system": "https://github.com/coloradodigitalservice/colorado-design-system/releases/download/v0.2.18/coloradodigitalservice-colorado-design-system-0.2.18.tgz",
+    "@coloradodigitalservice/colorado-design-tokens": "https://github.com/coloradodigitalservice/colorado-design-system/releases/download/v0.2.18/coloradodigitalservice-colorado-design-tokens-0.2.18.tgz",
+    "@uswds/uswds": "3.14.0"
   },
   "devDependencies": {
-    "sass": "^1.71.1"
+    "sass": "^1.105.2"
+  },
+  "overrides": {
+    "@coloradodigitalservice/colorado-design-tokens": "$@coloradodigitalservice/colorado-design-tokens"
   }
 }

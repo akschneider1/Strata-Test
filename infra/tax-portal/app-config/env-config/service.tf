@@ -21,6 +21,6 @@ locals {
       job_name => merge({ source_bucket = local.bucket_name, source_bucket_apply_workspace_prefix = true }, job_config)
     }
 
-    ephemeral_write_volumes = []
+    ephemeral_write_volumes = ["/rails/tmp"]
   }
 }
