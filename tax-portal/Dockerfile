@@ -29,7 +29,6 @@ FROM base AS build
 
 # Install packages needed to build gems
 RUN apt-get update -qq \
-    && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
         build-essential \
         git \
@@ -57,7 +56,6 @@ ENV RAILS_ENV="development"
 
 # Install packages needed for development
 RUN apt-get update -qq \
-    && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
         postgresql-client \
         graphviz \
@@ -117,7 +115,6 @@ ENV RAILS_ENV="production" \
 
 # Install packages needed for deployment
 RUN apt-get update -qq \
-    && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
         libvips \
         libyaml-dev \
