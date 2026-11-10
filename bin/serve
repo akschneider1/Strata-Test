@@ -7,8 +7,11 @@
 # container you build yourself. See docs/hosting.md.
 #
 # Usage:
-#   bin/serve            Build, migrate, load demo people if there are none, and serve.
-#   bin/serve --reset    Same, but reload the demo people first.
+#   bin/serve            Build if needed, then serve. Loads the demo people if there are none.
+#   bin/serve --build    Only install dependencies and build the portal's assets.
+#                        Use it as the build step on hosts that have one, so
+#                        that starting is quick.
+#   bin/serve --reset    Serve, reloading the demo people first.
 #
 # Settings (all optional):
 #   PORT           Port the portal listens on (default 3100). Most hosts set this.
@@ -22,7 +25,13 @@
 #                  missing they are generated once and kept in tmp/serve.env,
 #                  which only suits a machine whose disk persists.
 #
-# Needs the toolchain from bin/setup-env and about 2 GB of memory.
+# Needs Ruby, Python 3.13 with Poetry, Node.js, the Postgres client tools and
+# about 4 GB of memory. bin/setup-env installs the tools on a development
+# machine; replit.nix lists them for Replit.
+#
+# The portal starts answering within seconds, so a host's health check
+# passes. The demo people appear once the tax engine has loaded its rules,
+# about a minute later.
 #
 # This is a demo deployment: anyone who can reach it can sign in as a demo
 # person. Never put real taxpayer data in it.
@@ -31,15 +40,81 @@ set -euo pipefail
 source "$(dirname "$0")/../stack/lib/common.sh"
 setup_path
 
+MODE=serve
 RESET=false
-[[ "${1:-}" == "--reset" ]] && RESET=true
-[[ $# -eq 0 || "$RESET" == true ]] || die "usage: bin/serve [--reset]"
+case "${1:-}" in
+  "") ;;
+  --build) MODE=build ;;
+  --reset) RESET=true ;;
+  *) die "usage: bin/serve [--build|--reset]" ;;
+esac
 
 PORTAL_PORT="${PORT:-3100}"
 ENGINE_PORT="${ENGINE_PORT:-3200}"
 SECRETS_FILE="$REPO_ROOT/tmp/serve.env"
 LOG_DIR="$REPO_ROOT/tmp/serve"
 mkdir -p "$LOG_DIR"
+
+# -- Build -------------------------------------------------------------------
+# "mock-production" is the Rails template's production-like environment that
+# doesn't need AWS: compiled assets, no code reloading, sign-in without Cognito.
+export RAILS_ENV=mock-production AUTH_ADAPTER=mock DEMO_MODE=true
+export RAILS_LOG_TO_STDOUT=true DISABLE_DATABASE_ENVIRONMENT_CHECK=1 AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+# The production-like environment is set up for file uploads to a storage
+# bucket. The prototype stores no files, but the setting has to exist.
+export BUCKET_NAME="${BUCKET_NAME:-not-used}"
+export POETRY_VIRTUALENVS_IN_PROJECT=true
+
+# The portal's Gemfile names an exact Ruby. A host may only offer another
+# patch release of the same series (3.4.4 for 3.4.9, say). That is fine for a
+# demo, so use a copy of the Gemfile without the exact version.
+use_available_ruby() {
+  local wanted have
+  wanted="$(cat "$REPO_ROOT/tax-portal/.ruby-version")"
+  # Ask from inside the app, where a version manager picks the app's Ruby.
+  have="$(cd "$REPO_ROOT/tax-portal" && ruby -e 'print RUBY_VERSION')" || die "Ruby is not installed. This needs Ruby $wanted."
+  if [[ "$have" == "$wanted" && -z "${SERVE_RELAX_RUBY_VERSION:-}" ]]; then
+    return
+  fi
+  [[ "${have%.*}" == "${wanted%.*}" ]] || die "Ruby $have is installed, but the portal needs Ruby ${wanted%.*}.x (ideally $wanted)."
+  warn "Using Ruby $have in place of $wanted"
+  (
+    cd "$REPO_ROOT/tax-portal"
+    grep -v '^ruby ' Gemfile >Gemfile.hosted
+    [[ -f Gemfile.hosted.lock ]] || cp Gemfile.lock Gemfile.hosted.lock
+  )
+  export BUNDLE_GEMFILE="$REPO_ROOT/tax-portal/Gemfile.hosted"
+}
+use_available_ruby
+
+BUILD_MARKER="$LOG_DIR/built"
+source_version() { git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || echo unknown; }
+
+build() {
+  log "Installing the tax engine's dependencies"
+  (
+    cd "$REPO_ROOT/tax-engine"
+    # Make sure Poetry builds on Python 3.13 even if it runs on another Python.
+    if [[ ! -d .venv ]] && have python3.13; then poetry env use "$(command -v python3.13)" >/dev/null; fi
+    poetry install --no-interaction --quiet --only main
+  ) || die "Installing the tax engine failed."
+
+  log "Installing the portal's dependencies and building its assets"
+  cd "$REPO_ROOT/tax-portal"
+  bundle install --quiet || die "Installing the portal's gems failed."
+  npm install --no-audit --no-fund >/dev/null || die "Installing the portal's JavaScript packages failed."
+  # Building assets loads the app but needs no database or real secrets.
+  SECRET_KEY_BASE_DUMMY=1 bin/rails assets:precompile >"$LOG_DIR/assets.log" 2>&1 ||
+    die "Building the portal's assets failed. See $LOG_DIR/assets.log."
+  source_version >"$BUILD_MARKER"
+  ok "built"
+}
+
+if [[ "$MODE" == build ]]; then
+  build
+  exit 0
+fi
+[[ -f "$BUILD_MARKER" && "$(cat "$BUILD_MARKER")" == "$(source_version)" ]] || build
 
 # -- Database ---------------------------------------------------------------
 if [[ -n "${DATABASE_URL:-}" ]]; then
@@ -101,11 +176,9 @@ stop() {
 trap stop EXIT INT TERM
 
 # -- Tax engine -------------------------------------------------------------
-log "Starting the tax engine (loading tax rules takes about 30 seconds)"
+log "Starting the tax engine (loading tax rules takes about a minute)"
 (
   cd "$REPO_ROOT/tax-engine"
-  export POETRY_VIRTUALENVS_IN_PROJECT=true
-  poetry install --no-interaction --quiet --only main
   # local.env holds the engine's non-secret defaults; the settings below win.
   db=("$DB_HOST" "$DB_PORT" "$DB_USER" "$DB_PASSWORD" "$DB_NAME" "$DB_SSL_MODE")
   set -a
@@ -120,24 +193,26 @@ log "Starting the tax engine (loading tax rules takes about 30 seconds)"
 pids+=($!)
 
 # -- Portal -----------------------------------------------------------------
-# "mock-production" is the Rails template's production-like environment that
-# doesn't need AWS: compiled assets, no code reloading, sign-in without Cognito.
-export RAILS_ENV=mock-production AUTH_ADAPTER=mock DEMO_MODE=true
 export TAX_ENGINE_ADAPTER=http TAX_ENGINE_URL="http://127.0.0.1:$ENGINE_PORT"
-export RAILS_LOG_TO_STDOUT=true DISABLE_DATABASE_ENVIRONMENT_CHECK=1 AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
-# The production-like environment is set up for file uploads to a storage
-# bucket. The prototype stores no files, but the setting has to exist.
-export BUCKET_NAME="${BUCKET_NAME:-not-used}"
 
-log "Preparing the portal"
 cd "$REPO_ROOT/tax-portal"
-bundle install --quiet
-npm install --no-audit --no-fund >/dev/null
-bin/rails assets:precompile >"$LOG_DIR/assets.log" 2>&1 || die "Building the portal's assets failed. See $LOG_DIR/assets.log."
 bin/rails db:prepare >"$LOG_DIR/portal-migrate.log" 2>&1 || die "Preparing the portal's database failed. See $LOG_DIR/portal-migrate.log."
 
+# Start the portal before the engine is ready, so the host sees an open port
+# and a working home page straight away.
+log "Starting the portal on port $PORTAL_PORT"
+bin/rails server -p "$PORTAL_PORT" -b 0.0.0.0 >"$LOG_DIR/portal.log" 2>&1 &
+pids+=($!)
+for _ in $(seq 1 90); do
+  curl -fsS "http://127.0.0.1:$PORTAL_PORT/up" >/dev/null 2>&1 && break
+  kill -0 "${pids[1]}" 2>/dev/null || die "The portal stopped. See $LOG_DIR/portal.log."
+  sleep 1
+done
+curl -fsS "http://127.0.0.1:$PORTAL_PORT/up" >/dev/null 2>&1 || die "The portal did not start. See $LOG_DIR/portal.log."
+ok "portal listening on port $PORTAL_PORT"
+
 engine_ready() { curl -fsS "$TAX_ENGINE_URL/v1/engine" | grep -q '"ready": *true'; }
-for _ in $(seq 1 180); do
+for _ in $(seq 1 300); do
   engine_ready 2>/dev/null && break
   kill -0 "${pids[0]}" 2>/dev/null || die "The tax engine stopped. See $LOG_DIR/engine.log."
   sleep 1
@@ -145,6 +220,7 @@ done
 engine_ready || die "The tax engine did not start. See $LOG_DIR/engine.log."
 ok "tax engine ready"
 
+# Loading the demo people files their returns, which needs the engine.
 if [[ "$RESET" == true ]]; then
   log "Reloading the demo people"
   bin/rails runner 'DemoData.load!' >"$LOG_DIR/seed.log" 2>&1 || die "Loading demo people failed. See $LOG_DIR/seed.log."
@@ -152,16 +228,7 @@ else
   bin/rails runner 'DemoData.load! if User.where(provider: "demo").none?' >"$LOG_DIR/seed.log" 2>&1 ||
     die "Loading demo people failed. See $LOG_DIR/seed.log."
 fi
-
-log "Starting the portal on port $PORTAL_PORT"
-bin/rails server -p "$PORTAL_PORT" -b 0.0.0.0 >"$LOG_DIR/portal.log" 2>&1 &
-pids+=($!)
-for _ in $(seq 1 90); do
-  curl -fsS "http://127.0.0.1:$PORTAL_PORT/up" >/dev/null 2>&1 && break
-  sleep 1
-done
-curl -fsS "http://127.0.0.1:$PORTAL_PORT/up" >/dev/null 2>&1 || die "The portal did not start. See $LOG_DIR/portal.log."
-ok "portal ready on port $PORTAL_PORT"
+ok "ready: demo people loaded"
 log "Logs: tmp/serve/   Stop: Ctrl-C"
 
 # Stop everything if either app exits.

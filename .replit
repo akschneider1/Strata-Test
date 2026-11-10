@@ -1,20 +1,17 @@
-# Runs the tax prototype as a hosted demo on Replit. See docs/hosting.md.
-# Not yet tested on Replit.
+# Runs the tax prototype as a hosted demo on Replit.
+# Step-by-step: docs/hosting.md, "Replit". Not yet tested on Replit.
 #
-# Before the first run:
-#   1. Add a PostgreSQL database to the Repl (it sets DATABASE_URL).
-#   2. Use a machine with at least 2 GB of memory: the tax engine needs it.
-#   3. Optional: put the secrets printed by bin/hosting-secrets into Secrets.
-#      Otherwise they are generated into tmp/serve.env on first run.
+# In the workspace, Run starts both apps on port 3100.
+# To publish, choose a Reserved VM with at least 4 GB of memory.
 run = "bin/serve"
 entrypoint = "README.md"
 
 [nix]
-channel = "stable-24_11"
+channel = "stable-25_05"
 
 [deployment]
+build = ["bin/serve", "--build"]
 run = ["bin/serve"]
-deploymentTarget = "vm"
 
 [[ports]]
 localPort = 3100

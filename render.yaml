@@ -10,14 +10,14 @@ databases:
     user: app
 
 services:
-  # PolicyEngine rules behind a small API. Loaded rules need about 1.5 GB,
-  # so this needs a plan with at least 2 GB of memory.
+  # PolicyEngine rules behind a small API. Loaded rules need about 3 GB,
+  # so this needs a plan with at least 4 GB of memory.
   - type: pserv
     name: tax-engine
     runtime: docker
     rootDir: tax-engine
     dockerfilePath: ./Dockerfile
-    plan: standard
+    plan: pro
     dockerCommand: sh -c "poetry run db-migrate && exec poetry run gunicorn 'src.app:create_app()'"
     envVars:
       - key: ENVIRONMENT

@@ -15,8 +15,8 @@ module "prod_config" {
   enable_sms_notifications        = local.enable_sms_notifications
   enable_storage_malware_scanning = local.enable_storage_malware_scanning
 
-  # The tax rules need about 1.5 GB of memory once loaded, and a calculation
-  # uses one CPU core. Each container runs one worker (see gunicorn.conf.py)
+  # The tax rules need about 3 GB of memory once loaded (2025 rules plus the
+  # 2027 graduated-rate rules), and a calculation uses one CPU core. Each container runs one worker (see gunicorn.conf.py)
   # and handles about one new calculation a second; add containers for more.
   service_cpu                    = 1024
   service_memory                 = 4096

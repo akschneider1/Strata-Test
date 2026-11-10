@@ -14,7 +14,7 @@ Never put real taxpayer data in it.
 | Need | Why |
 | --- | --- |
 | Two long-running processes | The portal (Rails) and the tax engine (Python) |
-| About 2 GB of memory for the engine | The tax rules take about 1.5 GB once loaded |
+| About 4 GB of memory | The tax rules take about 3 GB once loaded; the portal needs a few hundred MB more |
 | A Postgres database | One database is enough; the two apps' tables don't clash |
 | One public port | Only the portal is public. The engine should stay private |
 | A few secrets | Listed under [Settings](#settings) |
@@ -23,11 +23,11 @@ Never put real taxpayer data in it.
 
 | Host | Fits? | How | Tested |
 | --- | --- | --- | --- |
-| Any Linux machine with the toolchain | Yes | `bin/serve` | Yes, in the development environment |
+| Any Linux machine with the tools | Yes | `bin/serve` | Yes, on a development machine |
 | Any machine with Docker | Yes | `docker compose up --build` | No |
 | Render | Yes | `render.yaml` blueprint | No |
 | Fly.io, Railway, Google Cloud Run, Azure Container Apps | Yes | Build the two Dockerfiles; use the settings below | No |
-| Replit | Probably | `.replit` runs `bin/serve` | No |
+| Replit | Probably | `.replit` runs `bin/serve`; needs a Reserved VM with 4 GB or more | No |
 | Vercel, Netlify | **No** | See below | Not applicable |
 
 "Tested: No" means the configuration was written from each host's
@@ -37,8 +37,8 @@ to adjust it the first time.
 ### Why not Vercel or Netlify
 
 They run short-lived functions and static sites. This prototype is two
-servers that stay running, one of which holds 1.5 GB of tax rules in memory
-and takes about 30 seconds to start. Neither host can run that, and neither
+servers that stay running, one of which holds about 3 GB of tax rules in
+memory and takes about a minute to start. Neither host can run that, and neither
 runs Rails. A Next.js front end from this repository's Next.js template
 could go on Vercel, but it would still need the engine and a database
 somewhere else.
@@ -91,18 +91,66 @@ needed to read what the portal has stored.
 portal as a web service. In Render, create a new Blueprint from this
 repository. Render generates the secrets and connects the services.
 
-The engine needs a plan with at least 2 GB of memory; the blueprint asks for
-`standard`. Check the plan names and prices before applying.
+The engine needs a plan with at least 4 GB of memory; the blueprint asks for
+`pro`. Check the plan names and prices before applying.
 
 ## Option 4: Replit
 
-`.replit` runs `bin/serve`. Before the first run:
+Not yet tested on Replit. The same launcher has been run end to end on a
+Linux development machine: the home page answered 7 seconds after start, the
+demo people were ready after about 75 seconds, and both apps together used
+about 2.8 GB of memory.
 
-1. Add a PostgreSQL database to the Repl, which sets `DATABASE_URL`.
-2. Choose a machine with at least 2 GB of memory.
-3. Check the Ruby version: the portal pins the exact version in
-   `tax-portal/.ruby-version`, and `replit.nix` can only ask for Ruby 3.4.
-   If they differ, install the pinned version in the Repl.
+### Set it up in the workspace
+
+1. In Replit, create an app by importing this repository from GitHub. If
+   Replit's Agent offers to set the project up or rewrite it, decline: the
+   repository already has `.replit` and `replit.nix`.
+2. Wait for Replit to install the tools listed in `replit.nix`.
+3. Add a PostgreSQL database to the app (the Database tool). That sets
+   `DATABASE_URL`, which `bin/serve` reads.
+4. Make sure the workspace has at least 4 GB of memory.
+5. Press **Run**. The first run installs dependencies and builds the
+   portal, which takes several minutes. The portal then opens on port 3100;
+   the demo people appear about a minute later, once the tax engine has
+   loaded.
+
+### Publish it
+
+1. Generate the secrets once, in the Replit shell, and add each line to the
+   app's **Secrets**. Leave out `DB_PASSWORD`; Replit's database has its own.
+
+   ```bash
+   bin/hosting-secrets
+   ```
+
+   Without this, a published app makes new secrets every time it is
+   republished, and the stored demo people can no longer be read.
+2. Choose **Publish**, then **Reserved VM**. Autoscale won't work: the tax
+   engine has to stay loaded in memory.
+3. Pick a machine with at least 4 GB of memory. 8 GB leaves headroom.
+4. Build command: `bin/serve --build`. Run command: `bin/serve`. (`.replit`
+   already says so; check that the publish screen shows the same.)
+5. Make sure the published app has the database and the secrets attached.
+
+To reload the demo people on a running workspace: `bin/serve --reset`.
+
+### If something fails
+
+These are the likeliest first-run problems, since this has not been run on
+Replit:
+
+| What you see | Likely cause | What to try |
+| --- | --- | --- |
+| Replit can't build the environment | A package name or the Nix channel in `replit.nix` or `.replit` isn't available | Change `channel` in `.replit` to the newest stable one Replit offers |
+| "Ruby X is installed, but the portal needs Ruby 3.4.x" | The Nix channel is too old to have Ruby 3.4 | Use a newer channel |
+| A gem or Python package fails to install | A system library is missing | Add it to `replit.nix` |
+| "an open port was not detected" when publishing | The run command isn't `bin/serve`, or the build step was skipped and the first start is slow | Set the build command to `bin/serve --build` |
+| The app stops or restarts after a minute | Out of memory while the tax engine loads | Use a larger machine |
+| No demo people on the home page | The tax engine hasn't finished loading, or failed | Wait a minute; then look at `tmp/serve/engine.log` and `tmp/serve/seed.log` |
+
+Logs are in `tmp/serve/`. Send the last lines of the one that failed and it
+can usually be fixed quickly.
 
 ## Other container hosts
 

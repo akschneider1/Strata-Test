@@ -21,7 +21,7 @@ services:
     volumes:
       - database:/var/lib/postgresql/data
 
-  # PolicyEngine rules behind a small API. Needs about 2 GB of memory.
+  # PolicyEngine rules behind a small API. Needs about 3 GB of memory.
   tax-engine:
     build:
       context: ./tax-engine
@@ -43,12 +43,12 @@ services:
       TAX_ENGINE_PRELOAD: "true"
     command: ["sh", "-c", "poetry run db-migrate && exec poetry run gunicorn 'src.app:create_app()'"]
     healthcheck:
-      # Healthy once the tax rules have loaded (about 30 seconds).
+      # Healthy once the tax rules have loaded (about a minute).
       test: ["CMD", "python", "-c", "import json,urllib.request,sys; sys.exit(0 if json.load(urllib.request.urlopen('http://127.0.0.1:3200/v1/engine'))['data']['ready'] else 1)"]
       interval: 10s
       timeout: 5s
-      retries: 30
-      start_period: 30s
+      retries: 40
+      start_period: 60s
 
   # Taxpayer and examiner portals, in the Rails template's production-like
   # environment that needs no AWS.

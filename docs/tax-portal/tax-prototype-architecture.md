@@ -30,17 +30,18 @@ every calculation.
 
 Measured on a 4-core development machine:
 
-- Loading the tax rules takes about 30 seconds and about 1.5 GB of memory
-  per process.
+- Loading the tax rules takes about a minute and 2 to 3 GB of memory per
+  process. That is two sets of rules: 2025, and 2027 with the graduated
+  rates. The 2025 rules alone took about 30 seconds and 1.5 GB.
 - A new calculation takes about half a second of one CPU core. One process
   handles a little over one new calculation a second, however many requests
   arrive at once. Repeating the same facts is answered from memory.
-- Three processes handled about three to five calculations a second using
-  about 4 GB.
+- Three processes handled about three to five calculations a second.
+  (Measured with the 2025 rules only, when they used about 4 GB together.)
 
 So the production server (`tax-engine/gunicorn.conf.py`) runs one worker per
 container, and capacity is added by running more containers. Each container
-is given 1 vCPU and 3 to 4 GB in `infra/tax-engine/app-config/<env>.tf`.
+is given 1 vCPU and 4 GB in `infra/tax-engine/app-config/<env>.tf`.
 `TAX_ENGINE_PRELOAD=true` loads the rules when the container starts.
 
 ### Connecting the portal to the engine when deployed
