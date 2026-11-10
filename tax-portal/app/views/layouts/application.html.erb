@@ -19,15 +19,16 @@
     <%= javascript_include_tag '@uswds/uswds/dist/js/uswds-init.min.js' %>
   </head>
 
-  <body>
+  <body class="co-site" id="top">
     <a class="usa-skipnav" href="#main-content"><%= t("shared.skip_to_content") %></a>
     <div class="display-flex flex-column minh-viewport">
       <%= render partial: "application/prototype_banner" %>
       <%= render partial: 'application/header' %>
 
       <main id="main-content" class="grid-col-fill display-flex flex-column">
+        <%= render partial: "application/hero", locals: { hero: @hero } if @hero %>
         <div class="grid-col-fill <%= yield :main_col_class %>">
-          <section class="usa-section">
+          <section class="usa-section <%= "padding-top-4" if @hero %>">
             <div class="grid-container">
               <%= render partial: 'application/flash' %>
 
@@ -42,6 +43,7 @@
           </section>
         </div>
       </main>
+      <%= render partial: "application/footer", locals: { container_class: "grid-container" } %>
     </div>
 
     <%= javascript_include_tag '@uswds/uswds/dist/js/uswds.min.js' %>

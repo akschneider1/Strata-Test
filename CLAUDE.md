@@ -72,6 +72,10 @@ CoDS/USWDS output.
   Anything that reads returns, tasks or records on file across people must
   stay inside the signed-in person's copy: use `DemoMode.cases_for` /
   `tasks_for`, never `TaxReturnCase.all` or `Strata::Task.all` in a controller.
+- The portal is meant to look like tax.colorado.gov (not Revenue Online).
+  Page titles on non-form pages go in the dark title band with `hero(...)`
+  (`TaxHelper`); layouts opt in to the State type scale with `co-site` on
+  `<body>`. See docs/tax-portal/design-comparison.md before changing the look.
 - Taxpayer-facing text lives in `tax-portal/config/locales/tax/` in English and
   Spanish; add both. Follow the Direct File content style: plain words, say
   what to do in error messages, no personal data in titles, links or buttons.

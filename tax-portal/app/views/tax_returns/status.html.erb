@@ -20,8 +20,8 @@
   "return.not_accepted" => "not_accepted"
 } %>
 
-<h1 class="font-heading-xl"><%= t(".title", tax_year: year) %></h1>
-<p><%= stage_tag(stage) %></p>
+<% hero t(".title", tax_year: year) %>
+<p class="margin-top-0"><%= stage_tag(stage) %></p>
 
 <% alert_type = { accepted: :success, needs_information: :warning, not_accepted: :error }.fetch(stage, :info) %>
 <%= cods_alert alert_type, heading: t("tax_returns.stages.#{stage}.heading"), data: { testid: "stage", stage: stage } do %>
@@ -59,18 +59,18 @@
 <% end %>
 
 <dl class="margin-top-4">
-  <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
+  <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
     <dt><%= t(".confirmation") %></dt>
-    <dd class="margin-0 text-bold" data-testid="confirmation-number"><%= @tax_return.confirmation_number %></dd>
+    <dd class="margin-0 text-bold text-right" data-testid="confirmation-number"><%= @tax_return.confirmation_number %></dd>
   </div>
-  <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
+  <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
     <dt><%= t(".submitted_on") %></dt>
-    <dd class="margin-0 text-bold"><%= plain_time(@tax_return.submitted_at) %></dd>
+    <dd class="margin-0 text-bold text-right"><%= plain_time(@tax_return.submitted_at) %></dd>
   </div>
   <% unless stage == :not_accepted %>
-  <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
+  <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
     <dt><%= @calculation.owes? ? t("tax_calculation.lines.amount_owed.label") : t("tax_calculation.lines.refund.label") %></dt>
-    <dd class="margin-0 text-bold" data-testid="result-amount"><%= money(@calculation.owes? ? @calculation.amount_owed : @calculation.refund) %></dd>
+    <dd class="margin-0 text-bold text-right" data-testid="result-amount"><%= money(@calculation.owes? ? @calculation.amount_owed : @calculation.refund) %></dd>
   </div>
   <% end %>
 </dl>

@@ -3,3 +3,18 @@ es-US:
     language_toggle: Español
     menu: "Menú"
     logout: Cerrar sesión
+  footer:
+    return_to_top: "Volver arriba"
+    tax_heading: "Ayuda con impuestos de Colorado"
+    tax_links:
+      individual: "Impuesto sobre el ingreso personal en tax.colorado.gov (en inglés)"
+      due_dates: "Guía de fechas límite (en inglés)"
+      glossary: "Glosario del impuesto sobre el ingreso (en inglés)"
+      contact: "Comuníquese con el Departamento de Hacienda (en inglés)"
+    prototype_heading: "Este prototipo"
+    about: "Acerca de este prototipo"
+    notice: "Este es un prototipo. No es un sitio web del Estado de Colorado y no puede presentar una declaración de impuestos real."
+  breadcrumbs:
+    home: "Inicio"
+    label: "Ruta de navegación"
+    previous: "Volver a"
