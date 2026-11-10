@@ -52,6 +52,44 @@ RSpec.describe "Home page" do
       expect(response).to redirect_to(tax_returns_path)
     end
 
+    it "can be started over, since a shared demo gets used up" do
+      demo_user(:maya, "Maya Torres", :taxpayer)
+      allow(DemoData).to receive(:load!)
+
+      get root_path
+      expect(response.body).to include("Start the demo over", "Reset the demo")
+
+      post demo_reset_path
+      expect(DemoData).to have_received(:load!)
+      expect(response).to redirect_to(root_path)
+      follow_redirect!
+      expect(response.body).to include("The demo is back to the start.")
+    end
+
+    it "says so when it can't be started over" do
+      allow(DemoData).to receive(:load!).and_raise(TaxEngine::Unavailable)
+
+      post demo_reset_path
+      follow_redirect!
+
+      expect(response.body).to include("couldn&#39;t be reset just now")
+    end
+
+    it "loads the demo people, including one who owes tax" do
+      DemoData.load!
+
+      names = DemoMode.users.map(&:full_name)
+      expect(names).to eq([ "Maya Torres", "Daniela Ruiz", "Walter Bennett", "Elena Park", "Jordan Lee", "Priya Shah", "Marcus Reed" ])
+
+      elena = User.find_by!(uid: "demo-elena").tax_returns.sole
+      expect(elena.tax_return_case).to have_attributes(outcome: "accepted", step: "end")
+      expect(elena.tax_return_case.current_calculation.owes?).to be(true)
+
+      sign_in elena.user
+      get tax_return_path(elena)
+      expect(response.body).to include("You owe", "can&#39;t take payments yet")
+    end
+
     it "is available in Spanish" do
       demo_user(:maya, "Maya Torres", :taxpayer)
 
@@ -63,6 +101,15 @@ RSpec.describe "Home page" do
 
   context "when it is not a demo" do
     before { allow(DemoMode).to receive(:enabled?).and_return(false) }
+
+    it "has no way to reset anything" do
+      allow(DemoData).to receive(:load!)
+
+      post demo_reset_path
+
+      expect(response).to have_http_status(:not_found)
+      expect(DemoData).not_to have_received(:load!)
+    end
 
     it "offers sign-in and no demo people" do
       get root_path

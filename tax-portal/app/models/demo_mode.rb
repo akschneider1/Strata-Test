@@ -8,7 +8,7 @@ module DemoMode
   end
 
   # The order the demo guide tells the story in.
-  STORY_ORDER = %w[demo-maya demo-daniela demo-walter demo-jordan demo-examiner demo-examiner2].freeze
+  STORY_ORDER = %w[demo-maya demo-daniela demo-walter demo-elena demo-jordan demo-examiner demo-examiner2].freeze
 
   def self.scope
     User.where(provider: "demo")

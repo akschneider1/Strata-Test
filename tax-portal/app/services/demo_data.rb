@@ -13,7 +13,8 @@ class DemoData
     maya: { name: %w[Maya Torres], born: Date.new(1996, 3, 14), ssn: "000001001" },
     daniela: { name: %w[Daniela Ruiz], born: Date.new(1991, 8, 2), ssn: "000001002" },
     walter: { name: %w[Walter Bennett], born: Date.new(1957, 5, 20), ssn: "000001003" },
-    jordan: { name: %w[Jordan Lee], born: Date.new(1984, 11, 9), ssn: "000001004" }
+    jordan: { name: %w[Jordan Lee], born: Date.new(1984, 11, 9), ssn: "000001004" },
+    elena: { name: %w[Elena Park], born: Date.new(1988, 4, 22), ssn: "000001006" }
   }.freeze
   ELEANOR_SSN = "000001005"
 
@@ -25,7 +26,8 @@ class DemoData
     { ssn: ELEANOR_SSN, kind: "form_1099r", payer_name: "Rocky Mountain Teachers Retirement", amount: 12_000, colorado_withholding: 0 },
     { ssn: ELEANOR_SSN, kind: "ssa_1099", payer_name: "Social Security Administration", amount: 18_000, colorado_withholding: 0 },
     { ssn: "000001004", kind: "w2", payer_name: "Summit Logistics", amount: 61_000, colorado_withholding: 2_900 },
-    { ssn: "000001004", kind: "form_1099g", payer_name: "Colorado Department of Labor and Employment", amount: 5_200, colorado_withholding: 0 }
+    { ssn: "000001004", kind: "form_1099g", payer_name: "Colorado Department of Labor and Employment", amount: 5_200, colorado_withholding: 0 },
+    { ssn: "000001006", kind: "w2", payer_name: "Pikes Peak Design", amount: 72_000, colorado_withholding: 1_500 }
   ].freeze
 
   def self.load!
@@ -47,6 +49,9 @@ class DemoData
     daniela(users[:daniela])
     # Walter and Eleanor have filed; their return was accepted automatically.
     submit(walter(users[:walter]))
+    # Elena has filed too. Her employer took too little out of her pay, so
+    # she owes: the only demo person who does.
+    submit(elena(users[:elena]))
     # Jordan has filed with more withholding than his employer reported, so
     # his return is waiting for an examiner.
     submit(jordan(users[:jordan]))
@@ -69,6 +74,10 @@ class DemoData
       spouse_name_first: "Eleanor", spouse_name_last: "Bennett", spouse_date_of_birth: Date.new(1959, 9, 30), spouse_ssn: ELEANOR_SSN
     )
     finish_income(tax_return, has_interest_income: true, taxable_interest: 1_400)
+  end
+
+  def elena(user)
+    finish_income(start(user, :elena, marital_status: "unmarried", has_dependents: false))
   end
 
   def jordan(user)

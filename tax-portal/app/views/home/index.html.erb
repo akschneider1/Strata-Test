@@ -46,6 +46,14 @@
     <ul class="usa-list measure-5">
       <% t(".demo_how").each do |item| %><li><%= item %></li><% end %>
     </ul>
+
+    <% unless loading %>
+      <details class="margin-top-2" data-testid="demo-reset">
+        <summary class="usa-link padding-y-105"><%= t(".demo_reset_summary") %></summary>
+        <p class="measure-5"><%= t(".demo_reset_lead") %></p>
+        <%= button_to t(".demo_reset"), demo_reset_path, class: "usa-button usa-button--outline cods-button cods-button--secondary" %>
+      </details>
+    <% end %>
   </section>
 <% end %>
 
