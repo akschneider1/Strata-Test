@@ -13,6 +13,8 @@ module TaxEngine
     end
 
     def initialize(url: self.class.setting("TAX_ENGINE_URL", LOCAL_URL), token: self.class.setting("TAX_ENGINE_API_TOKEN", LOCAL_TOKEN), timeout: TaxEngine::INTERACTIVE_TIMEOUT)
+      # Some hosts hand over a bare "host:port" for a private service.
+      url = "http://#{url}" unless url.match?(%r{\Ahttps?://})
       @connection = Faraday.new(url: url, headers: { "X-Auth" => token }) do |faraday|
         faraday.request :json
         faraday.response :json

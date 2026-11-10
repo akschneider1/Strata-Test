@@ -21,3 +21,7 @@
 
 # Logs from bin/demo
 /tmp/demo/
+
+# Hosted demo launcher (bin/serve): logs and generated secrets
+/tmp/serve/
+/tmp/serve.env

@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+# Run the Colorado income tax prototype as a hosted demo, without Docker:
+# the tax engine and the portal in production-like mode, with the demo
+# people and one-click demo sign-in.
+#
+# For any host that gives you a Linux machine and a port: Replit, a VM, a
+# container you build yourself. See docs/hosting.md.
+#
+# Usage:
+#   bin/serve            Build, migrate, load demo people if there are none, and serve.
+#   bin/serve --reset    Same, but reload the demo people first.
+#
+# Settings (all optional):
+#   PORT           Port the portal listens on (default 3100). Most hosts set this.
+#   ENGINE_PORT    Port the tax engine listens on, on this machine only (default 3200).
+#   DATABASE_URL   postgres://user:password@host:port/database. Both apps share
+#                  the one database. Default: the local Postgres from
+#                  bin/setup-env --postgres.
+#   SECRET_KEY_BASE, AR_ENCRYPTION_PRIMARY_KEY, AR_ENCRYPTION_DETERMINISTIC_KEY,
+#   AR_ENCRYPTION_KEY_DERIVATION_SALT, TAX_ENGINE_API_TOKEN
+#                  Secrets. Set them in your host's secret store. If any are
+#                  missing they are generated once and kept in tmp/serve.env,
+#                  which only suits a machine whose disk persists.
+#
+# Needs the toolchain from bin/setup-env and about 2 GB of memory.
+#
+# This is a demo deployment: anyone who can reach it can sign in as a demo
+# person. Never put real taxpayer data in it.
+set -euo pipefail
+# shellcheck disable=SC1091 # shared helpers; checked separately
+source "$(dirname "$0")/../stack/lib/common.sh"
+setup_path
+
+RESET=false
+[[ "${1:-}" == "--reset" ]] && RESET=true
+[[ $# -eq 0 || "$RESET" == true ]] || die "usage: bin/serve [--reset]"
+
+PORTAL_PORT="${PORT:-3100}"
+ENGINE_PORT="${ENGINE_PORT:-3200}"
+SECRETS_FILE="$REPO_ROOT/tmp/serve.env"
+LOG_DIR="$REPO_ROOT/tmp/serve"
+mkdir -p "$LOG_DIR"
+
+# -- Database ---------------------------------------------------------------
+if [[ -n "${DATABASE_URL:-}" ]]; then
+  # Both apps read DB_* settings, so split the URL into them.
+  eval "$(
+    python3 - "$DATABASE_URL" <<'PY'
+import shlex, sys
+from urllib.parse import parse_qs, unquote, urlparse
+
+url = urlparse(sys.argv[1])
+settings = {
+    "DB_HOST": url.hostname or "localhost",
+    "DB_PORT": str(url.port or 5432),
+    "DB_USER": unquote(url.username or ""),
+    "DB_PASSWORD": unquote(url.password or ""),
+    "DB_NAME": url.path.lstrip("/"),
+    "DB_SSL_MODE": parse_qs(url.query).get("sslmode", ["prefer"])[0],
+}
+for name, value in settings.items():
+    print(f"export {name}={shlex.quote(value)}")
+PY
+  )"
+  # Rails would otherwise prefer the URL over the settings above.
+  unset DATABASE_URL
+else
+  export DB_HOST="${DB_HOST:-127.0.0.1}" DB_PORT="${DB_PORT:-5432}" DB_USER="${DB_USER:-app}"
+  export DB_PASSWORD="${DB_PASSWORD:-secret123}" DB_NAME="${DB_NAME:-tax_prototype_hosted}" DB_SSL_MODE="${DB_SSL_MODE:-prefer}"
+fi
+export PGPASSWORD="$DB_PASSWORD"
+pg_isready -q -h "$DB_HOST" -p "$DB_PORT" || die "Can't reach Postgres at $DB_HOST:$DB_PORT. Set DATABASE_URL, or run 'bin/setup-env --postgres'."
+if ! psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -tAc "select 1" >/dev/null 2>&1; then
+  log "Creating database $DB_NAME"
+  createdb -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" "$DB_NAME" || die "Database $DB_NAME doesn't exist and couldn't be created."
+fi
+
+# -- Secrets ----------------------------------------------------------------
+SECRET_NAMES=(SECRET_KEY_BASE AR_ENCRYPTION_PRIMARY_KEY AR_ENCRYPTION_DETERMINISTIC_KEY AR_ENCRYPTION_KEY_DERIVATION_SALT TAX_ENGINE_API_TOKEN)
+if [[ -f "$SECRETS_FILE" ]]; then
+  # Values from the host's secret store win over the generated file.
+  while IFS='=' read -r name value; do
+    [[ -n "$name" && -z "${!name:-}" ]] && export "$name=$value"
+  done <"$SECRETS_FILE"
+fi
+for name in "${SECRET_NAMES[@]}"; do
+  if [[ -z "${!name:-}" ]]; then
+    warn "$name is not set; generating one in tmp/serve.env"
+    value="$(openssl rand -hex 32)"
+    (umask 077 && echo "$name=$value" >>"$SECRETS_FILE")
+    export "$name=$value"
+  fi
+done
+
+pids=()
+stop() {
+  trap - EXIT INT TERM
+  for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done
+  wait 2>/dev/null || true
+}
+trap stop EXIT INT TERM
+
+# -- Tax engine -------------------------------------------------------------
+log "Starting the tax engine (loading tax rules takes about 30 seconds)"
+(
+  cd "$REPO_ROOT/tax-engine"
+  export POETRY_VIRTUALENVS_IN_PROJECT=true
+  poetry install --no-interaction --quiet --only main
+  # local.env holds the engine's non-secret defaults; the settings below win.
+  db=("$DB_HOST" "$DB_PORT" "$DB_USER" "$DB_PASSWORD" "$DB_NAME" "$DB_SSL_MODE")
+  set -a
+  # shellcheck disable=SC1091
+  source ./local.env
+  set +a
+  export DB_HOST="${db[0]}" DB_PORT="${db[1]}" DB_USER="${db[2]}" DB_PASSWORD="${db[3]}" DB_NAME="${db[4]}" DB_SSL_MODE="${db[5]}"
+  export ENVIRONMENT=demo HOST=127.0.0.1 PORT="$ENGINE_PORT" API_AUTH_TOKEN="$TAX_ENGINE_API_TOKEN" TAX_ENGINE_PRELOAD=true
+  poetry run db-migrate >"$LOG_DIR/engine-migrate.log" 2>&1
+  exec poetry run gunicorn "src.app:create_app()"
+) >"$LOG_DIR/engine.log" 2>&1 &
+pids+=($!)
+
+# -- Portal -----------------------------------------------------------------
+# "mock-production" is the Rails template's production-like environment that
+# doesn't need AWS: compiled assets, no code reloading, sign-in without Cognito.
+export RAILS_ENV=mock-production AUTH_ADAPTER=mock DEMO_MODE=true
+export TAX_ENGINE_ADAPTER=http TAX_ENGINE_URL="http://127.0.0.1:$ENGINE_PORT"
+export RAILS_LOG_TO_STDOUT=true DISABLE_DATABASE_ENVIRONMENT_CHECK=1 AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+# The production-like environment is set up for file uploads to a storage
+# bucket. The prototype stores no files, but the setting has to exist.
+export BUCKET_NAME="${BUCKET_NAME:-not-used}"
+
+log "Preparing the portal"
+cd "$REPO_ROOT/tax-portal"
+bundle install --quiet
+npm install --no-audit --no-fund >/dev/null
+bin/rails assets:precompile >"$LOG_DIR/assets.log" 2>&1 || die "Building the portal's assets failed. See $LOG_DIR/assets.log."
+bin/rails db:prepare >"$LOG_DIR/portal-migrate.log" 2>&1 || die "Preparing the portal's database failed. See $LOG_DIR/portal-migrate.log."
+
+engine_ready() { curl -fsS "$TAX_ENGINE_URL/v1/engine" | grep -q '"ready": *true'; }
+for _ in $(seq 1 180); do
+  engine_ready 2>/dev/null && break
+  kill -0 "${pids[0]}" 2>/dev/null || die "The tax engine stopped. See $LOG_DIR/engine.log."
+  sleep 1
+done
+engine_ready || die "The tax engine did not start. See $LOG_DIR/engine.log."
+ok "tax engine ready"
+
+if [[ "$RESET" == true ]]; then
+  log "Reloading the demo people"
+  bin/rails runner 'DemoData.load!' >"$LOG_DIR/seed.log" 2>&1 || die "Loading demo people failed. See $LOG_DIR/seed.log."
+else
+  bin/rails runner 'DemoData.load! if User.where(provider: "demo").none?' >"$LOG_DIR/seed.log" 2>&1 ||
+    die "Loading demo people failed. See $LOG_DIR/seed.log."
+fi
+
+log "Starting the portal on port $PORTAL_PORT"
+bin/rails server -p "$PORTAL_PORT" -b 0.0.0.0 >"$LOG_DIR/portal.log" 2>&1 &
+pids+=($!)
+for _ in $(seq 1 90); do
+  curl -fsS "http://127.0.0.1:$PORTAL_PORT/up" >/dev/null 2>&1 && break
+  sleep 1
+done
+curl -fsS "http://127.0.0.1:$PORTAL_PORT/up" >/dev/null 2>&1 || die "The portal did not start. See $LOG_DIR/portal.log."
+ok "portal ready on port $PORTAL_PORT"
+log "Logs: tmp/serve/   Stop: Ctrl-C"
+
+# Stop everything if either app exits.
+wait -n
+die "One of the apps stopped. See $LOG_DIR."
