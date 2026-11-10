@@ -14,6 +14,17 @@ en:
     logout: "Log out"
     title: "Colorado Individual Income Tax"
     close: "Close"
+  footer:
+    return_to_top: "Return to top"
+    tax_heading: "Colorado tax help"
+    tax_links:
+      individual: "Individual income tax on tax.colorado.gov"
+      due_dates: "Due date guide"
+      glossary: "Income tax glossary"
+      contact: "Contact the Department of Revenue"
+    prototype_heading: "This prototype"
+    about: "About this prototype"
+    notice: "This is a prototype. It is not a State of Colorado website and can't file a real tax return."
   flash:
     error_heading:
       zero: "An unexpected error occurred"
@@ -22,6 +33,7 @@ en:
     error_fallback: "Sorry, we encountered an unexpected error. If this continues to happen, you may call the Contact Center."
     reload_page: "Reload page"
   breadcrumbs:
+    label: "Breadcrumb"
     home: "Home"
   buttons:
     submit: "Submit"

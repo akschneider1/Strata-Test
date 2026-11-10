@@ -2,11 +2,10 @@
 <% content_for :title, t(".title", tax_year: year) %>
 <%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
 
-<h1 class="font-heading-xl"><%= t(".title", tax_year: year) %></h1>
-<p class="usa-intro"><%= t(".lead") %></p>
+<% hero t(".title", tax_year: year), intro: t(".lead") %>
 
 <% if @calculation %>
-  <section aria-labelledby="estimate-heading" class="border-left-05 border-primary bg-primary-lighter padding-2 margin-y-3">
+  <section aria-labelledby="estimate-heading" class="border-left-05 border-primary bg-primary-lighter padding-2 margin-bottom-3">
     <h2 id="estimate-heading" class="margin-0 font-body-sm text-normal">
       <%= @calculation.owes? ? t(".estimate_owed_heading") : t(".estimate_refund_heading") %>
     </h2>
@@ -16,13 +15,14 @@
 <% end %>
 
 <h2 class="usa-sr-only"><%= t(".sections_heading") %></h2>
-<ol class="usa-list usa-list--unstyled margin-top-3">
+<ol class="usa-list usa-list--unstyled display-flex flex-column gap-2">
   <% @flow.tasks.each_with_index do |task, index| %>
     <% prefix = "tax_returns.task_section_component.#{task.name}" %>
     <% state = @tax_return.section_state(task) %>
-    <li class="border-top-1px border-base-light padding-y-3 maxw-none" data-section="<%= task.name %>" data-state="<%= state %>">
+    <li class="cods-card maxw-none margin-bottom-2" data-section="<%= task.name %>" data-state="<%= state %>">
+     <div class="usa-card__container cods-card__container padding-2">
       <div class="display-flex flex-wrap flex-justify flex-align-center gap-1">
-        <h3 class="font-heading-lg margin-0"><%= index + 1 %>. <%= t("#{prefix}.title") %></h3>
+        <h3 class="usa-card__heading cods-card__heading margin-0"><%= index + 1 %>. <%= t("#{prefix}.title") %></h3>
         <span class="text-no-wrap"><%= cods_tag(t(".status.#{state}"), { completed: "green", in_progress: "yellow" }[state]) %></span>
       </div>
       <p class="margin-top-1 measure-5"><%= t("#{prefix}.description") %></p>
@@ -35,12 +35,13 @@
       <% when :not_started %>
         <%= link_to t(".actions.start"), task.path(@tax_return), class: "usa-button cods-button", "aria-label": "#{t('.actions.start')}: #{t("#{prefix}.title")}" %>
       <% end %>
+     </div>
     </li>
   <% end %>
 </ol>
 
 <% if @flow.completed? %>
-  <%= link_to t(".review_and_sign"), review_tax_return_path(@tax_return), class: "usa-button usa-button--big cods-button" %>
+  <p class="margin-top-3"><%= link_to t(".review_and_sign"), review_tax_return_path(@tax_return), class: "usa-button usa-button--big cods-button" %></p>
 <% else %>
   <p class="text-base-dark"><%= t(".finish_sections_first") %></p>
 <% end %>

@@ -50,14 +50,410 @@
     color: var(--cods-color-text-action-link-active);
   }
 
-  // Touch targets. USWDS buttons and form controls are 40px tall, a little
-  // under the 44px that phones and tablets need for a comfortable tap
-  // (WCAG 2.5.5). Below desktop width, make them at least 44px.
+  // Touch targets. USWDS buttons are 40px tall, a little under the 44px that
+  // phones and tablets need for a comfortable tap (WCAG 2.5.5). Below desktop
+  // width, make them at least 44px. (Form fields are 44px at every width;
+  // see below.)
   @media (max-width: 63.99em) {
-    .usa-button:not(.usa-button--unstyled),
-    .usa-input,
-    .usa-select {
+    .usa-button:not(.usa-button--unstyled) {
       min-height: 2.75rem;
     }
+  }
+
+  // ---------------------------------------------------------------------
+  // Form fields
+  // ---------------------------------------------------------------------
+  // CoDS styles a field only when the markup carries its own classes
+  // (`cods-input__control`, `cods-select__control`). The Strata form builder
+  // and the SDK write plain `usa-input` / `usa-select`, which would get the
+  // bare USWDS look: square corners and a hairline border. Give plain fields
+  // the CoDS field look, from the same tokens CoDS uses.
+  .usa-input,
+  .usa-textarea,
+  .usa-select,
+  .usa-input-group {
+    border: var(--cods-border-input-width) solid var(--cods-color-border-form-default);
+    border-radius: var(--cods-radius-md);
+    background-color: var(--cods-color-surface-form);
+    color: var(--cods-color-text-primary);
+  }
+
+  .usa-input,
+  .usa-select,
+  .usa-input-group {
+    height: auto;
+    min-height: 2.75rem;
+  }
+
+  // A field inside a group (a "$" prefix, for example) has no border of its
+  // own: the group draws it.
+  .usa-input-group .usa-input {
+    border: 0;
+    border-radius: var(--cods-radius-md);
+    min-height: calc(2.75rem - 2 * var(--cods-border-input-width));
+  }
+
+  .usa-input:hover:not(:disabled, [readonly], .usa-input--error),
+  .usa-textarea:hover:not(:disabled, [readonly], .usa-input--error),
+  .usa-select:hover:not(:disabled, .usa-input--error),
+  .usa-input-group:hover:not(.usa-input-group--error) {
+    border-color: var(--cods-color-border-form-hover);
+  }
+
+  .usa-input:focus-visible,
+  .usa-textarea:focus-visible,
+  .usa-select:focus-visible,
+  .usa-input-group.is-focused {
+    outline: var(--cods-focus-ring-width) solid var(--cods-color-bg-action-focus);
+    outline-offset: var(--cods-focus-ring-offset);
+  }
+
+  .usa-input--error,
+  .usa-input-group--error {
+    border-color: var(--cods-color-border-form-danger);
+    border-width: 0.25rem;
+  }
+
+  // Text boxes and dropdowns in one form line up: USWDS lets a dropdown run
+  // the full width of a form while text boxes stop at 30rem.
+  .usa-form :where(.usa-input, .usa-textarea, .usa-select, .usa-input-group) {
+    max-width: 30rem;
+  }
+
+  // Width tells people how much to type, so sized fields keep their size.
+  .usa-form .usa-input--2xs { max-width: 5ex; }
+  .usa-form .usa-input--xs { max-width: 9ex; }
+  .usa-form .usa-input--sm { max-width: 13ex; }
+  .usa-form .usa-input--md { max-width: 20ex; }
+  .usa-form .usa-input--lg { max-width: 30ex; }
+  // The two widest sizes match an unsized field, so a street address lines
+  // up with the dropdown below it.
+  .usa-form .usa-input--xl,
+  .usa-form .usa-input--2xl { max-width: 30rem; }
+
+  // Radio buttons and checkboxes: CoDS border and selected colors.
+  .usa-radio__label::before,
+  .usa-checkbox__label::before {
+    box-shadow: 0 0 0 2px var(--cods-color-border-form-default);
+  }
+
+  .usa-radio__input:checked + [class*="__label"]::before {
+    background-color: var(--cods-color-bg-action-primary);
+    box-shadow:
+      0 0 0 2px var(--cods-color-bg-action-primary),
+      inset 0 0 0 2px var(--cods-color-surface-form);
+  }
+
+  .usa-checkbox__input:checked + [class*="__label"]::before {
+    background-color: var(--cods-color-bg-action-primary);
+    box-shadow: 0 0 0 2px var(--cods-color-bg-action-primary);
+  }
+
+  // ---------------------------------------------------------------------
+  // Step indicator ("Step 2 of 4")
+  // ---------------------------------------------------------------------
+  // CoDS has no step indicator, so the USWDS one (used by the Strata SDK's
+  // form flows) is untouched. Give it CoDS colors, rounded segments with a
+  // clear gap, and one layout at every width: the counter never wraps under
+  // itself and the step name wraps cleanly beside it.
+  .usa-step-indicator {
+    background-color: transparent;
+    font-family: var(--cods-font-family-body), sans-serif;
+  }
+
+  .usa-step-indicator__segments {
+    gap: var(--cods-space-2xs);
+  }
+
+  .usa-step-indicator__segment {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .usa-step-indicator__segment::after {
+    border-radius: var(--cods-radius-full);
+    // Steps still to do. Dark enough to see against white (3:1).
+    background-color: #71767a;
+  }
+
+  .usa-step-indicator__segment--complete::after {
+    background-color: var(--cods-color-co-blue-90);
+  }
+
+  .usa-step-indicator__segment--current::after {
+    background-color: var(--cods-color-bg-action-focus);
+  }
+
+  .usa-step-indicator__header {
+    margin-top: var(--cods-space-sm);
+  }
+
+  .usa-step-indicator__heading {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: var(--cods-space-sm);
+    margin: 0;
+    color: var(--cods-color-text-primary);
+    font-family: var(--cods-font-family-body), sans-serif;
+    font-size: var(--cods-font-size-desktop-ui);
+    font-weight: var(--cods-font-weight-semibold);
+    line-height: 1.3;
+  }
+
+  .usa-step-indicator__heading-counter {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--cods-space-xs);
+    white-space: nowrap;
+  }
+
+  .usa-step-indicator__current-step {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0;
+    padding: 0;
+    border-radius: var(--cods-radius-full);
+    background-color: var(--cods-color-bg-action-focus);
+    color: var(--cods-color-white);
+    font-size: var(--cods-font-size-desktop-ui);
+    font-weight: var(--cods-font-weight-semibold);
+    line-height: 1;
+  }
+
+  .usa-step-indicator__total-steps {
+    margin: 0;
+    color: var(--cods-color-text-secondary);
+    font-size: var(--cods-font-size-desktop-ui);
+    font-weight: var(--cods-font-weight-regular);
+  }
+
+  .usa-step-indicator__heading-text {
+    display: block;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  // ---------------------------------------------------------------------
+  // State site look (matches tax.colorado.gov)
+  // ---------------------------------------------------------------------
+  // tax.colorado.gov is built on USWDS with the same fonts and colors as
+  // CoDS, plus a header, type scale, link color and footer that CoDS does
+  // not ship yet. These rules fill those gaps so a person moving between
+  // the State's site and an app sees the same thing. Values are CoDS tokens
+  // wherever one exists. Add `co-site` to <body> to opt a layout in to the
+  // type scale and page width.
+
+  // Header: white, with a soft shadow under it.
+  .usa-header {
+    background-color: var(--cods-color-white);
+    box-shadow: 0 4px 6px -2px rgb(27 27 27 / 8%);
+  }
+
+  // Lift the header above the title band so its shadow shows. Only at
+  // desktop width: below that the menu is an overlay that must stay on top.
+  @media (min-width: 64em) {
+    .usa-header {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  .usa-logo__text,
+  .usa-logo__text a {
+    color: var(--cods-color-text-primary);
+    font-weight: var(--cods-font-weight-semibold);
+  }
+
+  // Page width: 90rem (1440px), as on the State's site.
+  .co-site .grid-container,
+  .co-site .usa-header .usa-nav-container {
+    max-width: 90rem;
+  }
+
+  // Type scale: the page title in Museo Slab, other headings in Open Sans
+  // semibold, at the State's sizes (which are also the CoDS heading tokens).
+  .co-site h1,
+  .co-site .usa-legend--large h1 {
+    font-family: var(--cods-font-family-heading), "Trebuchet MS", serif;
+    font-size: var(--cods-font-size-mobile-h1);
+    font-weight: var(--cods-font-weight-mobile-h1);
+    line-height: var(--cods-line-height-mobile-h1);
+    letter-spacing: 0;
+  }
+
+  .co-site main h2:not(.usa-sr-only, .usa-card__heading, .usa-alert__heading, [class*="font-body-"]) {
+    font-size: var(--cods-font-size-mobile-h3);
+    font-weight: var(--cods-font-weight-semibold);
+    line-height: var(--cods-line-height-mobile-h3);
+  }
+
+  .co-site main h3:not(.usa-card__heading, .usa-alert__heading, [class*="font-body-"]) {
+    font-size: var(--cods-font-size-mobile-h5);
+    font-weight: var(--cods-font-weight-semibold);
+    line-height: 1.3;
+  }
+
+  .co-site main h4:not(.usa-step-indicator__heading, .usa-card__heading, .usa-alert__heading, [class*="font-body-"]) {
+    font-size: var(--cods-font-size-mobile-h6);
+    font-weight: var(--cods-font-weight-semibold);
+    line-height: 1.33;
+  }
+
+  @media (min-width: 64em) {
+    .co-site h1,
+    .co-site .usa-legend--large h1 {
+      font-size: var(--cods-font-size-desktop-h1);
+      line-height: var(--cods-line-height-desktop-h1);
+    }
+
+    .co-site main h2:not(.usa-sr-only, .usa-card__heading, .usa-alert__heading, [class*="font-body-"]) {
+      font-size: var(--cods-font-size-desktop-h3);
+      line-height: var(--cods-line-height-desktop-h3);
+    }
+  }
+
+  // A question on a form page is the page title, but it sits above fields,
+  // so it uses the next size down.
+  .co-site h1.usa-form-heading,
+  .co-site .usa-legend--large h1 {
+    font-size: var(--cods-font-size-mobile-h2);
+    line-height: var(--cods-line-height-mobile-h2);
+  }
+
+  @media (min-width: 64em) {
+    .co-site h1.usa-form-heading,
+    .co-site .usa-legend--large h1 {
+      font-size: var(--cods-font-size-desktop-h2);
+      line-height: var(--cods-line-height-desktop-h2);
+    }
+  }
+
+  .usa-card__heading {
+    font-family: var(--cods-font-family-body), sans-serif;
+    font-size: var(--cods-font-size-mobile-h4);
+    font-weight: var(--cods-font-weight-semibold);
+    line-height: 1.25;
+  }
+
+  // Links in text are underlined, in the CoDS link color (the State's site
+  // uses the same blue).
+  .co-site :where(main a:not(.usa-button)) {
+    text-decoration: underline;
+  }
+
+  // Footer, after the State's: "Return to top", link columns, then a line
+  // of notices.
+  .co-footer {
+    color: var(--cods-color-text-primary);
+    font-family: var(--cods-font-family-body), sans-serif;
+  }
+
+  .co-footer__return-to-top {
+    padding-block: var(--cods-space-sm);
+    background-color: var(--cods-color-white);
+    border-top: 1px solid var(--cods-color-co-gray-10);
+  }
+
+  .co-footer__return-to-top-link,
+  .co-footer__link {
+    display: inline-flex;
+    align-items: center;
+    // Tall enough to tap (44px).
+    min-height: 2.75rem;
+    color: var(--cods-color-co-blue-80-brand);
+    font-weight: var(--cods-font-weight-semibold);
+    text-decoration: none;
+  }
+
+  .co-footer__return-to-top-link:visited,
+  .co-footer__link:visited {
+    color: var(--cods-color-co-blue-80-brand);
+  }
+
+  .co-footer__return-to-top-link:hover,
+  .co-footer__return-to-top-link:focus,
+  .co-footer__link:hover,
+  .co-footer__link:focus {
+    text-decoration: underline;
+  }
+
+  .co-footer__primary {
+    padding-block: var(--cods-space-2xl);
+    // The State's footer color. CoDS has no token this light.
+    background-color: #fbfcfd;
+  }
+
+  .co-footer__columns {
+    display: flex;
+    flex-direction: column;
+    gap: var(--cods-space-xl);
+  }
+
+  @media (min-width: 40em) {
+    .co-footer__columns {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+  }
+
+  .co-footer__column {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .co-footer__column-title {
+    margin: 0 0 var(--cods-space-xs);
+    font-size: var(--cods-font-size-desktop-h6);
+    font-weight: var(--cods-font-weight-semibold);
+    line-height: 1.33;
+  }
+
+  .co-footer__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .co-footer__link {
+    font-size: 0.89rem;
+    line-height: 1.43;
+  }
+
+  .co-footer__notices {
+    padding-block: var(--cods-space-md);
+    background-color: var(--cods-color-co-gray-5);
+    font-size: 0.89rem;
+    line-height: 1.43;
+  }
+
+  .co-footer__notices p {
+    margin: 0;
+  }
+}
+
+// A card that is not itself a link has a plain heading. CoDS colors every
+// card heading as a link, which makes a name look clickable.
+.cods-card__container:not(a) .cods-card__heading {
+  color: var(--cods-color-text-primary);
+}
+
+// The CoDS hero centers its content at 1280px. Line it up with the page
+// content instead. Not in a layer, so it wins over the CoDS component rule.
+.co-site .cods-hero__content {
+  max-width: 90rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 64em) {
+  .co-site .cods-hero__content {
+    padding-inline: 2rem;
   }
 }

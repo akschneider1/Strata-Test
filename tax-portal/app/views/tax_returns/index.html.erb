@@ -2,8 +2,7 @@
 <% content_for :title, t(".title", tax_year: year) %>
 <%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
 
-<h1 class="font-heading-xl"><%= t(".title", tax_year: year) %></h1>
-<p class="usa-intro"><%= t(".lead") %></p>
+<% hero t(".title", tax_year: year), intro: t(".lead") %>
 
 <h2 class="font-heading-lg"><%= t(".need_heading") %></h2>
 <ul class="usa-list">

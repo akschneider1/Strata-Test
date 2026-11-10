@@ -44,6 +44,14 @@ module TaxHelper
     end
   end
 
+  # Puts the page title in the dark band across the top of the page, as on
+  # tax.colorado.gov. `crumbs` are the pages above this one, after Home:
+  # [[name, path], ...]. Pass `home: false` on the home page itself.
+  def hero(title, intro: nil, crumbs: [], home: true)
+    @hero = { title: title, intro: intro, crumbs: (home ? [ [ t("breadcrumbs.home"), root_path ] ] : []) + crumbs }
+    nil
+  end
+
   def cods_tag(text, color = nil)
     content_tag(:span, text, class: class_names("usa-tag", "cods-tags", ("cods-tags--#{color}" if color)))
   end

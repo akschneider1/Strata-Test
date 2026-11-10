@@ -30,6 +30,8 @@ and a script for testing the prototype with people is in
 [docs/tax-portal/usability-test-kit.md](docs/tax-portal/usability-test-kit.md).
 The UX audit of the taxpayer portal is in
 [docs/tax-portal/ux-audit.md](docs/tax-portal/ux-audit.md).
+How its look compares with tax.colorado.gov:
+[docs/tax-portal/design-comparison.md](docs/tax-portal/design-comparison.md).
 The product audit of the demo is in
 [docs/tax-portal/product-audit.md](docs/tax-portal/product-audit.md).
 For legislators and fiscal staff:

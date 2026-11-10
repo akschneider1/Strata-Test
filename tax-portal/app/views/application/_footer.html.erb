@@ -1,0 +1,33 @@
+<%# Footer laid out like tax.colorado.gov's: return to top, link columns, notices. %>
+<footer class="co-footer">
+  <div class="co-footer__return-to-top">
+    <div class="<%= container_class %>">
+      <a class="co-footer__return-to-top-link" href="#top"><%= t("footer.return_to_top") %></a>
+    </div>
+  </div>
+  <div class="co-footer__primary">
+    <div class="<%= container_class %>">
+      <div class="co-footer__columns">
+        <div class="co-footer__column">
+          <h2 class="co-footer__column-title"><%= t("footer.tax_heading") %></h2>
+          <ul class="co-footer__list">
+            <% { individual: "https://tax.colorado.gov/individual-income-tax", due_dates: "https://tax.colorado.gov/due-date-guide", glossary: "https://tax.colorado.gov/colorado-individual-income-tax-glossary", contact: "https://tax.colorado.gov/contact-us" }.each do |key, url| %>
+              <li><a class="co-footer__link" href="<%= url %>"><%= t("footer.tax_links.#{key}") %></a></li>
+            <% end %>
+          </ul>
+        </div>
+        <div class="co-footer__column">
+          <h2 class="co-footer__column-title"><%= t("footer.prototype_heading") %></h2>
+          <ul class="co-footer__list">
+            <li><%= link_to t("footer.about"), main_app.about_path, class: "co-footer__link" %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="co-footer__notices">
+    <div class="<%= container_class %>">
+      <p><%= t("footer.notice") %></p>
+    </div>
+  </div>
+</footer>

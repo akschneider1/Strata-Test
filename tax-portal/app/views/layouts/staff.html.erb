@@ -11,7 +11,7 @@
     <%= javascript_importmap_tags %>
     <%= javascript_include_tag '@uswds/uswds/dist/js/uswds-init.min.js' %>
   </head>
-  <body>
+  <body id="top">
     <a class="usa-skipnav" href="#main-content"><%= t("shared.skip_to_content") %></a>
     <div class="display-flex flex-column minh-viewport">
       <%= render partial: "application/prototype_banner" %>
@@ -25,6 +25,7 @@
           </div>
         </section>
       </main>
+      <%= render partial: "application/footer", locals: { container_class: "grid-container-widescreen" } %>
     </div>
     <%= javascript_include_tag '@uswds/uswds/dist/js/uswds.min.js' %>
   </body>

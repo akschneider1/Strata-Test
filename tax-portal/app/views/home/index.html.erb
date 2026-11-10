@@ -9,11 +9,10 @@
   <% end %>
 <% end %>
 
-<h1 class="font-heading-xl"><%= t(".title") %></h1>
-<p class="font-body-md line-height-sans-5 measure-5"><%= t(".lead") %></p>
+<% hero t(".title"), intro: t(".lead"), home: false %>
 
 <% if @demo_mode %>
-  <section class="margin-top-4" aria-labelledby="demo-heading">
+  <section aria-labelledby="demo-heading">
     <h2 id="demo-heading" class="font-heading-lg"><%= t(".demo_heading") %></h2>
     <p class="measure-5"><%= t(".demo_lead") %></p>
 
@@ -24,12 +23,12 @@
     <% { taxpayer: t(".demo_taxpayers"), examiner: t(".demo_examiners") }.each do |role, heading| %>
       <% people = @people.select { |person| person.role == role.to_s } %>
       <h3 class="font-heading-md margin-top-3"><%= heading %></h3>
-      <ul class="usa-list usa-list--unstyled" data-testid="demo-<%= role %>s">
+      <ul class="usa-list usa-list--unstyled display-flex flex-column gap-2" data-testid="demo-<%= role %>s">
         <% people.each do |person| %>
-          <li class="border-1px border-base-light radius-md padding-2 margin-bottom-2 maxw-none">
-            <div class="grid-row grid-gap flex-align-center">
+          <li class="cods-card maxw-none margin-bottom-2">
+            <div class="usa-card__container cods-card__container padding-2 grid-row grid-gap flex-align-center flex-row">
               <div class="tablet:grid-col-fill">
-                <h4 class="font-heading-md margin-0"><%= person.name %></h4>
+                <h4 class="usa-card__heading cods-card__heading margin-0"><%= person.name %></h4>
                 <p class="margin-top-05 margin-bottom-0"><%= t("demo_users.#{person.key}") %></p>
               </div>
               <% unless loading %>

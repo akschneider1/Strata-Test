@@ -1,0 +1,19 @@
+<%# The page title band, as on tax.colorado.gov: dark blue, breadcrumb, then the title. Set from a view with `hero(...)`. %>
+<div class="cods-hero">
+  <div class="cods-hero__content">
+    <% if hero[:crumbs].any? %>
+      <nav class="cods-hero__breadcrumbs" aria-label="<%= t("breadcrumbs.label") %>">
+        <ol class="cods-hero__breadcrumb-list">
+          <% hero[:crumbs].each_with_index do |(name, path), index| %>
+            <li class="cods-hero__breadcrumb-item">
+              <%= link_to name, path %>
+            </li>
+          <% end %>
+          <li class="cods-hero__breadcrumb-item" aria-current="page"><%= hero[:title] %></li>
+        </ol>
+      </nav>
+    <% end %>
+    <h1 class="cods-hero__heading"><%= hero[:title] %></h1>
+    <% if hero[:intro] %><p class="cods-hero__intro"><%= hero[:intro] %></p><% end %>
+  </div>
+</div>

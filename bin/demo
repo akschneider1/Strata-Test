@@ -81,10 +81,11 @@ log "Preparing the portal"
   [[ -f .env ]] || sed -e "s/^DB_NAME=.*/DB_NAME=tax_portal_development/" local.env.example >.env
   bundle install --quiet
   npm install --no-audit --no-fund >/dev/null
-  npm run build:css >/dev/null
   # Assets compiled for a hosted demo (bin/serve) would be served in place of
-  # the ones just built, so remove them.
+  # fresh ones, so remove them. Do it before building: clobbering also
+  # empties app/assets/builds.
   if [[ -d public/assets ]]; then bin/rails assets:clobber >/dev/null 2>&1; fi
+  npm run build:css >/dev/null
   bin/rails db:prepare >/dev/null
 )
 
