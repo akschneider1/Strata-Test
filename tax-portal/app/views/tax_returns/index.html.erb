@@ -1,0 +1,16 @@
+<% year = TaxReturn::CURRENT_TAX_YEAR %>
+<% content_for :title, t(".title", tax_year: year) %>
+<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
+
+<h1 class="font-heading-xl"><%= t(".title", tax_year: year) %></h1>
+<p class="usa-intro"><%= t(".lead") %></p>
+
+<h2 class="font-heading-lg"><%= t(".need_heading") %></h2>
+<ul class="usa-list">
+  <% t(".need").each do |item| %><li><%= item %></li><% end %>
+</ul>
+
+<h2 class="font-heading-lg"><%= t(".who_heading") %></h2>
+<p><%= t(".who", tax_year: year) %></p>
+
+<%= button_to t(".start"), tax_returns_path, class: "usa-button usa-button--big cods-button margin-top-2" %>

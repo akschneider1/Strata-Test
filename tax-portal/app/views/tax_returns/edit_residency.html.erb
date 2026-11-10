@@ -1,0 +1,4 @@
+<% title = page_t("title", tax_year: @tax_return.tax_year) %>
+<%= render layout: "question", locals: { title: title } do |f| %>
+  <%= f.yes_no :full_year_resident, legend: content_tag(:h1, title, class: "font-heading-xl margin-0"), hint: page_t("hint"), large_legend: true %>
+<% end %>

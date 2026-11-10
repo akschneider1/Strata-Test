@@ -15,7 +15,25 @@ It contains the full Strata suite, ready to generate apps from:
 | [Flask app template](https://github.com/navapbc/template-application-flask) | Python APIs, data/batch jobs, OpenAPI | `bin/new-app flask <name>` |
 | [nava-platform CLI](https://github.com/navapbc/platform-cli) | Installs and updates the templates | installed by `bin/setup-env` |
 
-No apps exist yet. They get created from requirements with one command each.
+## Apps
+
+| App | What it is |
+| --- | --- |
+| [`tax-portal`](tax-portal/) | Prototype Colorado individual income tax portal: taxpayer filing, automatic processing and examiner review (Rails, Strata SDK) |
+| [`tax-engine`](tax-engine/) | Tax calculation API backed by PolicyEngine US (Flask) |
+
+To see the prototype, run the two commands below and open <http://localhost:3100>.
+The click-by-click script is in [docs/tax-portal/demo-guide.md](docs/tax-portal/demo-guide.md).
+
+```bash
+bin/setup-env --postgres
+```
+
+```bash
+bin/demo
+```
+
+More apps are created from requirements with one command each.
 
 ## Quick start
 
@@ -54,6 +72,7 @@ Docker is optional; each app's `docker compose` setup works as Nava documents it
 | `bin/new-app <rails\|nextjs\|flask> <name> [--port N] [--skip-verify]` | Create an app from a Strata template. Ports default to 3000, 3100, 3200… |
 | `bin/new-app --reapply <name>` | Re-apply the CoDS/Strata customizations (idempotent). Run this after a template update. |
 | `bin/new-app --verify <name>` | Install dependencies and run the app's lint and tests. |
+| `bin/demo [test\|reset]` | Run the tax prototype with demo data; `test` also runs the browser walkthrough. |
 | `bin/cods-upgrade <version>` | Move every app to another CoDS release, after verifying the release checksums. |
 | `make help` | Infra targets from the AWS template (`infra-lint`, `release-build`, …). |
 

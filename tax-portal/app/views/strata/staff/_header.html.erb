@@ -1,0 +1,30 @@
+<%# Overrides the Strata SDK staff header: shows who is signed in and a working sign-out. %>
+<div class="usa-overlay"></div>
+<header class="usa-header usa-header--basic">
+  <div class="usa-nav-container maxw-widescreen">
+    <div class="usa-navbar">
+      <div class="usa-logo">
+        <em class="usa-logo__text"><%= link_to t("header.staff_title"), main_app.staff_path %></em>
+      </div>
+      <button class="usa-menu-btn" type="button">Menu</button>
+    </div>
+    <nav aria-label="Primary navigation" class="usa-nav">
+      <button type="button" class="usa-nav__close">
+        <img src="<%= asset_path('@uswds/uswds/dist/img/usa-icons/close.svg') %>" alt="<%= t('header.close') %>" />
+      </button>
+      <ul class="usa-nav__primary usa-accordion">
+        <% header_links.each do |link| %>
+          <li class="usa-nav__primary-item">
+            <%= link_to link[:name], link[:path], class: class_names("usa-nav-link", "usa-current": request.path.start_with?(link[:path])) %>
+          </li>
+        <% end %>
+        <li class="usa-nav__primary-item">
+          <span class="usa-nav-link text-normal"><%= current_user.display_name %> · <%= t("staff.header.role") %></span>
+        </li>
+        <li class="usa-nav__primary-item">
+          <%= button_to t("header.logout"), current_user.provider == "demo" ? main_app.demo_sign_out_path : main_app.destroy_user_session_path, method: :delete, class: "usa-nav-link" %>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

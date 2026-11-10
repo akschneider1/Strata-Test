@@ -1,0 +1,46 @@
+services:
+  tax-portal-database:
+    image: postgres:16-alpine
+    command: postgres -c "log_lock_waits=on" -N 1000 -c "fsync=off"
+    environment:
+      POSTGRES_PASSWORD: secret123
+      POSTGRES_USER: app
+    healthcheck:
+      test: "pg_isready --username=app"
+      timeout: 10s
+      retries: 20
+    ports:
+      - "5432:5432"
+    volumes:
+      - tax-portal-database_data:/var/lib/postgresql/data
+
+  # Rails app
+  # Configured for "development" RAILS_ENV
+  tax-portal:
+    build:
+      context: .
+      target: dev
+    depends_on:
+      tax-portal-database:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      - DB_HOST=tax-portal-database
+      - RAILS_BINDING=0.0.0.0
+      - RAILS_ENV=development
+    ports:
+      - 3100:3100
+    volumes:
+      - .:/rails
+      # Use named volumes for directories that the container should use the guest
+      # machine's dir instead of the host machine's dir, which may be divergent.
+      # This is especially true for any dependency or temp directories.
+      - tax-portal_nodemodules:/rails/node_modules
+      - tax-portal_tmp:/rails/tmp
+      - tax-portal_storage:/rails/storage
+
+volumes:
+  tax-portal-database_data:
+  tax-portal_nodemodules:
+  tax-portal_tmp:
+  tax-portal_storage:

@@ -31,6 +31,22 @@ usage() {
 # Customizations (all idempotent)
 # ---------------------------------------------------------------------------
 
+# Point package.json at the pinned Colorado Design System release and
+# install it. See stack/lib/cods-package-json.mjs for why the lockfile is
+# created with a temporary npm override.
+cods_npm_install() {
+  local app="$1"
+  shift
+  local args=("$app/package.json" --cods "$CODS_VERSION" --uswds "$USWDS_VERSION" --sass "$SASS_RANGE" "$@")
+
+  if ! grep -q "colorado-design-tokens-${CODS_VERSION}.tgz" "$app/package-lock.json" 2>/dev/null; then
+    node stack/lib/cods-package-json.mjs "${args[@]}" --bootstrap-override >/dev/null
+    (cd "$app" && npm install --no-audit --no-fund >/dev/null)
+  fi
+  node stack/lib/cods-package-json.mjs "${args[@]}"
+  (cd "$app" && npm install --no-audit --no-fund >/dev/null)
+}
+
 customize_rails() {
   local app="$1" db
   db="$(db_ident "$app")"
@@ -118,13 +134,11 @@ JS
   # Give each app its own test database so several apps can share a server.
   perl -pi -e "s/^(\s*database:\s*)app_rails_test\s*$/\${1}${db}_test\n/" "$app/config/database.yml"
 
-  node stack/lib/cods-package-json.mjs "$app/package.json" \
-    --cods "$CODS_VERSION" --uswds "$USWDS_VERSION" --sass "$SASS_RANGE" --rails
+  cods_npm_install "$app" --rails
 
   customize_rails_infra "$app"
 
   log "$app: updating lockfiles"
-  (cd "$app" && npm install --no-audit --no-fund >/dev/null)
   (cd "$app" && bundle lock >/dev/null)
 }
 
@@ -167,11 +181,7 @@ customize_nextjs() {
     grep -q 'colorado-design-system/styles.css' "$f" || warn "$f: could not find the styles.scss import; add the CoDS import manually"
   done
 
-  node stack/lib/cods-package-json.mjs "$app/package.json" \
-    --cods "$CODS_VERSION" --uswds "$USWDS_VERSION" --sass "$SASS_RANGE"
-
-  log "$app: updating lockfile"
-  (cd "$app" && npm install --no-audit --no-fund >/dev/null)
+  cods_npm_install "$app"
 }
 
 customize_flask() {

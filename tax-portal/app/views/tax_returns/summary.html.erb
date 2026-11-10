@@ -1,0 +1,23 @@
+<% content_for :title, t(".title") %>
+<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
+<% status = @calculation.filing_status %>
+
+<%= render partial: "strata/shared/exit_link", locals: { exit_path: tax_return_path(@tax_return), exit_text: t("shared.back") } %>
+
+<h1 class="font-heading-xl"><%= t(".title") %></h1>
+<p class="usa-intro"><%= t(".lead") %></p>
+
+<% if @filed_calculation && @tax_return.tax_return_case.return_adjustments.any? %>
+  <%= cods_alert(:info) { t(".adjusted_note") } %>
+<% end %>
+
+<%= render "result", calculation: @calculation %>
+
+<section class="margin-top-3">
+  <h2 class="font-heading-md margin-bottom-1"><%= t(".filing_status_heading", status: t("filing_statuses.#{status}")) %></h2>
+  <% unless @tax_return.submitted? && @tax_return.filing_status.code != status %>
+    <p class="margin-top-0"><%= t("filing_statuses.reasons.#{@tax_return.filing_status.reason}") %></p>
+  <% end %>
+</section>
+
+<%= render "calculation", calculation: @calculation, tax_year: @tax_return.tax_year %>

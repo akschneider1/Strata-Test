@@ -1,0 +1,52 @@
+// =========================================================
+// Colorado Design System compatibility for plain USWDS markup
+// =========================================================
+// Managed by the repo's bin/new-app (source: stack/cods/_cods-compat.scss).
+// Edit the source file and run `bin/new-app --reapply <app>` rather than
+// editing an app's copy.
+//
+// Strata templates, react-uswds and the Strata SDK emit USWDS-only classes
+// (e.g. `usa-button usa-button--outline`, bare `<a>` tags). CoDS expects
+// them paired with `cods-*` classes and does not enable USWDS global link
+// styles, so some markup renders incorrectly without these fixes.
+//
+// Rules live in the same `uswds` cascade layer CoDS uses, so CoDS
+// components (`cods.components` layer) and unlayered app styles still win.
+// Remove a rule once the pinned CoDS release (stack/versions.env) fixes it.
+@layer uswds {
+  // CoDS sets `.usa-button { background-color }` after USWDS's outline rule,
+  // so bare outline buttons render navy-on-navy.
+  .usa-button.usa-button--outline,
+  .usa-button.usa-button--outline:hover,
+  .usa-button.usa-button--outline.usa-button--hover,
+  .usa-button.usa-button--outline:active {
+    background-color: transparent;
+  }
+
+  // Same cause: "unstyled" buttons (buttons that look like links) pick up
+  // the primary background.
+  .usa-button.usa-button--unstyled,
+  .usa-button.usa-button--unstyled:hover,
+  .usa-button.usa-button--unstyled:active {
+    background-color: transparent;
+    color: var(--cods-color-text-action-link);
+  }
+
+  // USWDS "global link styles" replacement: color links with the CoDS link
+  // tokens. :where() keeps specificity at zero, so any component rule wins.
+  :where(a) {
+    color: var(--cods-color-text-action-link);
+  }
+
+  :where(a):visited {
+    color: var(--cods-color-text-action-link-visited);
+  }
+
+  :where(a):hover {
+    color: var(--cods-color-text-action-link-hover);
+  }
+
+  :where(a):active {
+    color: var(--cods-color-text-action-link-active);
+  }
+}

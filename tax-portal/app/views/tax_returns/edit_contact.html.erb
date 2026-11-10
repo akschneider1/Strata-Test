@@ -1,0 +1,5 @@
+<%= render layout: "question", locals: { title: page_t("title") } do |f| %>
+  <h1 class="usa-form-heading font-heading-xl"><%= page_t("title") %></h1>
+  <%= f.address_fields :mailing_address, legend: "" %>
+  <%= f.text_field :phone, label: page_t("phone_label"), optional: true, width: "md", type: "tel", autocomplete: "tel" %>
+<% end %>

@@ -1,0 +1,19 @@
+<%# Layout for interview pages: where you are in the section, then one question. %>
+<% steps = @flow_task.pages.select { |page| page.needed?(@tax_return) || page == @flow_task.current_page } %>
+<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
+<%= content_for :content do %>
+  <%= render partial: "strata/shared/exit_link", locals: {
+    exit_path: @flow.start_path,
+    exit_text: t("tax_returns.actions.exit")
+  } %>
+  <div class="margin-y-2">
+    <%= render partial: "strata/shared/step_indicator", locals: {
+      steps: steps.map(&:name),
+      current_step: @flow_task.current_page.name,
+      translation_scope: "tax_returns.steps"
+    } %>
+  </div>
+  <%= yield %>
+<% end %>
+
+<%= render template: "layouts/application" %>

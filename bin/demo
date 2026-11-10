@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# Run the Colorado income tax prototype locally: the tax engine
+# (tax-engine, PolicyEngine) and the portal (tax-portal), with demo people.
+#
+# Usage:
+#   bin/demo          Start both apps and load fresh demo data. Ctrl-C stops them.
+#   bin/demo test     Start both apps, load fresh demo data, run the browser
+#                     walkthrough tests (e2e/tax-portal), then stop.
+#   bin/demo reset    Reload the demo data while the demo is running.
+#
+# Needs the toolchain from bin/setup-env and a local Postgres
+# (bin/setup-env --postgres). Open http://localhost:3100 when it says ready.
+set -euo pipefail
+# shellcheck disable=SC1091 # shared helpers; checked separately
+source "$(dirname "$0")/../stack/lib/common.sh"
+setup_path
+
+MODE="${1:-run}"
+ENGINE_PORT=3200
+PORTAL_PORT=3100
+LOG_DIR="$REPO_ROOT/tmp/demo"
+export DB_HOST="${DB_HOST:-127.0.0.1}"
+export DEMO_MODE=true
+export TAX_ENGINE_URL="http://127.0.0.1:$ENGINE_PORT"
+
+seed() {
+  log "Loading demo people and returns"
+  (cd "$REPO_ROOT/tax-portal" && SEED_DEMO_DATA=true bin/rails db:seed) | grep -v DEBUG || true
+}
+
+if [[ "$MODE" == reset ]]; then
+  seed
+  exit 0
+fi
+[[ "$MODE" == run || "$MODE" == test ]] || die "usage: bin/demo [test|reset]"
+
+pg_isready -q -h "$DB_HOST" -p 5432 || die "Postgres is not running. Run 'bin/setup-env --postgres' first."
+mkdir -p "$LOG_DIR"
+
+pids=()
+stop() {
+  trap - EXIT INT TERM
+  for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done
+  wait 2>/dev/null || true
+}
+trap stop EXIT INT TERM
+
+wait_for() { # wait_for <description> <seconds> <command...>
+  local description="$1" seconds="$2"
+  shift 2
+  for _ in $(seq 1 "$seconds"); do
+    "$@" >/dev/null 2>&1 && return 0
+    sleep 1
+  done
+  die "$description did not start. See $LOG_DIR."
+}
+
+log "Starting the tax engine on port $ENGINE_PORT (loading tax rules takes about 30 seconds)"
+(
+  cd "$REPO_ROOT/tax-engine"
+  export POETRY_VIRTUALENVS_IN_PROJECT=true
+  poetry install --no-interaction --quiet
+  set -a
+  # shellcheck disable=SC1091
+  source ./local.env
+  set +a
+  export DB_HOST DB_NAME=tax_engine PORT=$ENGINE_PORT PGPASSWORD="${DB_PASSWORD:-secret123}"
+  psql -h "$DB_HOST" -U app -d postgres -tAc "select 1 from pg_database where datname='tax_engine'" | grep -q 1 ||
+    createdb -h "$DB_HOST" -U app tax_engine
+  poetry run db-migrate >"$LOG_DIR/engine-migrate.log" 2>&1
+  exec poetry run flask --app src.app run --host 127.0.0.1 --port "$ENGINE_PORT"
+) >"$LOG_DIR/engine.log" 2>&1 &
+pids+=($!)
+
+log "Preparing the portal"
+(
+  cd "$REPO_ROOT/tax-portal"
+  [[ -f .env ]] || sed -e "s/^DB_NAME=.*/DB_NAME=tax_portal_development/" local.env.example >.env
+  bundle install --quiet
+  npm install --no-audit --no-fund >/dev/null
+  npm run build:css >/dev/null
+  bin/rails db:prepare >/dev/null
+)
+
+engine_ready() { curl -fsS "$TAX_ENGINE_URL/v1/engine" | grep -q '"ready": *true'; }
+wait_for "The tax engine" 180 engine_ready
+ok "tax engine ready"
+
+seed
+
+log "Starting the portal on port $PORTAL_PORT"
+(cd "$REPO_ROOT/tax-portal" && exec bin/rails server -p "$PORTAL_PORT" -b 127.0.0.1) >"$LOG_DIR/portal.log" 2>&1 &
+pids+=($!)
+wait_for "The portal" 90 curl -fsS "http://127.0.0.1:$PORTAL_PORT/up"
+ok "portal ready: http://localhost:$PORTAL_PORT"
+
+if [[ "$MODE" == test ]]; then
+  log "Running the browser walkthrough"
+  cd "$REPO_ROOT/e2e"
+  [[ -d node_modules ]] || npm install --no-audit --no-fund >/dev/null
+  APP_NAME=tax-portal BASE_URL="http://127.0.0.1:$PORTAL_PORT" DEMO_WALKTHROUGH=true npm test -- --project=chromium --workers=1 --trace off
+  exit 0
+fi
+
+echo >&2
+log "Demo is running. Sign in as a demo person on the home page."
+log "Guide: docs/tax-portal/demo-guide.md   Logs: tmp/demo/   Stop: Ctrl-C"
+wait

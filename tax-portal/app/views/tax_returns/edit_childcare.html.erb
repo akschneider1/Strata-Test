@@ -1,0 +1,7 @@
+<% title = page_t("title") %>
+<%= render layout: "question", locals: { title: title } do |f| %>
+  <%= f.yes_no :paid_childcare, legend: content_tag(:h1, title, class: "font-heading-xl margin-0"), hint: page_t("hint"), large_legend: true %>
+  <%= f.conditional :paid_childcare, eq: "true" do %>
+    <%= f.text_field :childcare_expenses, label: page_t("amount_label", tax_year: @tax_return.tax_year), hint: t("shared.dollars_hint"), prefix: "$", width: "md", inputmode: "numeric" %>
+  <% end %>
+<% end %>

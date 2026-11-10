@@ -1,0 +1,9 @@
+<%# locals: (key:, path:) %>
+<%# One section of the review page, with a link back to change it. %>
+<section class="margin-top-4" aria-labelledby="review-<%= key %>">
+  <div class="display-flex flex-justify flex-align-end border-bottom-2px border-primary padding-bottom-1">
+    <h2 id="review-<%= key %>" class="font-heading-lg margin-0"><%= t("tax_returns.review.#{key}") %></h2>
+    <%= link_to t("shared.edit"), path, class: "usa-link", "aria-label": "#{t('shared.edit')}: #{t("tax_returns.review.#{key}")}" %>
+  </div>
+  <dl class="margin-0"><%= yield %></dl>
+</section>

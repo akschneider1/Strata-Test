@@ -3,9 +3,10 @@
 // release and keeps USWDS / Sass aligned with it.
 //
 // Usage: node stack/lib/cods-package-json.mjs <package.json> \
-//          --cods <version> --uswds <version> --sass <range> [--rails]
+//          --cods <version> --uswds <version> --sass <range> [--rails] [--bootstrap-override]
 //
-//   --rails  also prefixes the "build:css" script with `node ./bin/cods-css`
+//   --rails               also prefixes the "build:css" script with `node ./bin/cods-css`
+//   --bootstrap-override  temporarily add the npm override needed to create the lockfile
 import fs from "node:fs";
 import { parseArgs } from "node:util";
 
@@ -16,6 +17,7 @@ const { values, positionals } = parseArgs({
     uswds: { type: "string" },
     sass: { type: "string" },
     rails: { type: "boolean", default: false },
+    "bootstrap-override": { type: "boolean", default: false },
   },
 });
 const [file] = positionals;
@@ -37,9 +39,17 @@ pkg.devDependencies ??= {};
 // CoDS is not on npm yet: install the checksummed GitHub release archives.
 pkg.dependencies[SYS] = `${base}/coloradodigitalservice-colorado-design-system-${values.cods}.tgz`;
 pkg.dependencies[TOK] = `${base}/coloradodigitalservice-colorado-design-tokens-${values.cods}.tgz`;
-// The system package depends on tokens@<exact version>; resolve that to the
-// release archive above instead of the (not yet published) npm package.
-pkg.overrides = { ...(pkg.overrides ?? {}), [TOK]: "$" + TOK };
+// The system package depends on tokens@<exact version>, which is not on npm.
+// An npm "override" pointing it at the release archive is needed once, to
+// create the lockfile (--bootstrap-override). It must not stay in
+// package.json: the npm 9 that ships in the Rails template's container
+// image rejects URL overrides ("Invalid comparator"). Once the lockfile pins
+// the archive, every npm version installs from it without the override.
+const overrides = { ...(pkg.overrides ?? {}) };
+if (values["bootstrap-override"]) overrides[TOK] = "$" + TOK;
+else delete overrides[TOK];
+if (Object.keys(overrides).length > 0) pkg.overrides = overrides;
+else delete pkg.overrides;
 
 // USWDS JS/images come from the same USWDS release CoDS is built on.
 pkg.dependencies["@uswds/uswds"] = values.uswds;

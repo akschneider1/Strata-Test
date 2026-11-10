@@ -1,4 +1,6 @@
-PROJECT_ROOT ?= $(notdir $(PWD))
+# Lowercased because it names container images, and image names must be
+# lowercase (this repository's directory is Strata-Test).
+PROJECT_ROOT ?= $(shell echo $(notdir $(PWD)) | tr '[:upper:]' '[:lower:]')
 
 # Use `=` instead of `:=` so that we only execute `./bin/current-account-alias` when needed
 # See https://www.gnu.org/software/make/manual/html_node/Flavors.html#Flavors

@@ -1,0 +1,16 @@
+<%# locals: (title:, hint: nil) %>
+<%# Wraps one interview page: a form posting to the current flow page, with the question as the page heading and Back / Save and continue buttons. %>
+<% content_for :title, title %>
+<%= strata_form_with model: @tax_return, url: @flow_task.update_path, method: :patch do |f| %>
+  <%= yield f %>
+
+  <hr class="border-base-lightest margin-top-4">
+  <ul class="usa-button-group">
+    <li class="usa-button-group__item">
+      <%= link_to t("shared.back"), @flow_task.prev_path || @flow.start_path, class: "usa-button usa-button--outline cods-button cods-button--secondary" %>
+    </li>
+    <li class="usa-button-group__item">
+      <%= f.button t("shared.continue"), type: :submit, class: "usa-button cods-button" %>
+    </li>
+  </ul>
+<% end %>

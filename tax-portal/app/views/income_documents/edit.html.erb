@@ -1,0 +1,9 @@
+<% on_file = @income_document.on_file? %>
+<% title = on_file ? t(".title_on_file") : t(".title") %>
+<% content_for :title, title %>
+<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
+<h1 class="font-heading-xl"><%= title %></h1>
+<% if on_file %>
+  <p class="usa-intro font-body-md"><%= t(".on_file_lead", payer: @income_document.payer_name, amount: money(@income_document.wage_record.amount), withholding: money(@income_document.wage_record.colorado_withholding)) %></p>
+<% end %>
+<%= render "form", income_document: @income_document, url: tax_return_income_document_path(@tax_return, @income_document), method: :patch %>

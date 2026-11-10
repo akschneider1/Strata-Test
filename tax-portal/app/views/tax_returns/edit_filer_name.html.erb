@@ -1,0 +1,4 @@
+<%= render layout: "question", locals: { title: page_t("title") } do |f| %>
+  <h1 class="usa-form-heading font-heading-xl"><%= page_t("title") %></h1>
+  <%= f.name :filer_name, legend: page_t("hint") %>
+<% end %>

@@ -1,0 +1,13 @@
+<%# locals: (calculation:) %>
+<%# Headline result of a calculation. %>
+<div class="border-left-05 border-primary bg-primary-lighter padding-2 margin-y-2">
+  <% if calculation.refund? %>
+    <p class="margin-0 font-body-sm"><%= t("tax_calculation.lines.refund.label") %></p>
+    <p class="margin-0 font-heading-2xl text-bold" data-testid="refund"><%= money(calculation.refund) %></p>
+  <% elsif calculation.owes? %>
+    <p class="margin-0 font-body-sm"><%= t("tax_calculation.lines.amount_owed.label") %></p>
+    <p class="margin-0 font-heading-2xl text-bold" data-testid="amount-owed"><%= money(calculation.amount_owed) %></p>
+  <% else %>
+    <p class="margin-0 text-bold"><%= t("tax_returns.summary.even_heading") %></p>
+  <% end %>
+</div>

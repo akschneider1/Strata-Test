@@ -1,0 +1,48 @@
+<% year = @tax_return.tax_year %>
+<% title = page_t("title", tax_year: year) %>
+<% dependents = @tax_return.dependents.order(:date_of_birth) %>
+<% content_for :title, title %>
+
+<% if dependents.any? %>
+  <h1 class="font-heading-xl"><%= title %></h1>
+  <h2 class="font-heading-md"><%= page_t("list_heading") %></h2>
+  <ul class="usa-card-group cods-card-group">
+    <% dependents.each do |dependent| %>
+      <li class="usa-card cods-card tablet:grid-col-12">
+        <div class="usa-card__container cods-card__container">
+          <div class="usa-card__header cods-card__header">
+            <h3 class="usa-card__heading cods-card__heading"><%= dependent.full_name %></h3>
+          </div>
+          <div class="usa-card__body cods-card__body">
+            <p class="margin-0"><%= t("dependents.relationships.#{dependent.relationship}") %> · <%= page_t("age", age: dependent.age_at_year_end, tax_year: year) %></p>
+          </div>
+          <div class="usa-card__footer cods-card__footer display-flex flex-align-center gap-2">
+            <%= link_to t("shared.edit"), edit_tax_return_dependent_path(@tax_return, dependent), class: "usa-button usa-button--outline cods-button cods-button--secondary", "aria-label": "#{t('shared.edit')} #{dependent.name_first}" %>
+            <%= button_to t("shared.remove"), tax_return_dependent_path(@tax_return, dependent), method: :delete, class: "usa-button usa-button--unstyled", "aria-label": "#{t('shared.remove')} #{dependent.name_first}" %>
+          </div>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+  <p><%= link_to page_t("add_another"), new_tax_return_dependent_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary" %></p>
+
+  <%= strata_form_with model: @tax_return, url: @flow_task.update_path, method: :patch do |f| %>
+    <%= f.hidden_field :has_dependents, value: true %>
+    <hr class="border-base-lightest margin-top-4">
+    <ul class="usa-button-group">
+      <li class="usa-button-group__item"><%= link_to t("shared.back"), @flow_task.prev_path || @flow.start_path, class: "usa-button usa-button--outline cods-button cods-button--secondary" %></li>
+      <li class="usa-button-group__item"><%= f.button t("shared.continue"), type: :submit, class: "usa-button cods-button" %></li>
+    </ul>
+  <% end %>
+<% else %>
+  <%= render layout: "question", locals: { title: title } do |f| %>
+    <%= f.yes_no :has_dependents, legend: content_tag(:h1, title, class: "font-heading-xl margin-0"), hint: page_t("hint"), large_legend: true %>
+    <%= f.conditional :has_dependents, eq: "true" do %>
+      <p><%= link_to page_t("add"), new_tax_return_dependent_path(@tax_return), class: "usa-button cods-button" %></p>
+    <% end %>
+    <details class="margin-top-2">
+      <summary class="usa-link"><%= page_t("who_counts_summary") %></summary>
+      <p><%= page_t("who_counts") %></p>
+    </details>
+  <% end %>
+<% end %>
