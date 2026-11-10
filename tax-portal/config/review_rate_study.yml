@@ -1,0 +1,42 @@
+# Assumptions for the review rate study (bin/rails tax:review_rate).
+#
+# Nothing here is measured. These are placeholders so the study can run
+# without taxpayer data. Replace them with figures from the Department's own
+# return and information-return files before drawing conclusions.
+
+# Share of returns by household type. Must add up to 1.
+households:
+  single: 0.45                # one adult, no dependents, working age
+  single_parent: 0.12         # one adult with one to three children
+  couple: 0.18                # married filing jointly, no dependents
+  couple_with_children: 0.15  # married filing jointly with one to three children
+  retired_single: 0.05        # one adult aged 66 to 85, pension and Social Security
+  retired_couple: 0.05        # married filing jointly, both aged 66 to 85
+
+# Annual wages per working adult: log-normal, described by its median and
+# spread, limited to a range.
+wages:
+  median: 52000
+  sigma: 0.7
+  minimum: 8000
+  maximum: 400000
+
+# A second earner in a couple works with this probability.
+second_earner_share: 0.65
+
+# Retirement income per retired adult (uniform between the two numbers).
+pension: [8000, 45000]
+social_security: [12000, 36000]
+
+# What employers withhold for Colorado, as a multiple of 4.4% of wages above
+# the single standard deduction (uniform between the two numbers).
+withholding_factor: [0.85, 1.15]
+
+# How often taxpayers differ from the records on file. These drive most of
+# the result and are the least known.
+behavior:
+  overstates_withholding: 0.02   # reports more Colorado withholding than the payer did
+  understates_income: 0.015      # reports less income than the payer did
+  disputes_a_record: 0.005       # says a form on file isn't theirs (needs two forms)
+  adds_form_with_withholding: 0.03  # adds a form the Department has no record of
+  dependent_on_another_return: 0.005 # of returns with children: a child already claimed elsewhere

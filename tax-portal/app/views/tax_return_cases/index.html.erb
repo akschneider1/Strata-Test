@@ -25,7 +25,7 @@
             <th scope="row"><%= link_to kase.tax_return.filer_full_name, tax_return_case_path(kase), class: "usa-link" %></th>
             <td><%= kase.tax_return.confirmation_number %></td>
             <td><%= l(kase.tax_return.submitted_at.in_time_zone("America/Denver"), format: :short) %></td>
-            <td><%= kase.outcome ? cods_tag(t("staff.outcomes.#{kase.outcome}"), "green") : case_step_tag(kase) %></td>
+            <td><%= case_status_tag(kase) %></td>
             <td><%= kase.review_flags.size.positive? ? kase.review_flags.map { |flag| t("staff.flags.#{flag.code}.title") }.join("; ") : "—" %></td>
             <td class="text-no-wrap"><%= calculation ? result_phrase(calculation.refund, calculation.amount_owed) : "—" %></td>
           </tr>

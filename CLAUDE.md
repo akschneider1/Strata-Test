@@ -61,6 +61,8 @@ CoDS/USWDS output.
 ## Tax prototype (tax-portal + tax-engine)
 
 - Read docs/tax-portal/tax-prototype-architecture.md before changing it.
+- docs/tax-portal/direct-file-lessons.md lists what the prototype still lacks
+  compared with IRS Direct File; keep it current when you close a gap.
 - The portal never does tax math. All amounts come from tax-engine
   (`TaxEngine.client`); specs use `TaxEngine::FakeClient`.
 - Every expected dollar amount in tax-engine tests came from PolicyEngine and
@@ -71,6 +73,17 @@ CoDS/USWDS output.
   what to do in error messages, no personal data in titles, links or buttons.
 - After changing either app: `bin/demo test` (set
   `E2E_CHROMIUM_PATH=/opt/pw-browsers/chromium` in cloud sessions).
+- Filing queues `ProcessReturnJob`; nothing is calculated inside the submit
+  request. Tests run jobs inline. `bin/rails tax:process_pending` picks up
+  returns a job missed.
+- Examiner actions go through `ReturnProcessing::ExaminerActions`, which
+  enforces assignment and the second-examiner rule. Don't change a case from
+  a controller.
+- Hosting outside AWS is a demo deployment only (`bin/serve`,
+  `docker-compose.yml`, `render.yaml`; see docs/hosting.md). It uses the
+  `mock-production` environment and demo sign-in, never real data.
+- Tax year 2027 and the graduated rates (Amendment 87) exist in the engine
+  for the "new rates" preview only. The portal still files 2025 returns.
 
 ## Running things
 

@@ -77,9 +77,15 @@ automatically.
    amount**, set Colorado tax withheld to `2900` with a reason. The return
    is recalculated: refund $1,705 becomes **$705**. The filed return is not
    edited; the change is recorded on top of it.
-6. **Accept with adjustments.** The History section lists every step and who
-   did it.
-7. As Jordan again: his return is accepted, with the change and the reason.
+6. **Accept with adjustments.** Because the change moves the refund by $500
+   or more, the return goes to a second examiner instead of closing.
+7. Log out, **Continue as Marcus**, **Pick up next return**. He sees what
+   Priya proposed and clicks **Confirm**. (He could send it back with a note
+   instead. Priya can't confirm her own proposal.) The History section lists
+   every step and who did it. Then open **Service measures**: how many
+   returns needed no review, why the rest were flagged, how long decisions
+   take, and what adjustments changed.
+8. As Jordan again: his return is accepted, with the change and the reason.
 
 ### 4. Walter (optional)
 

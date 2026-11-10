@@ -1,0 +1,98 @@
+# The whole tax prototype as a hosted demo on any machine with Docker:
+# Postgres, the tax engine and the portal. See docs/hosting.md.
+#
+#   bin/hosting-secrets > .env      # once: generate the secrets this file needs
+#   docker compose up --build       # then open http://localhost:3100
+#
+# A demo deployment: anyone who can reach it can sign in as a demo person.
+# Never put real taxpayer data in it.
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Run bin/hosting-secrets > .env first}
+      POSTGRES_DB: tax_prototype
+    healthcheck:
+      test: "pg_isready --username=app --dbname=tax_prototype"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - database:/var/lib/postgresql/data
+
+  # PolicyEngine rules behind a small API. Needs about 3 GB of memory.
+  tax-engine:
+    build:
+      context: ./tax-engine
+      target: release
+    depends_on:
+      database:
+        condition: service_healthy
+    # Non-secret defaults; the settings below override them.
+    env_file: ./tax-engine/local.env
+    environment:
+      ENVIRONMENT: demo
+      PORT: "3200"
+      DB_HOST: database
+      DB_NAME: tax_prototype
+      DB_USER: app
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SSL_MODE: disable
+      API_AUTH_TOKEN: ${TAX_ENGINE_API_TOKEN:?Run bin/hosting-secrets > .env first}
+      TAX_ENGINE_PRELOAD: "true"
+    command: ["sh", "-c", "poetry run db-migrate && exec poetry run gunicorn 'src.app:create_app()'"]
+    healthcheck:
+      # Healthy once the tax rules have loaded (about a minute).
+      test: ["CMD", "python", "-c", "import json,urllib.request,sys; sys.exit(0 if json.load(urllib.request.urlopen('http://127.0.0.1:3200/v1/engine'))['data']['ready'] else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 40
+      start_period: 60s
+
+  # Taxpayer and examiner portals, in the Rails template's production-like
+  # environment that needs no AWS.
+  tax-portal:
+    build:
+      context: ./tax-portal
+      target: release
+    depends_on:
+      database:
+        condition: service_healthy
+      tax-engine:
+        condition: service_healthy
+    environment:
+      RAILS_ENV: mock-production
+      AUTH_ADAPTER: mock
+      DEMO_MODE: "true"
+      PORT: "3100"
+      RAILS_BINDING: 0.0.0.0
+      RAILS_LOG_TO_STDOUT: "true"
+      DISABLE_DATABASE_ENVIRONMENT_CHECK: "1"
+      AWS_DEFAULT_REGION: us-east-1
+      # The prototype stores no files, but the setting has to exist.
+      BUCKET_NAME: not-used
+      DB_HOST: database
+      DB_NAME: tax_prototype
+      DB_USER: app
+      DB_PASSWORD: ${DB_PASSWORD}
+      TAX_ENGINE_ADAPTER: http
+      TAX_ENGINE_URL: http://tax-engine:3200
+      TAX_ENGINE_API_TOKEN: ${TAX_ENGINE_API_TOKEN}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?Run bin/hosting-secrets > .env first}
+      AR_ENCRYPTION_PRIMARY_KEY: ${AR_ENCRYPTION_PRIMARY_KEY:?Run bin/hosting-secrets > .env first}
+      AR_ENCRYPTION_DETERMINISTIC_KEY: ${AR_ENCRYPTION_DETERMINISTIC_KEY:?Run bin/hosting-secrets > .env first}
+      AR_ENCRYPTION_KEY_DERIVATION_SALT: ${AR_ENCRYPTION_KEY_DERIVATION_SALT:?Run bin/hosting-secrets > .env first}
+    # Prepare the database, load the demo people the first time, then serve.
+    command:
+      - sh
+      - -c
+      - >-
+        ./bin/rails db:prepare &&
+        ./bin/rails runner 'DemoData.load! if User.where(provider: "demo").none?' &&
+        exec ./bin/rails server -b 0.0.0.0 -p 3100
+    ports:
+      - "${PORT:-3100}:3100"
+
+volumes:
+  database:

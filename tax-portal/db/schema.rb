@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_11_10_040000) do
+ActiveRecord::Schema[8.0].define(version: 2026_11_10_050000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -63,6 +63,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_11_10_040000) do
     t.boolean "disabled", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "income_under_limit"
+    t.boolean "supported_by_filer"
     t.index ["ssn"], name: "index_dependents_on_ssn"
     t.index ["tax_return_id"], name: "index_dependents_on_tax_return_id"
   end

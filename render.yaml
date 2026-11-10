@@ -1,0 +1,98 @@
+# Render blueprint for the tax prototype as a hosted demo: a Postgres
+# database, the tax engine (private) and the portal (public).
+# See docs/hosting.md. Not yet tested on Render.
+#
+# A demo deployment: anyone with the address can sign in as a demo person.
+# Never put real taxpayer data in it.
+databases:
+  - name: tax-prototype-db
+    databaseName: tax_prototype
+    user: app
+
+services:
+  # PolicyEngine rules behind a small API. Loaded rules need about 3 GB,
+  # so this needs a plan with at least 4 GB of memory.
+  - type: pserv
+    name: tax-engine
+    runtime: docker
+    rootDir: tax-engine
+    dockerfilePath: ./Dockerfile
+    plan: pro
+    dockerCommand: sh -c "poetry run db-migrate && exec poetry run gunicorn 'src.app:create_app()'"
+    envVars:
+      - key: ENVIRONMENT
+        value: demo
+      - key: PORT
+        value: "3200"
+      - key: LOG_FORMAT
+        value: json
+      - key: TAX_ENGINE_PRELOAD
+        value: "true"
+      - key: API_AUTH_TOKEN
+        generateValue: true
+      - key: DB_HOST
+        fromDatabase: { name: tax-prototype-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: tax-prototype-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: tax-prototype-db, property: database }
+      - key: DB_USER
+        fromDatabase: { name: tax-prototype-db, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: tax-prototype-db, property: password }
+      - key: DB_SSL_MODE
+        value: prefer
+
+  # Taxpayer and examiner portals.
+  - type: web
+    name: tax-portal
+    runtime: docker
+    rootDir: tax-portal
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /health
+    dockerCommand: >-
+      sh -c "./bin/rails db:prepare &&
+      ./bin/rails runner 'DemoData.load! if User.where(provider: \"demo\").none?' &&
+      exec ./bin/rails server -b 0.0.0.0"
+    envVars:
+      - key: RAILS_ENV
+        value: mock-production
+      - key: AUTH_ADAPTER
+        value: mock
+      - key: DEMO_MODE
+        value: "true"
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
+      - key: DISABLE_DATABASE_ENVIRONMENT_CHECK
+        value: "1"
+      - key: AWS_DEFAULT_REGION
+        value: us-east-1
+      # The prototype stores no files, but the setting has to exist.
+      - key: BUCKET_NAME
+        value: not-used
+      - key: TAX_ENGINE_ADAPTER
+        value: http
+      # Render gives "host:port"; the portal adds "http://".
+      - key: TAX_ENGINE_URL
+        fromService: { type: pserv, name: tax-engine, property: hostport }
+      - key: TAX_ENGINE_API_TOKEN
+        fromService: { type: pserv, name: tax-engine, envVarKey: API_AUTH_TOKEN }
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: AR_ENCRYPTION_PRIMARY_KEY
+        generateValue: true
+      - key: AR_ENCRYPTION_DETERMINISTIC_KEY
+        generateValue: true
+      - key: AR_ENCRYPTION_KEY_DERIVATION_SALT
+        generateValue: true
+      - key: DB_HOST
+        fromDatabase: { name: tax-prototype-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: tax-prototype-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: tax-prototype-db, property: database }
+      - key: DB_USER
+        fromDatabase: { name: tax-prototype-db, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: tax-prototype-db, property: password }

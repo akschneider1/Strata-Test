@@ -38,6 +38,8 @@ class DemoData
     reset
     users = PEOPLE.to_h { |key, person| [ key, create_user(key, person[:name].join(" "), :taxpayer) ] }
     create_user(:examiner, "Priya Shah", :examiner)
+    # A second examiner, to confirm large changes.
+    create_user(:examiner2, "Marcus Reed", :examiner)
     WAGE_RECORDS.each { |record| WageRecord.create!(record.merge(tax_year: TaxReturn::CURRENT_TAX_YEAR)) }
 
     # Maya starts from nothing: she is the live "file a return" demo.
@@ -80,6 +82,8 @@ class DemoData
   def submit(tax_return)
     tax_return.assign_attributes(declaration_accepted: true, signature_name: tax_return.filer_full_name)
     tax_return.submit_application || raise("Could not submit demo return: #{tax_return.errors.full_messages.to_sentence}")
+    # Don't wait for the background job: process it here and now.
+    ProcessReturnJob.perform_now(tax_return.tax_return_case.id)
     raise "Demo return was not processed. Is the tax engine running?" if tax_return.tax_return_case.reload.processing_stalled?
 
     tax_return

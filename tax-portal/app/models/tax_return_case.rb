@@ -5,7 +5,7 @@
 class TaxReturnCase < Strata::Case
   include Strata::Auditable
 
-  OUTCOMES = %w[accepted accepted_with_adjustments].freeze
+  OUTCOMES = %w[accepted accepted_with_adjustments not_accepted].freeze
 
   belongs_to :tax_return, foreign_key: :application_form_id, inverse_of: :tax_return_case
   has_many :review_flags, dependent: :destroy
@@ -49,8 +49,7 @@ class TaxReturnCase < Strata::Case
     filed_facts.with_adjustments(adjustments_by_field)
   end
 
-  # Automatic steps finish within the request that triggers them. A case
-  # still sitting on one means that step failed.
+  # Filed but not yet through calculation and the automatic checks.
   def processing_stalled?
     step.in?(%w[file_return calculate_return screen_return finalize_return]) && tax_return.submitted?
   end
@@ -59,9 +58,24 @@ class TaxReturnCase < Strata::Case
     information_requests.where(responded_at: nil).order(:created_at).last
   end
 
+  # The examiner task waiting to be done on this return, if any: a review,
+  # or a second examiner's confirmation.
+  def open_task
+    tasks.reject(&:completed?).max_by(&:created_at)
+  end
+
   def open_review_task
     tasks.select { |task| task.is_a?(ReviewTask) && !task.completed? }.max_by(&:created_at)
   end
+
+  # What the first examiner proposed, while a second examiner decides.
+  def proposal = facts["proposal"] || {}
+  def proposed_outcome = proposal["outcome"]
+  def proposed_by_id = proposal["proposed_by_id"]
+  def proposed_by = (User.find_by(id: proposed_by_id) if proposed_by_id)
+  # Why the return was not accepted. Shown to the taxpayer.
+  def not_accepted_reason = proposal["reason"]
+  def accepted? = outcome.in?(%w[accepted accepted_with_adjustments])
 
   def unresolved_flags = review_flags.where(resolved_at: nil)
 
@@ -70,9 +84,13 @@ class TaxReturnCase < Strata::Case
     case step
     when "file_return" then :not_submitted
     when "calculate_return", "screen_return" then :received
-    when "review_return" then :in_review
+    when "review_return", "second_review" then :in_review
     when "provide_information" then :needs_information
-    else outcome.present? ? :accepted : :received
+    else
+      if outcome == "not_accepted" then :not_accepted
+      elsif outcome.present? then :accepted
+      else :received
+      end
     end
   end
 end

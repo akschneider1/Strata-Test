@@ -1,0 +1,33 @@
+<%# locals: (pagination:) %>
+<% page_path = ->(number) { url_for(request.query_parameters.merge(page: number)) } %>
+<p class="text-base-darker margin-top-2" data-testid="pagination-summary"><%= t("staff.pagination.showing", first: pagination.first_item, last: pagination.last_item, total: number_with_delimiter(pagination.total)) %></p>
+<% if pagination.needed? %>
+  <nav aria-label="<%= t('staff.pagination.label') %>" class="usa-pagination">
+    <ul class="usa-pagination__list">
+      <% if pagination.previous_page %>
+        <li class="usa-pagination__item usa-pagination__arrow">
+          <%= link_to page_path.call(pagination.previous_page), class: "usa-pagination__link usa-pagination__previous-page", "aria-label": t("staff.pagination.previous_label") do %>
+            <span class="usa-pagination__link-text"><%= t("staff.pagination.previous") %></span>
+          <% end %>
+        </li>
+      <% end %>
+      <% pagination.series.each do |number| %>
+        <% if number.nil? %>
+          <li class="usa-pagination__item usa-pagination__overflow" aria-label="<%= t('staff.pagination.gap') %>"><span>…</span></li>
+        <% else %>
+          <li class="usa-pagination__item usa-pagination__page-no">
+            <%= link_to number, page_path.call(number), class: class_names("usa-pagination__button", "usa-current": number == pagination.page),
+                  "aria-label": t("staff.pagination.page_label", number: number), "aria-current": (number == pagination.page ? "page" : nil) %>
+          </li>
+        <% end %>
+      <% end %>
+      <% if pagination.next_page %>
+        <li class="usa-pagination__item usa-pagination__arrow">
+          <%= link_to page_path.call(pagination.next_page), class: "usa-pagination__link usa-pagination__next-page", "aria-label": t("staff.pagination.next_label") do %>
+            <span class="usa-pagination__link-text"><%= t("staff.pagination.next") %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </nav>
+<% end %>

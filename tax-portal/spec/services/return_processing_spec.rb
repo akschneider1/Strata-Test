@@ -6,9 +6,13 @@ require 'rails_helper'
 # (income - 15,750) x 4.4% tax, minus withholding.
 RSpec.describe ReturnProcessing do
   let(:examiner) { create(:examiner) }
+  let(:second_examiner) { create(:examiner) }
 
+  # Acting on a return starts with picking it up.
   def actions(kase, user = examiner)
-    ReturnProcessing::ExaminerActions.new(kase, user)
+    ReturnProcessing::ExaminerActions.new(kase, user).tap do |actions|
+      actions.assign_to_me if kase.step == "review_return" && kase.open_task&.assignee_id.nil?
+    end
   end
 
   describe "a return with nothing to review" do
@@ -118,8 +122,54 @@ RSpec.describe ReturnProcessing do
       expect(kase.current_calculation.refund).to eq(231)
       expect(tax_return.reload.income_documents.first.colorado_withholding).to eq(2_650)
 
+      expect(actions(kase).needs_second_approval?).to be(true)
+      expect(actions(kase).approve).to eq(:second_review)
+      expect(kase.reload).to have_attributes(step: "second_review", outcome: nil, stage: :in_review, proposed_outcome: "accepted_with_adjustments")
+      expect(kase.unresolved_flags).not_to be_empty
+
+      expect { actions(kase).confirm }.to raise_error(ReturnProcessing::ExaminerActions::SameExaminer)
+      actions(kase, second_examiner).confirm
+      expect(kase.reload).to have_attributes(step: "end", outcome: "accepted_with_adjustments")
+      expect(kase.unresolved_flags).to be_empty
+    end
+
+    it "lets one examiner accept a small adjustment" do
+      actions(kase).adjust(field: "colorado_tax_withheld", amount: "2400", reason: "Matches the corrected W-2")
+
+      expect(actions(kase).needs_second_approval?).to be(false)
       actions(kase).approve
       expect(kase.reload.outcome).to eq("accepted_with_adjustments")
+    end
+
+    it "only lets the examiner it is assigned to act on it" do
+      actions(kase)
+
+      expect { actions(kase, second_examiner).approve }.to raise_error(ReturnProcessing::ExaminerActions::NotAssigned)
+      expect { actions(kase, second_examiner).adjust(field: "colorado_tax_withheld", amount: "1", reason: "x") }.to raise_error(ReturnProcessing::ExaminerActions::NotAssigned)
+
+      ReturnProcessing::ExaminerActions.new(kase, second_examiner).assign_to_me
+      expect(kase.reload.open_task.assignee_id).to eq(second_examiner.id)
+      expect(kase.audit_lines.where(action: "review.assigned").order(:created_at).map { |line| line.data["taken_over"] }).to eq([ false, true ])
+    end
+
+    it "can be not accepted, with a reason, once a second examiner confirms" do
+      expect(actions(kase).reject(" ")).to be_nil
+      expect(actions(kase).reject("The W-2 belongs to someone else.")).to eq(:second_review)
+      expect(kase.reload).to have_attributes(step: "second_review", not_accepted_reason: "The W-2 belongs to someone else.")
+
+      actions(kase, second_examiner).confirm
+      expect(kase.reload).to have_attributes(step: "end", outcome: "not_accepted", stage: :not_accepted, accepted?: false)
+      expect(kase.audit_lines.order(:created_at).last.action).to eq("return.not_accepted")
+    end
+
+    it "goes back to the first examiner when the second one disagrees" do
+      actions(kase).reject("Not processable.")
+      kase.reload
+
+      expect(actions(kase, second_examiner).send_back("")).to be_nil
+      expect(actions(kase, second_examiner).send_back("Ask the taxpayer first.")).to be(true)
+      expect(kase.reload).to have_attributes(step: "review_return", proposed_outcome: nil)
+      expect(kase.open_task).to have_attributes(class: ReviewTask, assignee_id: examiner.id)
     end
 
     it "rejects an adjustment with no reason or no change" do
@@ -149,12 +199,14 @@ RSpec.describe ReturnProcessing do
       actions(kase).add_note("Taxpayer confirmed the typo.")
       actions(kase).adjust(field: "colorado_tax_withheld", amount: 1_650, reason: "Matches the W-2 on file")
       actions(kase).approve
+      actions(kase.reload, second_examiner).confirm
 
       lines = kase.audit_lines.order(:created_at)
       expect(lines.pluck(:action)).to eq(%w[
-        return.calculated return.screened review.information_requested taxpayer.information_provided
-        review.note_added review.adjusted review.approved return.accepted_with_adjustments
+        return.calculated return.screened review.assigned review.information_requested taxpayer.information_provided
+        review.note_added review.adjusted review.second_approval_requested review.confirmed return.accepted_with_adjustments
       ])
+      expect(lines.find_by(action: "review.confirmed")).to have_attributes(actor: second_examiner)
       expect(lines.find_by(action: "review.adjusted")).to have_attributes(actor: examiner)
       expect(lines.find_by(action: "taxpayer.information_provided")).to have_attributes(actor: tax_return.user)
       expect(lines.find_by(action: "return.calculated").actor).to be_nil

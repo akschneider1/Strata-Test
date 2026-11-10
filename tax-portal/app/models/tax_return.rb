@@ -57,6 +57,7 @@ class TaxReturn < Strata::ApplicationForm
     validates :spouse_name_first, :spouse_name_last, :spouse_date_of_birth, presence: true
     validates :spouse_ssn, presence: true, format: { with: SSN_FORMAT, message: :invalid_ssn, allow_blank: true }
     validate :spouse_ssn_differs_from_filer
+    validate :spouse_ssn_differs_from_dependents
   end
   validates :has_dependents, inclusion: { in: [ true, false ], message: :choose_one }, on: Flow::DEPENDENTS
   validate :dependents_listed, on: Flow::DEPENDENTS
@@ -200,8 +201,15 @@ class TaxReturn < Strata::ApplicationForm
     errors.add(:spouse_ssn, :same_as_filer) if spouse_ssn.present? && spouse_ssn == filer_ssn
   end
 
+  def spouse_ssn_differs_from_dependents
+    errors.add(:spouse_ssn, :same_as_dependent) if spouse_ssn.present? && dependents.any? { |dependent| dependent.ssn == spouse_ssn }
+  end
+
   def dependents_listed
-    errors.add(:has_dependents, :add_a_dependent) if has_dependents && dependents.none?
+    return unless has_dependents
+
+    errors.add(:has_dependents, :add_a_dependent) if dependents.none?
+    errors.add(:has_dependents, :finish_dependents) unless dependents.all?(&:support_questions_answered?)
   end
 
   def every_income_document_reviewed

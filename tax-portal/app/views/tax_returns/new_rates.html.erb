@@ -1,0 +1,74 @@
+<% content_for :title, t(".title") %>
+<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
+<% year = TaxEngine::RatePreview::TAX_YEAR %>
+<% preview = @preview %>
+<% percent = ->(rate) { number_to_percentage(rate.to_f * 100, precision: 1, strip_insignificant_zeros: true) } %>
+
+<%= render partial: "strata/shared/exit_link", locals: { exit_path: summary_tax_return_path(@tax_return), exit_text: t("shared.back") } %>
+
+<h1 class="font-heading-xl"><%= t(".title") %></h1>
+<p class="usa-intro"><%= t(".lead", year: year, flat_rate: percent.call(preview.flat_rate)) %></p>
+
+<%= cods_alert(:info) { t(".not_final") } %>
+
+<h2 class="font-heading-lg"><%= t(".for_you_heading") %></h2>
+<p><%= t(".for_you_lead", tax_year: @tax_return.tax_year, year: year) %></p>
+<dl>
+  <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
+    <dt><%= t(".taxable_income") %></dt>
+    <dd class="margin-0 text-bold" data-testid="taxable-income"><%= money(preview.taxable_income) %></dd>
+  </div>
+  <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
+    <dt><%= t(".flat_tax", flat_rate: percent.call(preview.flat_rate)) %></dt>
+    <dd class="margin-0 text-bold" data-testid="flat-tax"><%= money(preview.flat_tax) %></dd>
+  </div>
+  <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
+    <dt><%= t(".graduated_tax") %></dt>
+    <dd class="margin-0 text-bold" data-testid="graduated-tax"><%= money(preview.graduated_tax) %></dd>
+  </div>
+</dl>
+<p class="font-heading-md text-bold" data-testid="difference">
+  <% if preview.difference.negative? %>
+    <%= t(".less", amount: money(preview.difference.abs)) %>
+  <% elsif preview.difference.positive? %>
+    <%= t(".more", amount: money(preview.difference)) %>
+  <% else %>
+    <%= t(".same") %>
+  <% end %>
+</p>
+
+<h2 class="font-heading-lg margin-top-4"><%= t(".brackets_heading") %></h2>
+<p><%= t(".brackets_lead") %></p>
+<div class="usa-table-container--scrollable" tabindex="0">
+  <table class="usa-table width-full" data-testid="brackets">
+    <caption class="usa-sr-only"><%= t(".brackets_heading") %></caption>
+    <thead>
+      <tr>
+        <th scope="col"><%= t(".columns.range") %></th>
+        <th scope="col" class="text-right"><%= t(".columns.rate") %></th>
+        <th scope="col" class="text-right"><%= t(".columns.your_income") %></th>
+        <th scope="col" class="text-right"><%= t(".columns.tax") %></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% preview.brackets.each do |bracket| %>
+        <% used = bracket["income"].to_i.positive? %>
+        <tr>
+          <th scope="row" class="text-normal">
+            <%= bracket["to"] ? t(".range", from: money(bracket["from"]), to: money(bracket["to"])) : t(".range_top", from: money(bracket["from"])) %>
+          </th>
+          <td class="text-right"><%= percent.call(bracket["rate"]) %></td>
+          <td class="text-right"><%= used ? money(bracket["income"]) : t(".none_in_bracket") %></td>
+          <td class="text-right"><%= used ? money(bracket["tax"]) : t(".none_in_bracket") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<h2 class="font-heading-lg margin-top-4"><%= t(".limits_heading") %></h2>
+<ul class="usa-list">
+  <% t(".limits", year: year).each do |limit| %>
+    <li><%= limit %></li>
+  <% end %>
+</ul>

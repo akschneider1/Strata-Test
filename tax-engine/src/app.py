@@ -89,7 +89,7 @@ def register_tax_calculator(app: APIFlask) -> None:
     calculator = PolicyEngineCalculator()
     app.extensions[CALCULATOR_KEY] = calculator
     if os.getenv("TAX_ENGINE_PRELOAD", "").lower() in ("1", "true"):
-        threading.Thread(target=calculator.load, name="tax-engine-preload", daemon=True).start()
+        threading.Thread(target=calculator.preload, name="tax-engine-preload", daemon=True).start()
 
 
 def get_project_root_dir() -> str:

@@ -74,6 +74,31 @@ RSpec.describe "Taxpayer portal" do
       expect(response).to redirect_to(tax_return_path(tax_return))
     end
 
+    it "asks about income and support for a dependent who isn't a qualifying child" do
+      tax_return = create(:tax_return, :complete, user: taxpayer)
+      person = { name_first: "Rosa", name_last: "Payer", relationship: "parent", ssn: "000-00-4444", lived_with_filer_over_half_year: "false", date_of_birth: { month: 4, day: 2, year: 1950 } }
+
+      post tax_return_dependents_path(tax_return), params: { dependent: person }
+      rosa = tax_return.dependents.sole
+      expect(response).to redirect_to(support_tax_return_dependent_path(tax_return, rosa))
+
+      get support_tax_return_dependent_path(tax_return, rosa)
+      expect(response.body).to include("A few more questions about Rosa", "less than $5,200")
+
+      patch update_dependents_tax_return_path(tax_return), params: { tax_return: { has_dependents: "true" } }
+      expect(response.body).to include("Answer the remaining questions about each person you added")
+
+      patch update_support_tax_return_dependent_path(tax_return, rosa), params: { dependent: { income_under_limit: "true" } }
+      expect(response).to have_http_status(:unprocessable_content)
+
+      patch update_support_tax_return_dependent_path(tax_return, rosa), params: { dependent: { income_under_limit: "true", supported_by_filer: "true" } }
+      expect(response).to redirect_to(edit_dependents_tax_return_path(tax_return))
+      expect(rosa.reload.qualifies?).to be(true)
+
+      get edit_dependents_tax_return_path(tax_return)
+      expect(response.body).to include("Counts as your dependent")
+    end
+
     it "prefills income forms on file and lets the taxpayer confirm them" do
       tax_return = create(:tax_return, :complete, user: taxpayer)
       create(:wage_record, ssn: tax_return.filer_ssn, kind: "form_1099g", payer_name: "CDLE", amount: 900, colorado_withholding: 0)
@@ -101,6 +126,21 @@ RSpec.describe "Taxpayer portal" do
       expect(response.body).to include("Your filing status: Single", "Colorado income tax", "4.4% of your Colorado taxable income", "$231")
     end
 
+    it "shows what the graduated rates starting in 2027 would mean" do
+      tax_return = create(:tax_return, :complete, user: taxpayer)
+
+      get summary_tax_return_path(tax_return)
+      expect(response.body).to include("tax rates change in 2027")
+
+      # Fake engine: 48,000 of income less a 15,750 deduction is 32,250 taxable.
+      # Flat: 32,250 x 4.4% = 1,419. Graduated: 925 + 7,250 x 4.2% = 1,230 (rounded per bracket).
+      get new_rates_tax_return_path(tax_return)
+      expect(response.body).to include("Amendment 87", "$32,250", "$1,419", "$1,230", "would be $189 lower", "Over $1,000,000", "8.4%")
+
+      get "/es-us/tax_returns/#{tax_return.id}/new_rates"
+      expect(response.body).to include("Enmienda 87", "sería $189 menor")
+    end
+
     it "submits a signed return and shows its status" do
       tax_return = create(:tax_return, :complete, user: taxpayer)
 
@@ -121,22 +161,39 @@ RSpec.describe "Taxpayer portal" do
       expect(tax_return.reload).to be_in_progress
     end
 
-    it "tells the taxpayer to try again when the tax engine is down, without losing anything" do
+    it "accepts a filing when the tax engine is down and processes it later" do
       tax_return = create(:tax_return, :complete, user: taxpayer)
-      allow(TaxEngine).to receive(:client).and_return(instance_double(TaxEngine::FakeClient).tap { |client|
-        allow(client).to receive(:calculate).and_raise(TaxEngine::Unavailable)
-      })
+      tax_return.calculate!
+      allow(TaxEngine).to receive(:client).and_raise(TaxEngine::Unavailable)
 
       patch submit_tax_return_path(tax_return), params: { tax_return: { declaration_accepted: "1", signature_name: "Tess Payer" } }
+      follow_redirect!
 
-      expect(response).to redirect_to(tax_return_path(tax_return))
-      expect(tax_return.reload).to be_in_progress
-      expect(tax_return.tax_return_case.step).to eq("file_return")
+      kase = tax_return.reload.tax_return_case
+      expect(tax_return).to be_submitted
+      expect(kase).to have_attributes(step: "calculate_return", stage: :received)
+      expect(response.body).to include("We got your return", tax_return.confirmation_number, "This page will update on its own", "$231")
+
+      allow(TaxEngine).to receive(:client).and_call_original
+      expect(ReturnProcessing.process_pending).to eq(1)
+      expect(kase.reload).to have_attributes(step: "end", outcome: "accepted")
+    end
+
+    it "shows the checklist without an estimate when the tax engine is down" do
+      tax_return = create(:tax_return, :complete, user: taxpayer)
+      allow(TaxEngine).to receive(:client).and_raise(TaxEngine::Unavailable)
+
+      get tax_return_path(tax_return)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("show your estimate right now", "Review and sign")
     end
 
     it "lets the taxpayer answer an examiner's question" do
       tax_return = create(:tax_return, :flagged, user: taxpayer)
-      ReturnProcessing::ExaminerActions.new(tax_return.tax_return_case, create(:examiner)).request_information("Which amount is on your W-2?")
+      examiner_actions = ReturnProcessing::ExaminerActions.new(tax_return.tax_return_case, create(:examiner))
+      examiner_actions.assign_to_me
+      examiner_actions.request_information("Which amount is on your W-2?")
 
       get tax_return_path(tax_return)
       expect(response.body).to include("We have a question about your return", "Which amount is on your W-2?")

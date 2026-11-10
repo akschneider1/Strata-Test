@@ -1,0 +1,18 @@
+# Runs the tax prototype as a hosted demo on Replit.
+# Step-by-step: docs/hosting.md, "Replit". Not yet tested on Replit.
+#
+# In the workspace, Run starts both apps on port 3100.
+# To publish, choose a Reserved VM with at least 4 GB of memory.
+run = "bin/serve"
+entrypoint = "README.md"
+
+[nix]
+channel = "stable-25_05"
+
+[deployment]
+build = ["bin/serve", "--build"]
+run = ["bin/serve"]
+
+[[ports]]
+localPort = 3100
+externalPort = 80

@@ -51,6 +51,7 @@ es-US:
     walter: "Pareja jubilada con pensiones y Seguro Social."
     jordan: "Declara más retención de la que informó su empleador. Pasa a un examinador."
     examiner: "Revisa las declaraciones que las verificaciones automáticas señalan."
+    examiner2: "Un segundo examinador, que confirma los cambios grandes."
   tax_returns:
     actions:
       exit: "Volver a la lista"
@@ -71,6 +72,7 @@ es-US:
       refund_method: "Reembolso o pago"
     errors:
       tax_engine_unavailable: "No pudimos calcular su declaración en este momento. No se perdió nada. Inténtelo de nuevo en un minuto."
+      estimate_unavailable: "No podemos mostrar su cálculo estimado en este momento. Puede seguir trabajando en su declaración, y no se perdió nada."
     index:
       title: "Su declaración de impuestos de Colorado de %{tax_year}"
       lead: "A la mayoría de las personas les toma unos 15 minutos. Puede detenerse en cualquier momento y continuar donde se quedó."
@@ -224,6 +226,9 @@ es-US:
       credits_none_heading: "Créditos que revisamos y a los que no tiene derecho"
       not_qualified: "No aplica"
       adjusted_note: "El Departamento cambió algunas cantidades de su declaración. Este es el cálculo después de esos cambios."
+      new_rates_heading: "Las tasas de impuestos de Colorado cambian en 2027"
+      new_rates_lead: "Los votantes aprobaron tasas que aumentan con el ingreso, a partir de las declaraciones de 2027. Esta declaración no se ve afectada."
+      new_rates_link: "Vea lo que las nuevas tasas significarían para usted"
       engine_note: "Calculado con %{engine} versión %{version}, un modelo de código abierto de la ley tributaria."
       sections:
         federal: "1. Sus ingresos (el punto de partida federal)"
@@ -232,6 +237,33 @@ es-US:
         credits: "4. Créditos y reembolsos"
         payments: "5. Lo que ya pagó"
         result: "6. El resultado"
+    new_rates:
+      title: "Las nuevas tasas del impuesto sobre el ingreso de Colorado"
+      lead: "En noviembre de 2026, los votantes de Colorado aprobaron la Enmienda 87. A partir de las declaraciones de %{year}, el ingreso paga tasas que aumentan con el ingreso, en lugar de una sola tasa de %{flat_rate}."
+      not_final: "La votación aún no se ha certificado, y el Departamento no ha publicado formularios ni instrucciones para las nuevas tasas. Tome esto como un cálculo estimado."
+      for_you_heading: "Lo que significaría para usted"
+      for_you_lead: "Esto usa el ingreso y el hogar de su declaración de %{tax_year}, con las deducciones previstas para %{year}."
+      taxable_income: "Ingreso sujeto a impuestos de Colorado"
+      flat_tax: "Impuesto con una sola tasa de %{flat_rate}"
+      graduated_tax: "Impuesto con las nuevas tasas"
+      less: "Con las nuevas tasas, su impuesto sobre el ingreso de Colorado sería %{amount} menor."
+      more: "Con las nuevas tasas, su impuesto sobre el ingreso de Colorado sería %{amount} mayor."
+      same: "Con las nuevas tasas, su impuesto sobre el ingreso de Colorado sería el mismo."
+      brackets_heading: "Cómo se aplican las nuevas tasas a su ingreso"
+      brackets_lead: "Cada tasa se aplica solo a la parte de su ingreso sujeto a impuestos que cae en su rango."
+      columns:
+        range: "Ingreso sujeto a impuestos"
+        rate: "Tasa"
+        your_income: "Su ingreso en este rango"
+        tax: "Impuesto"
+      range: "%{from} a %{to}"
+      range_top: "Más de %{from}"
+      none_in_bracket: "Nada"
+      limits_heading: "Lo que este cálculo estimado no incluye"
+      limits:
+        - "Su ingreso, su familia y sus créditos pueden ser diferentes en %{year}."
+        - "Compara el impuesto antes de los créditos y la retención. Su reembolso o la cantidad que debe también dependería de ellos."
+        - "La medida grava de otra manera la ganancia por la venta de la vivienda principal. Este prototipo no cubre la venta de viviendas."
     review:
       title: "Revise y firme su declaración"
       lead: "Revise sus respuestas. Después de enviarla, no podrá cambiar su declaración aquí."
@@ -267,7 +299,7 @@ es-US:
       received:
         tag: "Recibida"
         heading: "Recibimos su declaración"
-        body: "La estamos revisando ahora."
+        body: "La estamos revisando ahora. Esta página se actualizará sola, por lo general en menos de un minuto."
       in_review:
         tag: "En revisión"
         heading: "Una persona está revisando su declaración"
@@ -283,6 +315,11 @@ es-US:
         body_refund_check: "Le enviaremos por correo su cheque de reembolso de %{amount} a la dirección de su declaración. Espere de 3 a 4 semanas."
         body_owed: "Usted debe %{amount}. Vence el 15 de abril de %{due_year}."
         body_even: "No debe nada y no le corresponde un reembolso."
+      not_accepted:
+        tag: "No aceptada"
+        heading: "No pudimos aceptar su declaración"
+        body: "Su declaración no se ha presentado. El motivo aparece abajo. Para presentarla, corrija el problema y comuníquese con el Departamento de Hacienda. Este prototipo no puede reabrir una declaración."
+        reason_heading: "Por qué no pudimos aceptarla"
     status:
       title: "Su declaración de Colorado de %{tax_year}"
       confirmation: "Número de confirmación"
@@ -297,6 +334,7 @@ es-US:
         information_provided: "Usted respondió la pregunta"
         adjusted: "El examinador cambió una cantidad en su declaración"
         accepted: "Su declaración fue aceptada"
+        not_accepted: "No pudimos aceptar su declaración"
       question_heading: "Pregunta del Departamento"
       response_label: "Su respuesta"
       response_hint: "No incluya números completos de Seguro Social ni de cuenta bancaria."
@@ -352,6 +390,25 @@ es-US:
       title: "Agregar un dependiente"
     edit:
       title: "Cambiar este dependiente"
+    support:
+      page_title: "Algunas preguntas más sobre esta persona"
+      title: "Algunas preguntas más sobre %{name}"
+      lead: "Hacemos estas preguntas cuando la persona tiene 19 años o más, o no es su hijo, nieto, hermano o hermana."
+      income: "¿El ingreso total de esta persona en %{tax_year} fue menor de %{amount}?"
+      income_hint: "Cuente salarios, desempleo, intereses y otros ingresos sujetos a impuestos. No cuente los beneficios del Seguro Social que no pagaron impuestos."
+      support: "¿Usted pagó más de la mitad de los gastos de manutención de esta persona en %{tax_year}?"
+      support_hint: "Cuente vivienda, comida, ropa, atención médica y educación."
+    qualification:
+      counts: "Cuenta como su dependiente"
+      does_not_count: "No cuenta como su dependiente"
+      answer: "Responda dos preguntas más"
+      reasons:
+        qualifying_child: "Por su edad y porque vivió con usted."
+        qualifying_relative: "Porque tuvo pocos ingresos y usted pagó la mayor parte de sus gastos de manutención."
+        did_not_live_with_you: "Porque no vivió con usted más de la mitad del año."
+        needs_answers: "Primero necesitamos saber más."
+        income_too_high: "Porque sus ingresos fueron demasiado altos."
+        not_supported_by_you: "Porque usted no pagó más de la mitad de sus gastos de manutención."
   income_documents:
     kinds:
       w2:
@@ -509,8 +566,10 @@ es-US:
             spouse_ssn:
               blank: "Escriba el número de Seguro Social de su cónyuge"
               same_as_filer: "Escriba el número de su cónyuge. Este es el suyo."
+              same_as_dependent: "Escriba el número de su cónyuge. Este pertenece a un dependiente que usted agregó."
             has_dependents:
               add_a_dependent: "Agregue al menos un dependiente, o responda No"
+              finish_dependents: "Responda las preguntas que faltan sobre cada persona que agregó"
             childcare_expenses: { blank: "Escriba cuánto pagó por cuidado de niños" }
             income_documents_reviewed:
               confirm_income_documents: "Marque la casilla cuando haya revisado todos los formularios"
@@ -535,6 +594,10 @@ es-US:
             ssn:
               blank: "Escriba su número de Seguro Social"
               already_listed: "Ya agregó a alguien con este número"
+              same_as_filer: "Escriba el número de esta persona. Este es el suyo."
+              same_as_spouse: "Escriba el número de esta persona. Este es el de su cónyuge."
+            income_under_limit: { choose_one: "Elija Sí o No" }
+            supported_by_filer: { choose_one: "Elija Sí o No" }
         income_document:
           format: "%{message}"
           attributes:

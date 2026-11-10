@@ -1,6 +1,14 @@
 <% year = @tax_return.tax_year %>
 <% stage = @case.stage %>
 <% content_for :title, t(".title", tax_year: year) %>
+<%# Processing usually finishes within seconds of filing: check again shortly. %>
+<%# Turbo ignores a refresh tag swapped into the page, so also ask it to load this page in full. %>
+<% if stage == :received %>
+  <% content_for :head do %>
+    <%= tag.meta name: "turbo-visit-control", content: "reload" %>
+    <%= tag.meta "http-equiv": "refresh", content: "3" %>
+  <% end %>
+<% end %>
 <%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
 <% timeline_keys = {
   "return.calculated" => "calculated",
@@ -8,13 +16,14 @@
   "taxpayer.information_provided" => "information_provided",
   "review.adjusted" => "adjusted",
   "return.accepted" => "accepted",
-  "return.accepted_with_adjustments" => "accepted"
+  "return.accepted_with_adjustments" => "accepted",
+  "return.not_accepted" => "not_accepted"
 } %>
 
 <h1 class="font-heading-xl"><%= t(".title", tax_year: year) %></h1>
 <p><%= stage_tag(stage) %></p>
 
-<% alert_type = { accepted: :success, needs_information: :warning }.fetch(stage, :info) %>
+<% alert_type = { accepted: :success, needs_information: :warning, not_accepted: :error }.fetch(stage, :info) %>
 <%= cods_alert alert_type, heading: t("tax_returns.stages.#{stage}.heading"), data: { testid: "stage", stage: stage } do %>
   <% if stage == :accepted %>
     <% if @calculation.refund? && @tax_return.direct_deposit? %>
@@ -29,6 +38,13 @@
   <% else %>
     <%= t("tax_returns.stages.#{stage}.body") %>
   <% end %>
+<% end %>
+
+<% if stage == :not_accepted && @case.not_accepted_reason %>
+  <section class="margin-top-4" aria-labelledby="not-accepted-heading">
+    <h2 id="not-accepted-heading" class="font-heading-lg"><%= t("tax_returns.stages.not_accepted.reason_heading") %></h2>
+    <p data-testid="not-accepted-reason"><%= @case.not_accepted_reason %></p>
+  </section>
 <% end %>
 
 <% if @information_request %>
@@ -51,10 +67,12 @@
     <dt><%= t(".submitted_on") %></dt>
     <dd class="margin-0 text-bold"><%= l(@tax_return.submitted_at.in_time_zone("America/Denver"), format: :long) %></dd>
   </div>
+  <% unless stage == :not_accepted %>
   <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
     <dt><%= @calculation.owes? ? t("tax_calculation.lines.amount_owed.label") : t("tax_calculation.lines.refund.label") %></dt>
     <dd class="margin-0 text-bold" data-testid="result-amount"><%= money(@calculation.owes? ? @calculation.amount_owed : @calculation.refund) %></dd>
   </div>
+  <% end %>
 </dl>
 <p><%= link_to t(".see_calculation"), summary_tax_return_path(@tax_return), class: "usa-link" %></p>
 

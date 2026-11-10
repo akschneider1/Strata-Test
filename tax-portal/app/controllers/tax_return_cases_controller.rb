@@ -8,17 +8,23 @@ class TaxReturnCasesController < StaffController
   rescue_from ReturnProcessing::ExaminerActions::NotUnderReview do
     redirect_to tax_return_case_path(@case), alert: t("tax_return_cases.errors.not_under_review")
   end
+  rescue_from ReturnProcessing::ExaminerActions::NotAssigned do
+    redirect_to tax_return_case_path(@case), alert: t("tax_return_cases.errors.not_assigned")
+  end
+  rescue_from ReturnProcessing::ExaminerActions::SameExaminer do
+    redirect_to tax_return_case_path(@case), alert: t("tax_return_cases.errors.same_examiner")
+  end
   rescue_from TaxEngine::Error do
     redirect_to tax_return_case_path(@case), alert: t("tax_return_cases.errors.tax_engine_unavailable")
   end
 
   def index
-    @cases = TaxReturnCase.submitted.where(status: :open).includes(:tax_return, :review_flags).newest_first
+    @cases = paginate(TaxReturnCase.submitted.where(status: :open)).includes(:tax_return, :review_flags).newest_first
     @showing = :open
   end
 
   def closed
-    @cases = TaxReturnCase.where(status: :closed).includes(:tax_return, :review_flags).newest_first
+    @cases = paginate(TaxReturnCase.where(status: :closed)).includes(:tax_return, :review_flags).newest_first
     @showing = :closed
     render :index
   end
@@ -31,13 +37,35 @@ class TaxReturnCasesController < StaffController
   end
 
   def assign_to_me
-    @case.open_review_task&.assign(current_user.id)
+    actions.assign_to_me
     redirect_to tax_return_case_path(@case)
   end
 
   def approve
-    actions.approve
-    redirect_to tax_return_case_path(@case), notice: t(".approved")
+    sent_on = actions.approve == :second_review
+    redirect_to tax_return_case_path(@case), notice: t(sent_on ? ".sent_for_confirmation" : ".approved")
+  end
+
+  # Propose not accepting the return. A second examiner confirms.
+  def reject
+    if actions.reject(params.dig(:rejection, :reason))
+      redirect_to tax_return_case_path(@case), notice: t(".sent_for_confirmation")
+    else
+      redirect_to tax_return_case_path(@case, anchor: "reject"), alert: t(".reason_needed")
+    end
+  end
+
+  def confirm
+    actions.confirm
+    redirect_to tax_return_case_path(@case), notice: t(".confirmed")
+  end
+
+  def send_back
+    if actions.send_back(params.dig(:send_back, :note))
+      redirect_to tax_return_case_path(@case), notice: t(".sent_back")
+    else
+      redirect_to tax_return_case_path(@case), alert: t(".note_needed")
+    end
   end
 
   def adjust
@@ -80,7 +108,7 @@ class TaxReturnCasesController < StaffController
     @filed_calculation = @case.filed_calculation
     @flags = @case.review_flags.order(:created_at)
     @income_documents = @tax_return.income_documents.includes(:wage_record).in_display_order
-    @task = @case.open_review_task
+    @task = @case.open_task
     @history = @case.audit_lines.order(:created_at).includes(:actor)
   end
 

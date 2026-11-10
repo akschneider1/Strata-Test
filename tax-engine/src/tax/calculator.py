@@ -18,7 +18,27 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-SUPPORTED_TAX_YEARS = (2025,)
+# 2025 is the year the portal files. 2027 is supported so the portal can show
+# what Colorado's graduated rates would mean for a household; PolicyEngine
+# projects the other 2027 amounts (deductions, credits) forward.
+SUPPORTED_TAX_YEARS = (2025, 2027)
+
+# How Colorado taxable income is taxed.
+#   flat:      one rate on all taxable income (C.R.S. 39-22-104).
+#   graduated: the brackets in Amendment 87 (Initiative 195), approved by
+#              voters in November 2026 for tax years starting in 2027.
+RATE_SCHEDULES = ("flat", "graduated")
+GRADUATED_FIRST_TAX_YEAR = 2027
+# Switches on PolicyEngine's model of the Amendment 87 schedule. Not
+# modeled there: the measure taxes gains on a principal residence above the
+# federal exclusion at a fixed 4.4%. The portal doesn't collect such gains.
+GRADUATED_REFORM = {
+    "gov.contrib.states.co.progressive_income_tax.in_effect": {"2027-01-01.2100-12-31": True}
+}
+AMENDMENT_87 = (
+    "Colorado Amendment 87 (Initiative 2025-2026 #195), C.R.S. 39-22-104 (1.8)",
+    "https://www.sos.state.co.us/pubs/elections/Initiatives/titleBoard/filings/2025-2026/195Final.pdf#page=3",
+)
 
 FILING_STATUSES = (
     "SINGLE",
@@ -27,6 +47,11 @@ FILING_STATUSES = (
     "HEAD_OF_HOUSEHOLD",
     "SURVIVING_SPOUSE",
 )
+
+# Most income a person can have and still be claimed as a qualifying relative
+# (the "gross income test"). Not a PolicyEngine parameter, so it is kept here:
+# 2025 amount from IRS Rev. Proc. 2024-40, section 3.25.
+QUALIFYING_RELATIVE_INCOME_LIMIT = {2025: 5_200}
 
 BOOK_2025 = "https://tax.colorado.gov/sites/tax/files/documents/Book104_2025.pdf"
 
@@ -58,6 +83,14 @@ class ReturnFacts:
     taxable_interest: float = 0.0
     childcare_expenses: float = 0.0
     colorado_tax_withheld: float = 0.0
+    # None means the schedule in law for the tax year.
+    rate_schedule: str | None = None
+
+    @property
+    def effective_rate_schedule(self) -> str:
+        if self.rate_schedule:
+            return self.rate_schedule
+        return "graduated" if self.tax_year >= GRADUATED_FIRST_TAX_YEAR else "flat"
 
     def cache_key(self) -> str:
         payload = json.dumps(dataclasses.asdict(self), sort_keys=True)
@@ -86,6 +119,7 @@ class Calculation:
     amount_owed: float
     engine: str
     engine_version: str
+    rate_schedule: str = "flat"
 
     def amount(self, line_id: str) -> float:
         for line in self.lines:
@@ -120,6 +154,10 @@ class PolicyEngineCalculator:
 
     def __init__(self) -> None:
         self._simulation_cls: Any = None
+        # The tax rules with the graduated schedule switched on. Building it
+        # takes about 20 seconds, so it is built once, when first needed.
+        self._graduated_system: Any = None
+        self._preloading_graduated = False
         self._load_lock = threading.Lock()
         self._cache: dict[str, Calculation] = {}
         self._cache_lock = threading.Lock()
@@ -127,6 +165,8 @@ class PolicyEngineCalculator:
 
     @property
     def is_loaded(self) -> bool:
+        if self._preloading_graduated and self._graduated_system is None:
+            return False
         return self._simulation_cls is not None
 
     def load(self) -> None:
@@ -138,6 +178,12 @@ class PolicyEngineCalculator:
 
                 self._simulation_cls = Simulation
                 logger.info("policyengine-us loaded")
+
+    def preload(self) -> None:
+        """Load everything a request could need, so no taxpayer waits for it."""
+        self._preloading_graduated = True
+        self.load()
+        self._graduated_rules()
 
     def calculate(self, facts: ReturnFacts) -> Calculation:
         validate(facts)
@@ -157,9 +203,26 @@ class PolicyEngineCalculator:
 
     # -- internals ---------------------------------------------------------
 
+    def _graduated_rules(self) -> Any:
+        with self._load_lock:
+            if self._graduated_system is None:
+                from policyengine_core.reforms import Reform
+                from policyengine_us import CountryTaxBenefitSystem
+
+                logger.info("building tax rules with the graduated rate schedule")
+                reform = Reform.from_dict(GRADUATED_REFORM, country_id="us")
+                self._graduated_system = reform(CountryTaxBenefitSystem())
+            return self._graduated_system
+
     def _run(self, facts: ReturnFacts) -> Calculation:
         year = facts.tax_year
-        sim = self._simulation_cls(situation=build_situation(facts))
+        schedule = facts.effective_rate_schedule
+        if schedule == "graduated":
+            sim = self._simulation_cls(
+                situation=build_situation(facts), tax_benefit_system=self._graduated_rules()
+            )
+        else:
+            sim = self._simulation_cls(situation=build_situation(facts))
 
         def calc(variable: str) -> float:
             return _dollars(sim.calculate(variable, year))
@@ -214,11 +277,26 @@ class PolicyEngineCalculator:
         add("colorado_taxable_income", "colorado_income", calc("co_taxable_income"), None)
 
         # Tax.
-        rate = float(
-            sim.tax_benefit_system.parameters(f"{year}-01-01").gov.states.co.tax.income.rate
-        )
+        parameters = sim.tax_benefit_system.parameters(f"{year}-01-01")
         tax = calc("co_income_tax_before_non_refundable_credits")
-        add("tax", "tax", tax, _source(11, "Line 12"), rate=rate)
+        if schedule == "graduated":
+            scale = parameters.gov.contrib.states.co.progressive_income_tax.rate
+            add(
+                "tax",
+                "tax",
+                tax,
+                AMENDMENT_87,
+                rate_schedule=schedule,
+                brackets=tax_by_bracket(
+                    calc("co_taxable_income"),
+                    [float(t) for t in scale.thresholds],
+                    [float(r) for r in scale.rates],
+                ),
+            )
+        else:
+            rate = float(parameters.gov.states.co.tax.income.rate)
+            source = _source(11, "Line 12") if year == 2025 else None
+            add("tax", "tax", tax, source, rate=rate, rate_schedule=schedule)
         add("alternative_minimum_tax", "tax", calc("co_amt"))
         add("nonrefundable_credits", "tax", calc("co_non_refundable_credits"))
         net_tax = max(calc("co_income_tax_before_refundable_credits") + calc("co_amt"), 0.0)
@@ -283,7 +361,33 @@ class PolicyEngineCalculator:
             amount_owed=owed,
             engine=self.engine,
             engine_version=self.engine_version,
+            rate_schedule=schedule,
         )
+
+
+def tax_by_bracket(
+    taxable_income: float, thresholds: list[float], rates: list[float]
+) -> list[dict[str, float | None]]:
+    """How much of the taxable income falls in each bracket, and the tax on it.
+
+    Shown to the taxpayer as the explanation of a graduated tax. The total is
+    PolicyEngine's; this only splits it by bracket.
+    """
+    brackets: list[dict[str, float | None]] = []
+    for index, (start, rate) in enumerate(zip(thresholds, rates, strict=True)):
+        end = thresholds[index + 1] if index + 1 < len(thresholds) else None
+        upper = taxable_income if end is None else min(taxable_income, end)
+        income = max(upper - start, 0.0)
+        brackets.append(
+            {
+                "from": start,
+                "to": end,
+                "rate": rate,
+                "income": float(round(income)),
+                "tax": float(round(income * rate)),
+            }
+        )
+    return brackets
 
 
 def validate(facts: ReturnFacts) -> None:
@@ -291,6 +395,12 @@ def validate(facts: ReturnFacts) -> None:
         raise UnsupportedReturnError(f"Tax year {facts.tax_year} is not supported")
     if facts.filing_status not in FILING_STATUSES:
         raise UnsupportedReturnError(f"Unknown filing status {facts.filing_status}")
+    if facts.rate_schedule is not None and facts.rate_schedule not in RATE_SCHEDULES:
+        raise UnsupportedReturnError(f"Unknown rate schedule {facts.rate_schedule}")
+    if facts.effective_rate_schedule == "graduated" and facts.tax_year < GRADUATED_FIRST_TAX_YEAR:
+        raise UnsupportedReturnError(
+            f"The graduated rate schedule starts with tax year {GRADUATED_FIRST_TAX_YEAR}"
+        )
     needs_spouse = facts.filing_status == "JOINT"
     if needs_spouse and facts.spouse is None:
         raise UnsupportedReturnError("A joint return needs a spouse")

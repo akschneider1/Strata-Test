@@ -1,5 +1,6 @@
 <% tr = @tax_return %>
 <% under_review = @case.step == "review_return" %>
+<% second_approval = under_review && ReturnProcessing::ExaminerActions.new(@case, current_user).needs_second_approval? %>
 <% content_for :title, t(".title", confirmation: tr.confirmation_number) %>
 <% fact = ->(label, value) { content_tag(:div, content_tag(:dt, label, class: "text-base-dark font-body-2xs") + content_tag(:dd, value, class: "margin-0 text-bold"), class: "margin-right-4 margin-bottom-1") } %>
 
@@ -12,7 +13,7 @@
 
 <div class="display-flex flex-align-center flex-wrap gap-2">
   <h1 class="font-heading-xl margin-y-1"><%= tr.filer_full_name %></h1>
-  <span data-testid="case-step" data-step="<%= @case.step %>"><%= @case.outcome ? cods_tag(t("staff.outcomes.#{@case.outcome}"), "green") : case_step_tag(@case) %></span>
+  <span data-testid="case-step" data-step="<%= @case.step %>"><%= case_status_tag(@case) %></span>
 </div>
 
 <dl class="display-flex flex-wrap margin-top-1 margin-bottom-3">
@@ -169,15 +170,20 @@
   <aside class="desktop:grid-col-4" aria-labelledby="actions-heading">
     <div class="border-1px border-base-light radius-md padding-3 position-sticky top-2">
       <h2 id="actions-heading" class="font-heading-lg margin-top-0"><%= t(".actions_heading") %></h2>
-      <% if under_review %>
-        <% if @task && @task.assignee_id != current_user.id %>
-          <%= button_to t(".assign_to_me"), assign_to_me_tax_return_case_path(@case), method: :patch, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-bottom-3" %>
-        <% end %>
-
+      <% mine = @task && @task.assignee_id == current_user.id %>
+      <% if under_review && !mine %>
+        <p data-testid="not-assigned">
+          <%= @task&.assignee_id ? t(".assigned_to_other", name: User.find(@task.assignee_id).display_name) : t(".not_assigned") %>
+        </p>
+        <%= button_to t(".assign_to_me"), assign_to_me_tax_return_case_path(@case), method: :patch, class: "usa-button cods-button" %>
+      <% elsif under_review %>
         <h3 class="font-heading-md margin-top-0"><%= t(".approve_heading") %></h3>
         <p class="margin-top-0 text-base-darker">
           <%= t(@case.return_adjustments.any? ? ".approve_hint_adjusted" : ".approve_hint_filed", result: result_phrase(@calculation.refund, @calculation.amount_owed)) %>
         </p>
+        <% if second_approval %>
+          <p class="margin-top-0 text-base-darker" data-testid="second-approval-note"><%= t(".second_approval_note", amount: money(ReturnProcessing::ExaminerActions::SECOND_APPROVAL_THRESHOLD)) %></p>
+        <% end %>
         <%= button_to t(@case.return_adjustments.any? ? ".approve_adjusted" : ".approve_as_filed"), approve_tax_return_case_path(@case), method: :patch, class: "usa-button cods-button" %>
 
         <hr class="margin-y-3 border-base-lighter">
@@ -195,6 +201,37 @@
         <%= strata_form_with model: @information_request, url: request_information_tax_return_case_path(@case), method: :post do |f| %>
           <%= f.text_area :question, label: t(".request_question"), hint: t(".request_hint"), rows: 4 %>
           <%= f.button t(".request_submit"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
+        <% end %>
+
+        <hr class="margin-y-3 border-base-lighter" id="reject">
+        <h3 class="font-heading-md"><%= t(".reject_heading") %></h3>
+        <p class="margin-top-0 text-base-darker"><%= t(".reject_lead") %></p>
+        <%= form_with url: reject_tax_return_case_path(@case), method: :post, scope: :rejection, class: "usa-form maxw-none" do |f| %>
+          <%= f.label :reason, t(".reject_reason"), class: "usa-label" %>
+          <span class="usa-hint" id="reject-hint"><%= t(".reject_hint") %></span>
+          <%= f.text_area :reason, rows: 3, class: "usa-textarea", "aria-describedby": "reject-hint" %>
+          <%= f.button t(".reject_submit"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
+        <% end %>
+      <% elsif @case.step == "second_review" %>
+        <% proposer = @case.proposed_by %>
+        <h3 class="font-heading-md margin-top-0"><%= t(".proposal_heading") %></h3>
+        <p data-testid="proposal">
+          <%= t(".proposal.#{@case.proposed_outcome}", name: proposer&.display_name, result: result_phrase(@calculation.refund, @calculation.amount_owed)) %>
+        </p>
+        <% if @case.not_accepted_reason %>
+          <p><strong><%= t(".reject_reason") %>:</strong> <%= @case.not_accepted_reason %></p>
+        <% end %>
+        <% if proposer == current_user %>
+          <p class="text-base-darker"><%= t(".waiting_for_second") %></p>
+        <% else %>
+          <%= button_to t(".confirm"), confirm_tax_return_case_path(@case), method: :patch, class: "usa-button cods-button" %>
+          <hr class="margin-y-3 border-base-lighter">
+          <%= form_with url: send_back_tax_return_case_path(@case), method: :post, scope: :send_back, class: "usa-form maxw-none" do |f| %>
+            <%= f.label :note, t(".send_back_note"), class: "usa-label" %>
+            <span class="usa-hint" id="send-back-hint"><%= t(".send_back_hint") %></span>
+            <%= f.text_area :note, rows: 3, class: "usa-textarea", "aria-describedby": "send-back-hint" %>
+            <%= f.button t(".send_back"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
+          <% end %>
         <% end %>
       <% elsif @case.step == "provide_information" %>
         <p><%= t(".waiting_on_taxpayer") %></p>

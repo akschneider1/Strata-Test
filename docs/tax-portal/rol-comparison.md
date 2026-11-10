@@ -64,4 +64,10 @@ The prototype shows the shape of a replacement, not its full scope.
   types are untouched.
 - **Research.** The questions and wording here are a first draft; Direct
   File tested theirs with taxpayers and tax counsel, and the Spanish needs
-  professional review.
+  professional review. The [usability test kit](usability-test-kit.md) is a
+  script for the first sessions.
+- **Delivery.** What Direct File's own team says made its launch work, and
+  this prototype does not have: one accountable service owner, deployment in
+  the agency's own environment early, support staff working with the product
+  team, a plan for what to measure, and a launch opened in stages. See
+  [Lessons from IRS Direct File](direct-file-lessons.md).

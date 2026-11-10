@@ -49,6 +49,7 @@ en:
     walter: "Retired couple with pensions and Social Security."
     jordan: "Reports more withholding than his employer did. Goes to an examiner."
     examiner: "Reviews the returns that the automatic checks flag."
+    examiner2: "A second examiner, who confirms large changes."
   tax_returns:
     actions:
       exit: "Back to checklist"
@@ -69,6 +70,7 @@ en:
       refund_method: "Refund or payment"
     errors:
       tax_engine_unavailable: "We couldn't calculate your return just now. Nothing was lost. Please try again in a minute."
+      estimate_unavailable: "We can't show your estimate right now. You can keep working on your return, and nothing was lost."
     index:
       title: "Your %{tax_year} Colorado income tax return"
       lead: "It takes most people about 15 minutes. You can stop at any time and pick up where you left off."
@@ -223,6 +225,9 @@ en:
       not_qualified: "Doesn't apply"
       adjusted_note: "The Department changed some amounts on your return. This is the calculation after those changes."
       engine_note: "Calculated with %{engine} version %{version}, an open-source model of tax law."
+      new_rates_heading: "Colorado's tax rates change in 2027"
+      new_rates_lead: "Voters approved rates that rise with income, starting with 2027 returns. This return is not affected."
+      new_rates_link: "See what the new rates would mean for you"
       sections:
         federal: "1. Your income (the federal starting point)"
         colorado_income: "2. Colorado changes to your income"
@@ -230,6 +235,33 @@ en:
         credits: "4. Credits and refunds"
         payments: "5. What you already paid"
         result: "6. The result"
+    new_rates:
+      title: "Colorado's new income tax rates"
+      lead: "In November 2026, Colorado voters approved Amendment 87. Starting with %{year} returns, income is taxed at rates that rise with income, in place of one rate of %{flat_rate}."
+      not_final: "The vote has not been certified yet, and the Department has not published forms or instructions for the new rates. Treat this as an estimate."
+      for_you_heading: "What it would mean for you"
+      for_you_lead: "This uses the income and household from your %{tax_year} return, with the deductions expected for %{year}."
+      taxable_income: "Colorado taxable income"
+      flat_tax: "Tax at one rate of %{flat_rate}"
+      graduated_tax: "Tax at the new rates"
+      less: "With the new rates, your Colorado income tax would be %{amount} lower."
+      more: "With the new rates, your Colorado income tax would be %{amount} higher."
+      same: "With the new rates, your Colorado income tax would be the same."
+      brackets_heading: "How the new rates apply to your income"
+      brackets_lead: "Each rate applies only to the part of your taxable income in its range."
+      columns:
+        range: "Taxable income"
+        rate: "Rate"
+        your_income: "Your income in this range"
+        tax: "Tax"
+      range: "%{from} to %{to}"
+      range_top: "Over %{from}"
+      none_in_bracket: "None"
+      limits_heading: "What this estimate leaves out"
+      limits:
+        - "Your income, family and credits may be different in %{year}."
+        - "It compares tax before credits and withholding. Your refund or amount owed would also depend on those."
+        - "The measure taxes profit from selling a main home differently. This prototype doesn't cover home sales."
     review:
       title: "Review and sign your return"
       lead: "Check your answers. After you submit, you can't change your return here."
@@ -265,7 +297,7 @@ en:
       received:
         tag: "Received"
         heading: "We got your return"
-        body: "We're checking it now."
+        body: "We're checking it now. This page will update on its own, usually within a minute."
       in_review:
         tag: "In review"
         heading: "A person is reviewing your return"
@@ -281,6 +313,11 @@ en:
         body_refund_check: "We'll mail your refund check for %{amount} to the address on your return. Allow 3 to 4 weeks."
         body_owed: "You owe %{amount}. It's due April 15, %{due_year}."
         body_even: "You don't owe anything and aren't due a refund."
+      not_accepted:
+        tag: "Not accepted"
+        heading: "We could not accept your return"
+        body: "Your return has not been filed. The reason is below. To file, fix the problem and contact the Department of Revenue. This prototype can't reopen a return."
+        reason_heading: "Why we couldn't accept it"
     status:
       title: "Your %{tax_year} Colorado return"
       confirmation: "Confirmation number"
@@ -295,6 +332,7 @@ en:
         information_provided: "You answered the question"
         adjusted: "The examiner changed an amount on your return"
         accepted: "Your return was accepted"
+        not_accepted: "We could not accept your return"
       question_heading: "Question from the Department"
       response_label: "Your answer"
       response_hint: "Don't include full Social Security or bank account numbers."
@@ -350,6 +388,25 @@ en:
       title: "Add a dependent"
     edit:
       title: "Change this dependent"
+    support:
+      page_title: "A few more questions about this person"
+      title: "A few more questions about %{name}"
+      lead: "We ask these when someone is 19 or older, or isn't your child, grandchild, brother or sister."
+      income: "Was this person's total income for %{tax_year} less than %{amount}?"
+      income_hint: "Count wages, unemployment, interest and other taxable income. Don't count Social Security benefits that weren't taxed."
+      support: "Did you pay for more than half of this person's living costs in %{tax_year}?"
+      support_hint: "Count housing, food, clothing, medical care and education."
+    qualification:
+      counts: "Counts as your dependent"
+      does_not_count: "Doesn't count as your dependent"
+      answer: "Answer two more questions"
+      reasons:
+        qualifying_child: "Because of their age and because they lived with you."
+        qualifying_relative: "Because they had little income and you paid most of their living costs."
+        did_not_live_with_you: "Because they didn't live with you for more than half the year."
+        needs_answers: "We need to know more first."
+        income_too_high: "Because their income was too high."
+        not_supported_by_you: "Because you didn't pay more than half of their living costs."
   income_documents:
     kinds:
       w2:
@@ -537,8 +594,10 @@ en:
             spouse_ssn:
               blank: "Enter your spouse's Social Security number"
               same_as_filer: "Enter your spouse's number. This one is yours."
+              same_as_dependent: "Enter your spouse's number. This one belongs to a dependent you added."
             has_dependents:
               add_a_dependent: "Add at least one dependent, or answer No"
+              finish_dependents: "Answer the remaining questions about each person you added"
             childcare_expenses: { blank: "Enter how much you paid for child care" }
             income_documents_reviewed:
               confirm_income_documents: "Check the box when you've checked every form"
@@ -564,6 +623,10 @@ en:
             ssn:
               blank: "Enter their Social Security number"
               already_listed: "You've already added someone with this number"
+              same_as_filer: "Enter this person's own number. This one is yours."
+              same_as_spouse: "Enter this person's own number. This one is your spouse's."
+            income_under_limit: { choose_one: "Choose Yes or No" }
+            supported_by_filer: { choose_one: "Choose Yes or No" }
         income_document:
           # Messages are complete sentences that say what to do.
           format: "%{message}"

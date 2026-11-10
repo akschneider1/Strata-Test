@@ -51,12 +51,18 @@ Rails.application.routes.draw do
         end
 
         get :summary
+        get :new_rates
         get :review
         patch :submit
         patch :respond
       end
 
-      resources :dependents, only: [ :new, :create, :edit, :update, :destroy ]
+      resources :dependents, only: [ :new, :create, :edit, :update, :destroy ] do
+        member do
+          get :support
+          patch :update_support
+        end
+      end
       resources :income_documents, only: [ :new, :create, :edit, :update, :destroy ] do
         member do
           patch :confirm
@@ -78,6 +84,7 @@ Rails.application.routes.draw do
 
   # Examiner portal
   get "staff", to: "staff#index"
+  get "staff/measures", to: "staff#measures", as: :staff_measures
   scope path: "/staff" do
     resources :tax_return_cases, path: "returns", only: [ :index, :show ] do
       collection do
@@ -86,6 +93,9 @@ Rails.application.routes.draw do
       member do
         patch :assign_to_me
         patch :approve
+        post :reject
+        patch :confirm
+        post :send_back
         post :adjust
         post :request_information
         post :add_note

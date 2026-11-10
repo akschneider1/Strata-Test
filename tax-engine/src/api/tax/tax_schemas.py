@@ -43,6 +43,16 @@ class ReturnFactsSchema(request_schema.OrderedSchema):
     taxable_interest = money("Taxable interest (Form 1099-INT box 1)")
     childcare_expenses = money("Child care expenses paid so the filer could work")
     colorado_tax_withheld = money("Colorado income tax withheld (Form W-2 box 17 and 1099s)")
+    rate_schedule = fields.String(
+        load_default=None,
+        allow_none=True,
+        validate=[validators.OneOf(calculator.RATE_SCHEDULES)],
+        metadata={
+            "description": "How taxable income is taxed: 'flat' or 'graduated' (the "
+            "Amendment 87 brackets, tax year 2027 on). Leave out for the schedule "
+            "in law for the tax year."
+        },
+    )
 
 
 class LineSchema(request_schema.OrderedSchema):
@@ -62,6 +72,9 @@ class CalculationSchema(request_schema.OrderedSchema):
     amount_owed = fields.Float()
     engine = fields.String(metadata={"description": "Rules engine that produced the result"})
     engine_version = fields.String()
+    rate_schedule = fields.String(
+        metadata={"description": "The rate schedule applied: 'flat' or 'graduated'"}
+    )
 
 
 class EngineStatusSchema(request_schema.OrderedSchema):
@@ -71,3 +84,11 @@ class EngineStatusSchema(request_schema.OrderedSchema):
         metadata={"description": "False while the rules engine is still loading"}
     )
     supported_tax_years = fields.List(fields.Integer())
+    qualifying_relative_income_limits = fields.Dict(
+        keys=fields.String(),
+        values=fields.Integer(),
+        metadata={
+            "description": "By tax year: the most income a person can have "
+            "and still be claimed as a qualifying relative"
+        },
+    )

@@ -24,6 +24,10 @@ It contains the full Strata suite, ready to generate apps from:
 
 To see the prototype, run the two commands below and open <http://localhost:3100>.
 The click-by-click script is in [docs/tax-portal/demo-guide.md](docs/tax-portal/demo-guide.md).
+What to learn from the IRS's own free filing service is in
+[docs/tax-portal/direct-file-lessons.md](docs/tax-portal/direct-file-lessons.md),
+and a script for testing the prototype with people is in
+[docs/tax-portal/usability-test-kit.md](docs/tax-portal/usability-test-kit.md).
 
 ```bash
 bin/setup-env --postgres
@@ -32,6 +36,9 @@ bin/setup-env --postgres
 ```bash
 bin/demo
 ```
+
+To show it somewhere other than your own machine or AWS (Docker, Render,
+Replit and others), see [docs/hosting.md](docs/hosting.md).
 
 More apps are created from requirements with one command each.
 
@@ -73,6 +80,8 @@ Docker is optional; each app's `docker compose` setup works as Nava documents it
 | `bin/new-app --reapply <name>` | Re-apply the CoDS/Strata customizations (idempotent). Run this after a template update. |
 | `bin/new-app --verify <name>` | Install dependencies and run the app's lint and tests. |
 | `bin/demo [test\|reset]` | Run the tax prototype with demo data; `test` also runs the browser walkthrough. |
+| `bin/serve [--reset]` | Run the tax prototype as a hosted demo (production-like, no Docker). See [docs/hosting.md](docs/hosting.md). |
+| `bin/hosting-secrets` | Print a fresh set of secrets for a hosted demo. |
 | `bin/cods-upgrade <version>` | Move every app to another CoDS release, after verifying the release checksums. |
 | `make help` | Infra targets from the AWS template (`infra-lint`, `release-build`, …). |
 
@@ -212,7 +221,9 @@ Don't make `Claude Code Review` a required check. It reviews but never blocks.
 ## Repo layout
 
 ```text
-bin/                  repo tooling (new-app, setup-env, doctor, cods-upgrade) + infra scripts
+bin/                  repo tooling (new-app, setup-env, doctor, cods-upgrade, demo, serve) + infra scripts
+docker-compose.yml    the tax prototype as a hosted demo on any machine with Docker
+render.yaml .replit   the same for Render and Replit (see docs/hosting.md)
 stack/versions.env    every pinned version
 stack/cods/           files bin/new-app copies into apps (CoDS CSS build step, compat styles)
 stack/lib/            helpers used by bin/*

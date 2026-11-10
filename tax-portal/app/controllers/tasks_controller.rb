@@ -6,4 +6,11 @@ class TasksController < Strata::TasksController
   def show
     redirect_to tax_return_case_path(@task.case_id)
   end
+
+  protected
+
+  # The Strata list, one page at a time.
+  def filter_tasks
+    paginate(super)
+  end
 end

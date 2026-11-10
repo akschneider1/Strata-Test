@@ -1,0 +1,100 @@
+<% content_for :title, t(".title") %>
+<% m = @measures %>
+<% with_share = ->(count) { m.share(count) ? t(".count_with_share", count: count, share: m.share(count)) : count.to_s } %>
+
+<h1 class="font-heading-xl"><%= t(".title") %></h1>
+<p class="usa-intro measure-6"><%= t(".lead") %></p>
+
+<% if m.filed.zero? %>
+  <p class="text-base-darker" data-testid="no-returns"><%= t(".none") %></p>
+<% else %>
+  <div class="grid-row grid-gap-4">
+    <div class="desktop:grid-col-6">
+      <h2 class="font-heading-lg"><%= t(".outcomes.heading") %></h2>
+      <table class="usa-table width-full" data-testid="outcomes">
+        <caption class="usa-sr-only"><%= t(".outcomes.heading") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".columns.measure") %></th>
+            <th scope="col" class="text-right"><%= t(".columns.returns") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row"><%= t(".outcomes.filed") %></th><td class="text-right" data-testid="filed"><%= m.filed %></td></tr>
+          <tr><th scope="row"><%= t(".outcomes.accepted_automatically") %></th><td class="text-right" data-testid="accepted-automatically"><%= with_share.call(m.accepted_automatically) %></td></tr>
+          <tr><th scope="row"><%= t(".outcomes.flagged") %></th><td class="text-right" data-testid="flagged"><%= with_share.call(m.flagged) %></td></tr>
+          <tr><th scope="row"><%= t(".outcomes.accepted_after_review") %></th><td class="text-right"><%= m.accepted_after_review %></td></tr>
+          <tr><th scope="row"><%= t(".outcomes.accepted_with_adjustments") %></th><td class="text-right"><%= m.accepted_with_adjustments %></td></tr>
+          <tr><th scope="row"><%= t(".outcomes.not_accepted") %></th><td class="text-right"><%= m.not_accepted %></td></tr>
+          <tr><th scope="row"><%= t(".outcomes.second_review") %></th><td class="text-right"><%= m.second_review %></td></tr>
+          <tr><th scope="row"><%= t(".outcomes.waiting_to_be_processed") %></th><td class="text-right"><%= m.waiting_to_be_processed %></td></tr>
+          <tr><th scope="row"><%= t(".outcomes.in_review") %></th><td class="text-right"><%= m.in_review %></td></tr>
+          <tr><th scope="row"><%= t(".outcomes.waiting_on_taxpayer") %></th><td class="text-right"><%= m.waiting_on_taxpayer %></td></tr>
+        </tbody>
+      </table>
+
+      <h2 class="font-heading-lg margin-top-4"><%= t(".time.heading") %></h2>
+      <table class="usa-table width-full" data-testid="times">
+        <caption class="usa-sr-only"><%= t(".time.heading") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".columns.measure") %></th>
+            <th scope="col" class="text-right"><%= t(".columns.typical_time") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row"><%= t(".time.automatic") %></th><td class="text-right"><%= measure_duration(m.median_time_to_decision_automatic) %></td></tr>
+          <tr><th scope="row"><%= t(".time.reviewed") %></th><td class="text-right"><%= measure_duration(m.median_time_to_decision_reviewed) %></td></tr>
+          <tr><th scope="row"><%= t(".time.answer") %></th><td class="text-right"><%= measure_duration(m.median_time_to_answer) %></td></tr>
+        </tbody>
+      </table>
+      <p class="font-body-2xs text-base-dark"><%= t(".time.note") %></p>
+    </div>
+
+    <div class="desktop:grid-col-6">
+      <h2 class="font-heading-lg"><%= t(".flags.heading") %></h2>
+      <% if m.flags_by_code.any? %>
+        <table class="usa-table width-full" data-testid="flags">
+          <caption class="usa-sr-only"><%= t(".flags.heading") %></caption>
+          <thead>
+            <tr>
+              <th scope="col"><%= t(".columns.reason") %></th>
+              <th scope="col" class="text-right"><%= t(".columns.returns") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% m.flags_by_code.each do |code, count| %>
+              <tr><th scope="row"><%= t("staff.flags.#{code}.title") %></th><td class="text-right"><%= count %></td></tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="text-base-darker"><%= t(".flags.none") %></p>
+      <% end %>
+
+      <h2 class="font-heading-lg margin-top-4"><%= t(".adjustments.heading") %></h2>
+      <table class="usa-table width-full" data-testid="adjustments">
+        <caption class="usa-sr-only"><%= t(".adjustments.heading") %></caption>
+        <thead>
+          <tr>
+            <th scope="col"><%= t(".columns.measure") %></th>
+            <th scope="col" class="text-right"><%= t(".columns.value") %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row"><%= t(".adjustments.returns") %></th><td class="text-right"><%= m.returns_adjusted %></td></tr>
+          <tr><th scope="row"><%= t(".adjustments.net_change") %></th><td class="text-right" data-testid="net-change"><%= measure_net_change(m.net_change_from_adjustments) %></td></tr>
+          <tr><th scope="row"><%= t(".questions.asked") %></th><td class="text-right"><%= m.questions_asked %></td></tr>
+          <tr><th scope="row"><%= t(".questions.open") %></th><td class="text-right"><%= m.questions_open %></td></tr>
+          <tr>
+            <th scope="row"><%= t(".questions.oldest_open") %></th>
+            <td class="text-right"><%= m.oldest_open_question_asked_at ? t(".questions.ago", time: time_ago_in_words(m.oldest_open_question_asked_at)) : t(".not_yet") %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+
+<h2 class="font-heading-lg margin-top-4"><%= t(".missing.heading") %></h2>
+<p class="measure-6"><%= t(".missing.body") %></p>
