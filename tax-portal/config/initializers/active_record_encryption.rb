@@ -5,9 +5,11 @@
 #
 # Deployed environments must provide all three values as secrets. Local
 # development and tests fall back to fixed, publicly known values so the app
-# runs without setup; they protect nothing and must never be used with real data.
+# runs without setup (the image build does the same); they protect nothing and must never be used with real data.
 Rails.application.configure do
-  local = Rails.env.local?
+  # SECRET_KEY_BASE_DUMMY is set while building the container image (asset
+  # precompile), when no secrets are available and no data is touched.
+  local = Rails.env.local? || ENV["SECRET_KEY_BASE_DUMMY"].present?
   fetch = lambda do |name, dev_default|
     ENV.fetch(name) do
       raise KeyError, "#{name} must be set in #{Rails.env}" unless local
