@@ -12,8 +12,5 @@
   },
   "devDependencies": {
     "sass": "^1.105.2"
-  },
-  "overrides": {
-    "@coloradodigitalservice/colorado-design-tokens": "$@coloradodigitalservice/colorado-design-tokens"
   }
 }
