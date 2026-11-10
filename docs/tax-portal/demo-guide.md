@@ -79,6 +79,9 @@ automatically.
    edited; the change is recorded on top of it.
 6. **Accept with adjustments.** The History section lists every step and who
    did it.
+   Then open **Service measures**: how many returns needed no review, why
+   the rest were flagged, how long decisions take, and what adjustments
+   changed.
 7. As Jordan again: his return is accepted, with the change and the reason.
 
 ### 4. Walter (optional)

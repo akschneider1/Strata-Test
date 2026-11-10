@@ -78,6 +78,7 @@ Rails.application.routes.draw do
 
   # Examiner portal
   get "staff", to: "staff#index"
+  get "staff/measures", to: "staff#measures", as: :staff_measures
   scope path: "/staff" do
     resources :tax_return_cases, path: "returns", only: [ :index, :show ] do
       collection do

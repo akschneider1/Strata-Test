@@ -37,6 +37,22 @@ module StaffHelper
     amount_owed.to_i.positive? ? t("staff.result.owes", amount: money(amount_owed)) : t("staff.result.refund", amount: money(refund))
   end
 
+  # A length of time in the largest sensible unit, for the measures page.
+  def measure_duration(seconds)
+    return t("staff.measures.not_yet") if seconds.nil?
+    return t("staff.measures.under_a_minute") if seconds < 60
+
+    distance_of_time_in_words(seconds)
+  end
+
+  # Total effect of examiner adjustments on what taxpayers receive.
+  def measure_net_change(amount)
+    if amount.zero? then t("staff.measures.adjustments.no_change")
+    elsif amount.negative? then t("staff.measures.adjustments.less", amount: money(amount.abs))
+    else t("staff.measures.adjustments.more", amount: money(amount))
+    end
+  end
+
   def actor_name(line)
     line.actor.is_a?(User) ? "#{line.actor.display_name} (#{t("staff.roles.#{line.actor.role}")})" : t("staff.roles.system")
   end

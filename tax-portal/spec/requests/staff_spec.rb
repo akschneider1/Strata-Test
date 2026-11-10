@@ -10,7 +10,7 @@ RSpec.describe "Examiner portal" do
 
   describe "access" do
     it "is closed to taxpayers and visitors" do
-      paths = [ staff_path, tasks_path, tax_return_cases_path, tax_return_case_path(kase) ]
+      paths = [ staff_path, staff_measures_path, tasks_path, tax_return_cases_path, tax_return_case_path(kase) ]
 
       paths.each do |path|
         get path
@@ -37,6 +37,16 @@ RSpec.describe "Examiner portal" do
 
       get tasks_path
       expect(response.body).to include("Review flagged return")
+    end
+
+    it "shows service measures" do
+      get staff_measures_path
+      expect(response.body).to include("No returns have been filed yet.")
+
+      kase
+      create(:tax_return, :submitted)
+      get staff_measures_path
+      expect(response.body).to include("Service measures", "Accepted with no review", "1 (50%)", "Withholding higher than reported by payer")
     end
 
     it "picks up the next return and opens it" do

@@ -222,6 +222,15 @@ test.describe('Examiner', () => {
     await page.getByRole('button', { name: 'Accept with adjustments' }).click();
     await expect(page.getByTestId('case-step')).toHaveAttribute('data-step', 'end');
     await expect(page.getByTestId('history').locator('li')).toHaveCount(7);
+
+    // The service measures reflect the review
+    await page.getByRole('link', { name: 'Service measures' }).click();
+    await expect(page.getByRole('heading', { name: 'Service measures', level: 1 })).toBeVisible();
+    await expect(page.getByTestId('flags')).toContainText(
+      'Withholding higher than reported by payer'
+    );
+    await expect(page.getByTestId('net-change')).toHaveText('$1,000 less in total');
+    await expectAccessible(page);
     await signOut(page);
 
     // The taxpayer sees the outcome and why

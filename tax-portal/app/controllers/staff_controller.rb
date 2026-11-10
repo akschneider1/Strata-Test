@@ -19,6 +19,10 @@ class StaffController < Strata::StaffController
     @recent_activity = Strata::AuditLine.where(subject_type: "TaxReturnCase").order(created_at: :desc).limit(8)
   end
 
+  def measures
+    @measures = ServiceMeasures.new
+  end
+
   protected
 
   def case_classes
@@ -26,7 +30,10 @@ class StaffController < Strata::StaffController
   end
 
   def cases_links
-    [ { name: t("staff.header.returns"), path: tax_return_cases_path } ]
+    [
+      { name: t("staff.header.returns"), path: tax_return_cases_path },
+      { name: t("staff.header.measures"), path: staff_measures_path }
+    ]
   end
 
   private
