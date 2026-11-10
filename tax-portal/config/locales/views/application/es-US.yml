@@ -1,4 +1,5 @@
 es-US:
   header:
     language_toggle: Español
+    menu: "Menú"
     logout: Cerrar sesión

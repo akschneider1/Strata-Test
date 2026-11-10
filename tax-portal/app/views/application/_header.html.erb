@@ -11,7 +11,7 @@
       </div>
 
       <%= render partial: "application/language-toggle", locals: { container_class: "display-block desktop:display-none" } %>
-      <button type="button" class="usa-menu-btn">Menu</button>
+      <button type="button" class="usa-menu-btn"><%= t("header.menu") %></button>
     </div>
 
     <nav aria-label="Primary navigation" class="usa-nav">
@@ -19,10 +19,11 @@
         <button type="button" class="usa-nav__close">
           <img src="<%= asset_path('@uswds/uswds/dist/img/usa-icons/close.svg') %>" alt="<%= t 'header.close' %>" />
         </button>
-        <ul class="usa-nav__primary usa-accordion">
+        <ul class="usa-nav__primary usa-accordion flex-align-center">
             <% if user_signed_in? %>
               <li class="usa-nav__primary-item">
-                <span class="usa-nav-link text-normal"><%= t("header.signed_in_as", name: current_user.display_name) %></span>
+                <%# The label is for screen readers; sighted users see the name next to "Log out". %>
+                <span class="usa-nav-link text-normal display-block"><span class="usa-sr-only"><%= t("header.signed_in_as_label") %> </span><%= current_user.display_name %></span>
               </li>
               <li class="usa-nav__primary-item">
                 <%= button_to t('header.logout'), current_user.provider == "demo" ? demo_sign_out_path : destroy_user_session_path, method: :delete, class: "usa-nav-link" %>

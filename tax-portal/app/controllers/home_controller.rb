@@ -8,7 +8,8 @@ class HomeController < ApplicationController
     if current_user
       redirect_to after_sign_in_path_for(current_user)
     else
-      @demo_users = DemoMode.enabled? ? DemoMode.users : []
+      @demo_mode = DemoMode.enabled?
+      @demo_users = @demo_mode ? DemoMode.users : []
     end
   end
 end

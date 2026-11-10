@@ -2,9 +2,17 @@
 # plain language, the taxpayer's own words, one idea per sentence, and no
 # personal information in titles, links or buttons.
 en:
+  date:
+    formats:
+      plain: "%B %-d, %Y"
+  time:
+    formats:
+      plain: "%B %-d, %Y at %-l:%M %p, Mountain time"
+      plain_short: "%B %-d at %-l:%M %p"
   header:
     staff_title: "Colorado Department of Revenue · Examiner portal"
     signed_in_as: "Signed in as %{name}"
+    signed_in_as_label: "Signed in as"
   prototype_banner:
     heading: "Prototype:"
     body: "This is a demonstration with made-up people. It can't file a real tax return."
@@ -22,7 +30,7 @@ en:
     save: "Save"
     cancel: "Cancel"
     optional: "optional"
-    dollars_hint: "Whole dollars. For example, 1250"
+    dollars_hint: "Enter whole dollars, without cents. For example, 1250"
     why_we_ask: "Why we ask"
     source: "Where this rule comes from"
     filer: "You"
@@ -30,34 +38,41 @@ en:
   home:
     index:
       title: "File your 2025 Colorado income tax return"
-      lead: "Answer questions in plain language. We fill in what the Department of Revenue already knows, work out what you qualify for, and show you how your tax is calculated."
-      what_you_get_heading: "What's different"
+      lead: "Answer simple questions about yourself. We fill in what the Department of Revenue already has on file. We tell you which credits you can get, and show how we worked out your tax."
+      what_you_get_heading: "How this is different"
       what_you_get:
-        - "Your W-2 and 1099 information is filled in for you to check."
-        - "You don't choose a filing status or hunt for credits. We tell you what you qualify for and why."
-        - "You see every step of the calculation before you sign."
-        - "Most returns are accepted in minutes, and you can track yours."
+        - "We fill in your wage and income forms (W-2 and 1099). You check them."
+        - "You don't pick a filing status or search for credits. We tell you what you can get, and why."
+        - "You see each step of the math before you sign."
+        - "You can check where your return stands at any time."
       sign_in: "Sign in"
       demo_heading: "Try the demo"
-      demo_lead: "Pick a person to see the portal through their eyes. All of them are made up."
-      demo_taxpayers: "Taxpayers"
-      demo_examiners: "Department of Revenue examiners"
+      demo_lead: "Choose a person below. You will see the portal as they see it. Everyone here is made up."
+      demo_taxpayers: "People filing a tax return"
+      demo_examiners: "Department of Revenue staff who review returns"
       demo_sign_in: "Continue as %{name}"
+      demo_how_heading: "How the demo works"
+      demo_how:
+        - "Choose a person. You don't need a password."
+        - "To switch to someone else, choose Log out. Then choose another person."
+        - "Nothing you enter is sent to the Department of Revenue."
+      demo_loading_heading: "The demo is getting ready"
+      demo_loading: "The demo people will appear here in about a minute. This page will update on its own."
   demo_users:
-    maya: "Single, one W-2. Accepted automatically."
-    daniela: "Single parent of two. Sees the family credits she qualifies for."
-    walter: "Retired couple with pensions and Social Security."
-    jordan: "Reports more withholding than his employer did. Goes to an examiner."
-    examiner: "Reviews the returns that the automatic checks flag."
-    examiner2: "A second examiner, who confirms large changes."
+    maya: "Has not filed yet. Start here to file a return from beginning to end."
+    daniela: "A single parent of two children. Her answers are already filled in. See the credits she gets, then sign her return."
+    walter: "Retired and married. He has already filed. See a return that was accepted without a review."
+    jordan: "Said more tax was taken out of his pay than his employer reported. See a return that a person is reviewing."
+    examiner: "Reviews returns that need a closer look. Start here to review Jordan's return."
+    examiner2: "A second reviewer. He confirms the large changes that Priya makes."
   tax_returns:
     actions:
       exit: "Back to checklist"
     steps:
       filer_name: "Name"
-      filer_identity: "Birth date and SSN"
+      filer_identity: "Birth date and Social Security number"
       contact: "Address"
-      residency: "Residency"
+      residency: "Where you lived"
       marital_status: "Marital status"
       filing_jointly: "Filing together"
       spouse: "Your spouse"
@@ -73,14 +88,14 @@ en:
       estimate_unavailable: "We can't show your estimate right now. You can keep working on your return, and nothing was lost."
     index:
       title: "Your %{tax_year} Colorado income tax return"
-      lead: "It takes most people about 15 minutes. You can stop at any time and pick up where you left off."
+      lead: "You can stop at any time and pick up where you left off."
       need_heading: "What you'll need"
       need:
         - "Your Social Security number, and your spouse's and dependents' if you have them"
         - "Your W-2s and 1099s, to check against what we already have"
         - "Your bank routing and account number, if you want your refund by direct deposit"
       who_heading: "Who can use this prototype"
-      who: "People who lived in Colorado for all of %{tax_year} and whose income came from wages, unemployment, retirement, Social Security or bank interest."
+      who: "You can use this prototype if you lived in Colorado for all of %{tax_year}. Your income must come only from wages, unemployment, retirement, Social Security or bank interest."
       start: "Start my return"
     show:
       title: "Your %{tax_year} Colorado return"
@@ -92,11 +107,12 @@ en:
       see_calculation: "See how we calculated this"
       review_and_sign: "Review and sign"
       finish_sections_first: "Complete every section to review and sign."
+      cannot_start_hint: "Finish the sections above first."
       status:
         completed: "Completed"
         in_progress: "In progress"
         not_started: "Not started"
-        cannot_start_yet: "Can't start yet"
+        cannot_start_yet: "Not ready yet"
       actions:
         start: "Start"
         continue: "Continue"
@@ -127,7 +143,7 @@ en:
       phone_label: "Phone number"
     edit_residency:
       title: "Did you live in Colorado for all of %{tax_year}?"
-      hint: "Answer yes if Colorado was your home from January 1 through December 31, even if you traveled or worked elsewhere for part of the year."
+      hint: "Answer yes if Colorado was your home from January 1 through December 31. Trips and work in other places don't change that."
     edit_marital_status:
       title: "On December 31, %{tax_year}, were you married?"
       options:
@@ -149,7 +165,7 @@ en:
       ssn_label: "Your spouse's Social Security number"
     edit_dependents:
       title: "Did anyone depend on you in %{tax_year}?"
-      hint: "A dependent is usually a child or relative who lived with you and whom you supported."
+      hint: "A dependent is usually a child or relative who lived with you. You paid most of their living costs."
       who_counts_summary: "Who counts as a dependent?"
       who_counts: "Usually your child, stepchild, foster child, grandchild, brother, sister or parent who lived with you for more than half the year and didn't pay for most of their own support. You'll answer a few questions about each person."
       list_heading: "People you've added"
@@ -164,11 +180,11 @@ en:
       why: "If you did, you can use a filing status with a larger deduction."
     edit_childcare:
       title: "Did you pay for child care so you could work or look for work?"
-      hint: "Count day care, preschool, before- and after-school care and day camp for a child under 13, or care for a dependent who can't care for themselves."
+      hint: "Count day care, preschool, care before and after school, and day camp for a child under 13. Also count care for a dependent who can't care for themselves."
       amount_label: "How much did you pay in %{tax_year}? (in dollars)"
     edit_income_documents:
       title: "Check your income forms"
-      lead: "Employers and payers send copies of these forms to the Department of Revenue. Compare each one with your own copy."
+      lead: "Employers and other payers send copies of these forms to the Department of Revenue. Compare each one with your own copy. \"Withheld\" means tax that was already taken out of your pay or benefits."
       none_on_file_heading: "We don't have any income forms on file for you"
       none_on_file: "Add each W-2 or 1099 you received for %{tax_year}."
       on_file_tag: "On file with the Department"
@@ -186,7 +202,7 @@ en:
       change: "Something is different"
       not_mine: "This isn't mine"
       undo: "Review again"
-      corrected_note: "Because your numbers differ from what the payer reported, someone at the Department may review your return before it's accepted."
+      corrected_note: "Your numbers are different from what the payer reported. A person at the Department may check your return before it is accepted."
       disputed_note: "We'll leave this off your return. Someone at the Department will follow up with the payer."
       add_heading: "Missing a form?"
       add: "Add an income form"
@@ -198,7 +214,7 @@ en:
       amount_hint: "Add box 1 from each Form 1099-INT."
     edit_other_income:
       title: "Did you have any other income in %{tax_year}?"
-      hint: "For example: self-employment or gig work, rental income, sale of stocks or property, or income from another state."
+      hint: "For example: money from your own business or gig work, rent, selling stocks or property, or income from another state."
     edit_refund_method:
       title: "How do you want to get a refund or pay?"
       lead: "If you're due a refund, direct deposit is the fastest way to get it. If you owe, we'll show you how to pay after you submit."
@@ -215,7 +231,7 @@ en:
       account_label: "Account number"
     summary:
       title: "How we calculated your Colorado tax"
-      lead: "Colorado income tax starts from your federal taxable income. Here is each step, using what you told us."
+      lead: "We start with your income and take off your deductions. Then we work out the tax and subtract your credits and what you already paid. Here is each step."
       refund_heading: "Your refund: %{amount}"
       owed_heading: "You owe: %{amount}"
       even_heading: "You don't owe anything and aren't due a refund"
@@ -224,13 +240,13 @@ en:
       credits_none_heading: "Credits we checked that you don't qualify for"
       not_qualified: "Doesn't apply"
       adjusted_note: "The Department changed some amounts on your return. This is the calculation after those changes."
-      engine_note: "Calculated with %{engine} version %{version}, an open-source model of tax law."
+      engine_note: "Calculated with %{engine} version %{version}, open-source software that models tax law."
       new_rates_heading: "Colorado's tax rates change in 2027"
       new_rates_lead: "Voters approved rates that rise with income, starting with 2027 returns. This return is not affected."
       new_rates_link: "See what the new rates would mean for you"
       sections:
-        federal: "1. Your income (the federal starting point)"
-        colorado_income: "2. Colorado changes to your income"
+        federal: "1. Your income"
+        colorado_income: "2. Changes Colorado makes to your income"
         tax: "3. Your Colorado tax"
         credits: "4. Credits and refunds"
         payments: "5. What you already paid"
@@ -240,8 +256,8 @@ en:
       lead: "In November 2026, Colorado voters approved Amendment 87. Starting with %{year} returns, income is taxed at rates that rise with income, in place of one rate of %{flat_rate}."
       not_final: "The vote has not been certified yet, and the Department has not published forms or instructions for the new rates. Treat this as an estimate."
       for_you_heading: "What it would mean for you"
-      for_you_lead: "This uses the income and household from your %{tax_year} return, with the deductions expected for %{year}."
-      taxable_income: "Colorado taxable income"
+      for_you_lead: "This uses the income and family on your %{tax_year} return. It uses the deductions expected for %{year}."
+      taxable_income: "Income Colorado taxes"
       flat_tax: "Tax at one rate of %{flat_rate}"
       graduated_tax: "Tax at the new rates"
       less: "With the new rates, your Colorado income tax would be %{amount} lower."
@@ -284,6 +300,7 @@ en:
       account: "Account"
       result_heading: "Your result"
       sign_heading: "Sign your return"
+      declaration_plain: "By signing, you are saying that everything on this return is true and complete, as far as you know. The legal wording is:"
       declaration: "Under penalty of perjury, I declare that I have examined this return and, to the best of my knowledge and belief, it is true, correct and complete."
       declaration_label: "I agree"
       signature_label: "Type your full name to sign"
@@ -316,7 +333,7 @@ en:
       not_accepted:
         tag: "Not accepted"
         heading: "We could not accept your return"
-        body: "Your return has not been filed. The reason is below. To file, fix the problem and contact the Department of Revenue. This prototype can't reopen a return."
+        body: "Your return has not been filed. The reason is below. This prototype can't reopen a return. In a real service, you would fix the problem here and send it again."
         reason_heading: "Why we couldn't accept it"
     status:
       title: "Your %{tax_year} Colorado return"
@@ -377,7 +394,7 @@ en:
       name_last: "Last name"
       date_of_birth: "Date of birth"
       relationship: "How is this person related to you?"
-      select: "- Select -"
+      select: "Choose one"
       ssn: "Social Security number"
       lived_with: "Did this person live with you for more than half of %{tax_year}?"
       lived_with_hint: "Count time away at school, in the hospital or on vacation as time living with you. A baby born during the year counts as living with you all year."
@@ -393,7 +410,7 @@ en:
       title: "A few more questions about %{name}"
       lead: "We ask these when someone is 19 or older, or isn't your child, grandchild, brother or sister."
       income: "Was this person's total income for %{tax_year} less than %{amount}?"
-      income_hint: "Count wages, unemployment, interest and other taxable income. Don't count Social Security benefits that weren't taxed."
+      income_hint: "Count wages, unemployment, interest and other income that is taxed. Don't count Social Security that wasn't taxed."
       support: "Did you pay for more than half of this person's living costs in %{tax_year}?"
       support_hint: "Count housing, food, clothing, medical care and education."
     qualification:
@@ -449,34 +466,34 @@ en:
         explanation: "Everything you earned in %{tax_year} from the income forms and interest on your return."
       taxable_social_security:
         label: "Part of your Social Security that is taxable"
-        explanation: "Federal law taxes only part of Social Security benefits, depending on your other income."
+        explanation: "Only part of Social Security is taxed. How much depends on your other income."
       federal_agi:
-        label: "Federal adjusted gross income"
-        explanation: "Your total income, counting only the taxable part of Social Security."
+        label: "Income after federal adjustments"
+        explanation: "Your total income, counting only the part of Social Security that is taxed. Its official name is federal adjusted gross income."
       federal_deductions:
         label: "Federal deductions"
         explanation: "You get the standard deduction for your filing status and age: %{standard_deduction}."
       federal_taxable_income:
-        label: "Federal taxable income"
-        explanation: "Your income minus your deductions. Colorado tax starts from this number."
+        label: "Income the federal government taxes"
+        explanation: "Your income minus your deductions. Colorado tax starts from this number. Its official name is federal taxable income."
       additions:
-        label: "Colorado additions"
-        explanation: "Income Colorado taxes but the federal government doesn't. Most people have none."
+        label: "Income Colorado adds back"
+        explanation: "Income that Colorado taxes but the federal government doesn't. Most people have none."
       pension_subtraction:
         label: "Pension and retirement income Colorado doesn't tax"
-        explanation: "Colorado lets people 55 and older subtract pension, retirement and taxable Social Security income, up to a limit that depends on age."
+        explanation: "People 55 and older can leave out some pension, retirement and Social Security income. The limit depends on your age."
       other_subtractions:
-        label: "Other Colorado subtractions"
-        explanation: "Other income Colorado doesn't tax."
+        label: "Other income Colorado doesn't tax"
+        explanation: "Other income that Colorado leaves out."
       subtractions:
-        label: "Total Colorado subtractions"
-        explanation: "Income the federal government taxes but Colorado doesn't."
+        label: "Total income Colorado doesn't tax"
+        explanation: "Colorado doesn't tax this income, even though the federal government does."
       colorado_taxable_income:
-        label: "Colorado taxable income"
-        explanation: "Federal taxable income, plus additions, minus subtractions."
+        label: "Income Colorado taxes"
+        explanation: "The income the federal government taxes, plus what Colorado adds back, minus what Colorado doesn't tax. Its official name is Colorado taxable income."
       tax:
         label: "Colorado income tax"
-        explanation: "Colorado taxes everyone at the same rate. For %{tax_year} it's %{rate} of your Colorado taxable income."
+        explanation: "Colorado taxes everyone at the same rate. For %{tax_year} it's %{rate} of the income Colorado taxes."
       alternative_minimum_tax:
         label: "Alternative minimum tax"
         explanation: "An extra tax that applies to very few people with certain kinds of income."
@@ -484,7 +501,7 @@ en:
         label: "Credits that reduce your tax"
         explanation: "Credits that can lower your tax to zero but can't be paid out as a refund."
       net_tax:
-        label: "Your tax before refundable credits"
+        label: "Your tax after those credits"
         explanation: "Colorado income tax minus the credits above."
       earned_income_credit:
         label: "Colorado Earned Income Tax Credit"
@@ -492,36 +509,36 @@ en:
         explanation_no: "For people who work and have low to moderate income. Your income is above the limit for your family size, or you don't have income from work."
       child_tax_credit:
         label: "Colorado Child Tax Credit"
-        explanation_yes: "For families with children under 6. You have %{children_under_6} and your income is within the limit."
+        explanation_yes: "For families with children under 6. Children under 6 on your return: %{children_under_6}. Your income is within the limit."
         explanation_no: "For families with children under 6 whose income is within the limit."
       family_affordability_credit:
         label: "Family Affordability Tax Credit"
-        explanation_yes: "For families with children under 17. You have %{children_under_17}, and the amount depends on each child's age and your income."
+        explanation_yes: "For families with children under 17. Children under 17 on your return: %{children_under_17}. The amount depends on each child's age and your income."
         explanation_no: "For families with children under 17 whose income is within the limit."
       child_care_credit:
         label: "Child Care Expenses Tax Credit"
         explanation_yes: "Based on the %{childcare_expenses} you paid for child care so you could work."
         explanation_no: "For people who paid for child care so they could work and whose income is within the limit."
       tabor_sales_tax_refund:
-        label: "State sales tax refund (TABOR)"
-        explanation_yes: "When Colorado collects more than the state constitution allows, it returns the extra to full-year residents through their tax returns."
-        explanation_no: "When Colorado collects more than the state constitution allows, it returns the extra to full-year residents. There is no refund for you this year."
+        label: "State sales tax refund"
+        explanation_yes: "Some years Colorado collects more tax than the state constitution allows. It gives the extra back to people who lived here all year. This is often called the TABOR refund."
+        explanation_no: "Some years Colorado collects more tax than the state constitution allows and gives the extra back. There is no refund for you this year."
       care_worker_credit:
         label: "Care Worker Tax Credit"
         explanation_yes: "For people who work in child care, home health care or long-term care."
         explanation_no: "For people who work in child care, home health care or long-term care. This prototype doesn't ask about it yet."
       refundable_credits:
         label: "Total credits and refunds"
-        explanation: "These are paid to you even if they're more than your tax."
+        explanation: "You get these even if they add up to more than your tax."
       colorado_tax_withheld:
-        label: "Colorado tax already taken out of your pay"
-        explanation: "The Colorado withholding on your income forms."
+        label: "Colorado tax withheld"
+        explanation: "Tax that was already taken out of your pay or benefits. It is shown on your income forms."
       refund:
         label: "Your refund"
-        explanation: "You paid or are credited more than your tax, so you get the difference back."
+        explanation: "Your credits and the tax already withheld add up to more than your tax. You get the difference back."
       amount_owed:
         label: "Amount you owe"
-        explanation: "Your tax is more than your credits and what was withheld."
+        explanation: "Your tax is more than your credits plus the tax already withheld. You owe the difference."
   activerecord:
     attributes:
       tax_return:
@@ -561,7 +578,7 @@ en:
         body: "Note"
     errors:
       messages:
-        blank: "Enter this to continue"
+        blank: "Enter an answer to continue"
         choose_one: "Choose an answer"
         invalid_ssn: "Enter all 9 digits of the Social Security number"
         invalid_zip: "Enter a 5-digit ZIP code"

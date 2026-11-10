@@ -14,6 +14,21 @@ module TaxHelper
     number_to_currency(amount.to_i, precision: 0)
   end
 
+  # One way to write dates and times everywhere a taxpayer sees them:
+  # "November 9, 2026" and "November 9, 2026 at 10:06 PM, Mountain time".
+  def plain_date(date)
+    l(date.to_date, format: :plain)
+  end
+
+  def plain_time(time)
+    l(time.in_time_zone("America/Denver"), format: :plain)
+  end
+
+  # For lists of events, where the year and time zone are already on the page.
+  def short_time(time)
+    l(time.in_time_zone("America/Denver"), format: :plain_short)
+  end
+
   # Colorado Design System in-page alert. Initial-render alerts carry no
   # live-region role (see the CoDS in-page-alert fixture).
   def cods_alert(type, heading: nil, **options, &block)

@@ -123,7 +123,7 @@ RSpec.describe "Taxpayer portal" do
 
       get summary_tax_return_path(tax_return)
 
-      expect(response.body).to include("Your filing status: Single", "Colorado income tax", "4.4% of your Colorado taxable income", "$231")
+      expect(response.body).to include("Your filing status: Single", "Colorado income tax", "4.4% of the income Colorado taxes", "$231")
     end
 
     it "shows what the graduated rates starting in 2027 would mean" do

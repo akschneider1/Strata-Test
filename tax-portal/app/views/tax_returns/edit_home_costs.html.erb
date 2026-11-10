@@ -2,7 +2,7 @@
 <%= render layout: "question", locals: { title: title } do |f| %>
   <%= f.yes_no :paid_over_half_home_costs, legend: content_tag(:h1, title, class: "font-heading-xl margin-0"), hint: page_t("hint"), large_legend: true %>
   <details class="margin-top-2">
-    <summary class="usa-link"><%= t("shared.why_we_ask") %></summary>
+    <summary class="usa-link padding-y-105"><%= t("shared.why_we_ask") %></summary>
     <p><%= page_t("why") %></p>
   </details>
 <% end %>

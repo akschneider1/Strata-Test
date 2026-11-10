@@ -79,6 +79,9 @@ log "Preparing the portal"
   bundle install --quiet
   npm install --no-audit --no-fund >/dev/null
   npm run build:css >/dev/null
+  # Assets compiled for a hosted demo (bin/serve) would be served in place of
+  # the ones just built, so remove them.
+  if [[ -d public/assets ]]; then bin/rails assets:clobber >/dev/null 2>&1; fi
   bin/rails db:prepare >/dev/null
 )
 
