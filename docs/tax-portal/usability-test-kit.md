@@ -18,14 +18,12 @@ building.
 - **Consent.** Follow your organization's rules for research with the
   public: what is recorded, who sees it, how long it is kept, and how
   participants are paid. This kit does not replace those rules.
-- **Setup.** Run the demo and load fresh data before every session.
+- **Setup.** Run the demo. Each browser gets its own fresh copy of the demo
+  people, so use a private window for every session, or choose **Start the
+  demo over** on the home page between sessions.
 
   ```bash
   bin/demo
-  ```
-
-  ```bash
-  bin/demo reset
   ```
 
   Taxpayer sessions: use a phone, or a narrow browser window. Examiner

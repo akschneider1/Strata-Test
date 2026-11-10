@@ -83,13 +83,13 @@ services:
       AR_ENCRYPTION_PRIMARY_KEY: ${AR_ENCRYPTION_PRIMARY_KEY:?Run bin/hosting-secrets > .env first}
       AR_ENCRYPTION_DETERMINISTIC_KEY: ${AR_ENCRYPTION_DETERMINISTIC_KEY:?Run bin/hosting-secrets > .env first}
       AR_ENCRYPTION_KEY_DERIVATION_SALT: ${AR_ENCRYPTION_KEY_DERIVATION_SALT:?Run bin/hosting-secrets > .env first}
-    # Prepare the database, load the demo people the first time, then serve.
+    # Prepare the database, then serve. Each visitor gets their own copy of
+    # the demo people when they first choose one.
     command:
       - sh
       - -c
       - >-
         ./bin/rails db:prepare &&
-        ./bin/rails runner 'DemoData.load! if User.where(provider: "demo").none?' &&
         exec ./bin/rails server -b 0.0.0.0 -p 3100
     ports:
       - "${PORT:-3100}:3100"

@@ -68,6 +68,10 @@ CoDS/USWDS output.
 - Every expected dollar amount in tax-engine tests came from PolicyEngine and
   should be re-derived, not edited, when rules change.
 - Demo people use SSNs in area 000 (never issued). Never add real personal data.
+- Each demo visitor has a private copy of the demo people (`DemoSpace`).
+  Anything that reads returns, tasks or records on file across people must
+  stay inside the signed-in person's copy: use `DemoMode.cases_for` /
+  `tasks_for`, never `TaxReturnCase.all` or `Strata::Task.all` in a controller.
 - Taxpayer-facing text lives in `tax-portal/config/locales/tax/` in English and
   Spanish; add both. Follow the Direct File content style: plain words, say
   what to do in error messages, no personal data in titles, links or buttons.

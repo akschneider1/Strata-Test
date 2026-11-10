@@ -8,8 +8,20 @@ Everything in it is made up. It can't file a real return.
 
 It answers one question for people deciding what to do about ROL: **what
 could filing and reviewing a Colorado return be like if the State built it
-around the taxpayer?** It is not a proposal, a cost estimate or a plan. The
-[product audit](product-audit.md) lists what a decision would still need.
+around the taxpayer?** The goal is for the legislature to be able to set
+funding and write a bill for a full replacement with working software in
+front of them, not a description of it.
+
+It is not a cost estimate or a plan. The
+[legislative brief](legislative-brief.md) sets out what a bill would need to
+settle, and the [product audit](product-audit.md) lists what a decision
+still lacks.
+
+There are four audiences. Each has its own short path below:
+[Department executives](#department-executives-three-minutes),
+[program staff](#program-staff-ten-minutes),
+[taxpayers](#taxpayers-hand-them-the-phone) and
+[legislators and fiscal staff](#legislators-and-fiscal-staff-five-minutes).
 
 Three things to make sure the audience sees. Everything else is detail.
 
@@ -36,18 +48,33 @@ bin/demo
 Open <http://localhost:3100>. For a hosted copy (Replit and others), see
 [../hosting.md](../hosting.md).
 
+## It is fresh every time
+
+There is nothing to prepare. Each browser gets its own private copy of the
+seven demo people the first time someone chooses a person. What one visitor
+does never shows up for another, so you can hand out the link to a room and
+everyone can file as Maya at once.
+
+- A copy is erased after two hours without use. Open the demo the next day
+  and it starts from the beginning.
+- To start again sooner, for example between two meetings on the same
+  laptop, choose **Start the demo over** on the home page, then **Reset the
+  demo**. It resets your copy only.
+- A private or incognito window always starts fresh.
+- `bin/demo reset` (or `bin/serve --reset` on a host) discards everyone's
+  copies.
+
 ## Before you present
 
-- **Reset it.** The demo gets used up: once someone has filed as Maya or
-  settled Jordan's return, the next person can't. On the home page choose
-  **Start the demo over**, then **Reset the demo**. It takes a few seconds.
-  (`bin/demo reset` does the same from a terminal.)
-- **Give it a minute after starting.** The demo people appear once the tax
-  rules have loaded. The home page says so while you wait.
+- **Give it a minute after starting the server.** You can choose a person
+  once the tax rules have loaded. The home page says so while you wait. On
+  a hosted copy that has been asleep, the first click can take ten seconds.
+- **Point people to "About this prototype"** on the home page if they are
+  exploring without you. It says what is real and what is made up.
 - **Use a narrow window or a phone for the taxpayer parts**, and a wide
   window for the examiner parts.
 - **Run through it once.** `bin/demo test` runs the main path in a browser
-  and tells you if anything is broken. It resets the data when it starts.
+  and tells you if anything is broken.
 
 ## The people
 
@@ -61,9 +88,13 @@ Open <http://localhost:3100>. For a hosted copy (Replit and others), see
 | Priya Shah | Examiner | The work queue and review tools |
 | Marcus Reed | Second examiner | Confirming a large change |
 
-## The three-minute version
+## A path for each audience
 
-For someone with no time. Three stops, one per point above.
+### Department executives: three minutes
+
+For someone with no time. Three stops, one per point above. What they need
+to leave with: this is possible, it is not finished, and here is what it
+would take to find out more.
 
 1. **Continue as Maya**, **Start my return**, and work through to **Your
    income** (the two sections before it are short). Stop on the income
@@ -75,6 +106,59 @@ For someone with no time. Three stops, one per point above.
 3. Log out, **Continue as Priya**, **Pick up next return**. *"This one was
    stopped because his numbers don't match his employer's. It says exactly
    why. The rest never reach a person."* Open **Service measures**.
+
+### Program staff: ten minutes
+
+Examiners, supervisors and the people who run ROL today. They will judge
+the review side, and they know things we don't. Ask more than you tell.
+
+1. Show stop 1 of the three-minute version briefly, so they see where
+   returns come from.
+2. Do all of [section 3 of the full script](#3-work-a-flagged-return-as-priya-wide-window):
+   the work list, why a return was stopped, asking the taxpayer, changing
+   an amount, the second examiner, the history.
+3. Open **Service measures**.
+4. Say what is missing for their work: letters, appeals, search, working
+   many returns at once, and any connection to the system they use now.
+5. Ask: What would stop you using this? Which checks do you run today that
+   are not here? How often do employer records and returns disagree? Their
+   answers correct [rol-comparison.md](rol-comparison.md) and the
+   [review rate study](review-rate-study.md).
+
+### Taxpayers: hand them the phone
+
+Don't present. Open the demo on a phone, choose **Continue as Maya**, hand
+it over and say: "This is a made-up person. Try to file her tax return. Say
+what you are thinking as you go." Give them her birth date (March 14, 1996)
+and Social Security number (`000-00-1001`) on a card. Then watch, and don't
+help unless they are stuck for a minute.
+
+The [usability test kit](usability-test-kit.md) has the full script,
+consent wording and what to write down. Five people is enough to find the
+main problems.
+
+### Legislators and fiscal staff: five minutes
+
+They are deciding whether to fund it and what the bill should say. Show
+that it is real, show that it copes with a law change, and be exact about
+what is not built.
+
+1. **Continue as Maya** on a phone, through to **Your income**. *"The State
+   already had her W-2. She checks it. She doesn't type it."*
+2. Log out, **Continue as Daniela**, **See how we calculated this**. *"A
+   single parent with two children. It found four credits for her and says
+   why. She did not have to know they existed."*
+3. On the same page, **See what the new rates would mean for you**.
+   *"Voters approved new rates for 2027. They are already in here. A change
+   in the law was a change to the rules, not a new system."*
+4. Log out, **Continue as Elena**. *"She owes $950. It tells her what and
+   when. It can't take her payment. That is not built."*
+5. Open **About this prototype** from the home page and read the "made up
+   or left out" list aloud. Then hand over the
+   [legislative brief](legislative-brief.md).
+
+Don't give a cost or a date. Nobody has estimated either, and the brief
+says what an estimate needs.
 
 ## The full script (about ten minutes, untimed with a real audience)
 
@@ -163,7 +247,8 @@ Answer these plainly. Each has a fuller answer in the linked page.
 | How many returns would need a person? | Unknown. A test with made-up households flagged 9%, but most of that came from our own assumptions. See [review-rate-study.md](review-rate-study.md). |
 | How is this different from Revenue Online? | See [rol-comparison.md](rol-comparison.md). The ROL column is our understanding from public material and has not been confirmed with Department staff. |
 | Has anyone tested it with taxpayers? | No. A script for doing so is in [usability-test-kit.md](usability-test-kit.md). |
-| What would it cost, and how long would it take? | Nobody has estimated that. The IRS's first-year pilot of Direct File cost about $32 million; see [direct-file-lessons.md](direct-file-lessons.md). A state service would differ. |
+| What would it cost, and how long would it take? | Nobody has estimated that. The [legislative brief](legislative-brief.md) lists what drives the cost and what the Department and OIT would need to supply. The IRS's first-year pilot of Direct File cost about $32 million; a state service would differ. |
+| Can several people try it at once? | Yes. Each browser has its own copy of the demo people. |
 | What happens to people it doesn't cover? | The start page says who can use it. Part-year residents and people with other kinds of income are told so and can't continue. |
 | Can I pay what I owe? | Not in the prototype. |
 

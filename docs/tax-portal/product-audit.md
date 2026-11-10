@@ -19,6 +19,19 @@ next.
 This is one reviewer's assessment. No decision-maker, taxpayer or examiner
 has been asked.
 
+## Audience and ask, as now decided
+
+- **Audiences:** Department of Revenue executives, program staff, taxpayers,
+  and the legislature.
+- **Goal:** show the legislature working software so it can set funding and
+  write the bill.
+- **Ask:** fund a full replacement.
+
+The [demo guide](demo-guide.md) now has a path for each audience, the app
+has an "About this prototype" page for people exploring alone, and the
+[legislative brief](legislative-brief.md) sets out what a bill would need
+to settle.
+
 ## Verdict
 
 The demo shows three things well: forms already filled in, the system
@@ -37,15 +50,15 @@ that are not ours to make.
 
 | Area | Before | Now | Notes |
 | --- | --- | --- | --- |
-| Says who it is for and what it shows | Missing | Fixed | The guide now opens with the question the demo answers and the three points to land. |
+| Says who it is for and what it shows | Missing | Fixed | The guide opens with the question, the goal and the three points to land, and has a path for each of the four audiences. |
 | Shows clear value | Strong | Strong | Prefill, "tell, don't ask" and the explained calculation are visible within a minute. |
 | Has a story, not a feature tour | Weak | Better | Added a three-minute version with one stop per point. The ten-minute script is still a tour. |
 | Guide matches the app | 3 mismatches | Fixed | A missing person, stale wording about processing, and no mention of the 2027 rates page. |
-| Survives being shared | Broken | Fixed | See "The demo used itself up" below. |
+| Survives being shared | Broken | Fixed | Every visitor has a private copy. See "The demo used itself up" below. |
 | Covers the situations people are in | Partial | Partial | See the coverage table. An amount-due case is now shown. |
 | Honest about limits | Good | Good | Prototype banner on every page; unmeasured promises were removed in the UX pass. |
 | Has evidence it works for people | None | None | Nobody outside the project has used it. |
-| Ready to support a decision | Weak | Weak | No owner, success measures, pilot definition, cost or timeline. |
+| Ready to support a decision | Weak | Better | The legislative brief frames the ask and the open questions. Still no owner, cost or timeline, and no figures from the Department. |
 
 ## What was wrong and what changed
 
@@ -57,13 +70,16 @@ On a laptop the presenter could reset from a terminal. On a hosted copy
 (the plan for Replit) nobody could, so the demo worked properly for exactly
 one visitor.
 
-**Fixed.** The home page has **Start the demo over**, which puts every
-person back to the start in about two seconds. "How the demo works" now
-says that what you do stays until someone resets it.
+**Fixed.** Each browser now gets its own private copy of the seven demo
+people the first time someone chooses a person (about two seconds). What
+one visitor does never shows up for another, so a room of people can each
+file as Maya at once. A copy is erased after two hours without use, so the
+demo is at the start whenever it is opened for someone new. **Start the
+demo over** on the home page resets only the visitor's own copy.
 
-Still true: two people using a shared copy at once will get in each other's
-way. A reset by one interrupts the other. Separate copies per visitor would
-fix that and is not built.
+Limits: there is no cap on the number of copies. Each is small (seven
+people, four returns), and idle ones are removed when the next visitor
+arrives.
 
 ### Everyone got a refund
 
@@ -139,9 +155,8 @@ produce it.
 
 These are this reviewer's recommendations, in order. None has been agreed.
 
-1. **Name who the demo is for and what you want from them.** A go-ahead for
-   user testing is a different ask from a budget request, and the demo
-   should be told differently for each.
+1. ~~Name who the demo is for and what you want from them.~~ Done: see
+   "Audience and ask" above.
 2. **Check the ROL comparison with Department staff.** Until then the
    "better than ROL" claim is our reading of public material.
 3. **Run five sessions with real taxpayers**, using the

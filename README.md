@@ -32,6 +32,8 @@ The UX audit of the taxpayer portal is in
 [docs/tax-portal/ux-audit.md](docs/tax-portal/ux-audit.md).
 The product audit of the demo is in
 [docs/tax-portal/product-audit.md](docs/tax-portal/product-audit.md).
+For legislators and fiscal staff:
+[docs/tax-portal/legislative-brief.md](docs/tax-portal/legislative-brief.md).
 
 ```bash
 bin/setup-env --postgres
@@ -83,7 +85,7 @@ Docker is optional; each app's `docker compose` setup works as Nava documents it
 | `bin/new-app <rails\|nextjs\|flask> <name> [--port N] [--skip-verify]` | Create an app from a Strata template. Ports default to 3000, 3100, 3200… |
 | `bin/new-app --reapply <name>` | Re-apply the CoDS/Strata customizations (idempotent). Run this after a template update. |
 | `bin/new-app --verify <name>` | Install dependencies and run the app's lint and tests. |
-| `bin/demo [test\|reset]` | Run the tax prototype with demo data; `test` also runs the browser walkthrough. |
+| `bin/demo [test\|reset]` | Run the tax prototype; `test` also runs the browser walkthrough; `reset` discards every visitor's copy of the demo. |
 | `bin/serve [--reset]` | Run the tax prototype as a hosted demo (production-like, no Docker). See [docs/hosting.md](docs/hosting.md). |
 | `bin/hosting-secrets` | Print a fresh set of secrets for a hosted demo. |
 | `bin/cods-upgrade <version>` | Move every app to another CoDS release, after verifying the release checksums. |

@@ -138,6 +138,26 @@ Controls on examiners (`app/services/return_processing/examiner_actions.rb`):
   line data.
 - Demo sign-in exists only when `DEMO_MODE=true` and never in production.
 
+## Demo copies
+
+In demo mode each visitor gets a private copy of the demo people
+(`DemoSpace`, `tax-portal/app/models/demo_space.rb`). The first time a
+browser chooses a person, `DemoSpace.start!` creates all seven people, their
+records on file and their returns, and a signed cookie ties the browser to
+that copy. `users` and `wage_records` carry a `demo_space_id`; everything
+else belongs to a copy through its user.
+
+- Anything that reads across people is limited to the signed-in person's
+  copy through `DemoMode.cases_for` and `DemoMode.tasks_for`: the examiner
+  dashboard, lists, work queue, "pick up next" and measures, records on
+  file, and the check for a dependent claimed on another return.
+- People who are not demo people have no copy and see only data that
+  belongs to no copy, so nothing changes outside demo mode.
+- A copy is discarded when its visitor chooses **Start the demo over**, or
+  after two hours without use (checked when the visitor returns and when
+  the next visitor starts). `bin/rails tax:demo_reset` discards them all.
+- Demo people stay signed in for as long as their copy lasts.
+
 ## Tests
 
 | Command | Covers |
