@@ -11,6 +11,15 @@
     },
     {
       "pattern": "//doi.org"
+    },
+    {
+      "pattern": "swagger.io/blog/api-design/design-first-or-code-first-api-development"
+    },
+    {
+      "pattern": "luolingchun.github.io/flask-openapi3"
+    },
+    {
+      "pattern": "www.rubydoc.info/github/heartcombo/devise"
     }
   ],
   "replacementPatterns": [
