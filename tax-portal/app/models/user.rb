@@ -9,10 +9,17 @@ class User < ApplicationRecord
   enum :mfa_preference, { opt_out: 0, software_token: 1 }, validate: { allow_nil: true }
 
   # == Relationships ========================================================
-  has_many :tasks
+  # Taxpayers file their own return; examiners work the review queue.
+  enum :role, { taxpayer: 0, examiner: 1 }, validate: true
+
+  has_many :tax_returns, dependent: :destroy
 
   # == Validations ==========================================================
   validates :provider, presence: true
+
+  def display_name
+    full_name.presence || email
+  end
 
   # == Methods ==============================================================
 

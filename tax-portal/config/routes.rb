@@ -1,6 +1,30 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  scope path: "/staff" do
+    resources :tax_returns, only: [ :index, :show ] do
+      collection do
+        get :closed
+      end
+      
+      member do
+        get :tasks
+        get :documents
+        get :notes
+      end
+    end
+  end
+  scope path: "/staff" do
+    # Add staff specific resources here, like cases and tasks
+
+    resources :tasks, only: [ :index, :show, :update ] do
+      collection do
+        post :pick_up_next_task
+      end
+    end
+  end
+
+  get "staff", to: "staff#index"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
