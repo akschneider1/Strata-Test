@@ -11,6 +11,8 @@ end
 
 require 'spec_helper'
 ENV['RAILS_ENV'] = 'test'
+# Specs use simplified in-process tax math, never the real tax engine.
+ENV['TAX_ENGINE_ADAPTER'] = 'fake'
 require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?

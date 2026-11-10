@@ -9,7 +9,7 @@ RSpec.describe HomeController do
     it "renders the index template" do
       get :index, params: { locale: "en" }
 
-      expect(response.body).to have_selector("h1", text: /get started/i)
+      expect(response.body).to have_selector("h1", text: /File your 2025 Colorado income tax return/)
     end
   end
 end

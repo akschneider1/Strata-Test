@@ -61,9 +61,20 @@ class TaxReturnsController < ApplicationController
     return redirect_to(tax_return_path(@tax_return)) unless @flow.completed?
 
     @tax_return.assign_attributes(params.require(:tax_return).permit(:declaration_accepted, :signature_name))
-    submitted = TaxReturn.transaction do
-      @tax_return.submit_application || raise(ActiveRecord::Rollback)
+    # Processing runs within this request. Strata logs a failed processing
+    # step instead of raising, so check that the case moved on; if it didn't
+    # (for example the tax engine is down), undo the submission so nothing is
+    # half-filed and the taxpayer can try again.
+    stalled = false
+    submitted = TaxReturn.transaction(requires_new: true) do
+      raise ActiveRecord::Rollback unless @tax_return.submit_application
+
+      stalled = @tax_return.tax_return_case.reload.processing_stalled?
+      raise ActiveRecord::Rollback if stalled
+
+      true
     end
+    raise TaxEngine::Unavailable, "Return processing did not complete" if stalled
 
     if submitted
       redirect_to tax_return_path(@tax_return), notice: t(".submitted")

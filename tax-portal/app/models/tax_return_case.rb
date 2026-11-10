@@ -49,6 +49,12 @@ class TaxReturnCase < Strata::Case
     filed_facts.with_adjustments(adjustments_by_field)
   end
 
+  # Automatic steps finish within the request that triggers them. A case
+  # still sitting on one means that step failed.
+  def processing_stalled?
+    step.in?(%w[file_return calculate_return screen_return finalize_return]) && tax_return.submitted?
+  end
+
   def open_information_request
     information_requests.where(responded_at: nil).order(:created_at).last
   end

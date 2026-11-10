@@ -1,0 +1,551 @@
+# Texto del portal del contribuyente en español.
+# Borrador de prototipo: debe revisarlo un traductor profesional antes de
+# usarse con el público (práctica de IRS Direct File).
+es-US:
+  header:
+    title: "Impuesto sobre el ingreso personal de Colorado"
+    signed_in_as: "Sesión iniciada como %{name}"
+    account: "Mi cuenta"
+    close: "Cerrar"
+  prototype_banner:
+    heading: "Prototipo:"
+    body: "Esta es una demostración con personas ficticias. No puede presentar una declaración de impuestos real."
+  flash:
+    not_authorized: "Esa página no está disponible para su cuenta."
+  shared:
+    "yes": "Sí"
+    "no": "No"
+    skip_to_content: "Saltar al contenido principal"
+    continue: "Guardar y continuar"
+    back: "Atrás"
+    back_to_checklist: "Volver a la lista"
+    edit: "Cambiar"
+    remove: "Quitar"
+    save: "Guardar"
+    cancel: "Cancelar"
+    optional: "opcional"
+    dollars_hint: "Dólares enteros. Por ejemplo, 1250"
+    why_we_ask: "Por qué lo preguntamos"
+    source: "De dónde viene esta regla"
+    filer: "Usted"
+    spouse: "Su cónyuge"
+  home:
+    index:
+      title: "Presente su declaración de impuestos de Colorado de 2025"
+      lead: "Responda preguntas en lenguaje sencillo. Completamos lo que el Departamento de Hacienda ya sabe, determinamos a qué tiene derecho y le mostramos cómo se calcula su impuesto."
+      what_you_get_heading: "Qué es diferente"
+      what_you_get:
+        - "La información de sus formularios W-2 y 1099 ya viene completada para que la revise."
+        - "No tiene que elegir un estado civil para efectos de la declaración ni buscar créditos. Le decimos a qué tiene derecho y por qué."
+        - "Ve cada paso del cálculo antes de firmar."
+        - "La mayoría de las declaraciones se aceptan en minutos, y puede dar seguimiento a la suya."
+      sign_in: "Iniciar sesión"
+      demo_heading: "Pruebe la demostración"
+      demo_lead: "Elija una persona para ver el portal desde su punto de vista. Todas son ficticias."
+      demo_taxpayers: "Contribuyentes"
+      demo_examiners: "Examinadores del Departamento de Hacienda"
+      demo_sign_in: "Continuar como %{name}"
+  demo_users:
+    maya: "Soltera, un formulario W-2. Se acepta automáticamente."
+    daniela: "Madre soltera de dos hijos. Ve los créditos familiares a los que tiene derecho."
+    walter: "Pareja jubilada con pensiones y Seguro Social."
+    jordan: "Declara más retención de la que informó su empleador. Pasa a un examinador."
+    examiner: "Revisa las declaraciones que las verificaciones automáticas señalan."
+  tax_returns:
+    actions:
+      exit: "Volver a la lista"
+    steps:
+      filer_name: "Nombre"
+      filer_identity: "Fecha de nacimiento y SSN"
+      contact: "Dirección"
+      residency: "Residencia"
+      marital_status: "Estado civil"
+      filing_jointly: "Declaración conjunta"
+      spouse: "Su cónyuge"
+      dependents: "Dependientes"
+      home_costs: "Gastos del hogar"
+      childcare: "Cuidado de niños"
+      income_documents: "Formularios de ingresos"
+      interest: "Intereses"
+      other_income: "Otros ingresos"
+      refund_method: "Reembolso o pago"
+    errors:
+      tax_engine_unavailable: "No pudimos calcular su declaración en este momento. No se perdió nada. Inténtelo de nuevo en un minuto."
+    index:
+      title: "Su declaración de impuestos de Colorado de %{tax_year}"
+      lead: "A la mayoría de las personas les toma unos 15 minutos. Puede detenerse en cualquier momento y continuar donde se quedó."
+      need_heading: "Qué va a necesitar"
+      need:
+        - "Su número de Seguro Social, y los de su cónyuge y sus dependientes si los tiene"
+        - "Sus formularios W-2 y 1099, para compararlos con lo que ya tenemos"
+        - "El número de ruta y de cuenta de su banco, si quiere recibir su reembolso por depósito directo"
+      who_heading: "Quién puede usar este prototipo"
+      who: "Personas que vivieron en Colorado durante todo %{tax_year} y cuyos ingresos vinieron de salarios, desempleo, jubilación, Seguro Social o intereses bancarios."
+      start: "Comenzar mi declaración"
+    show:
+      title: "Su declaración de Colorado de %{tax_year}"
+      lead: "Complete cada sección. Puede cambiar sus respuestas hasta que firme y envíe."
+      sections_heading: "Secciones"
+      estimate_refund_heading: "Reembolso estimado hasta ahora"
+      estimate_owed_heading: "Cantidad estimada que debe hasta ahora"
+      estimate_body: "Según lo que nos ha dicho. Puede cambiar hasta que envíe la declaración."
+      see_calculation: "Vea cómo lo calculamos"
+      review_and_sign: "Revisar y firmar"
+      finish_sections_first: "Complete todas las secciones para revisar y firmar."
+      status:
+        completed: "Completada"
+        in_progress: "En curso"
+        not_started: "Sin comenzar"
+        cannot_start_yet: "Aún no se puede comenzar"
+      actions:
+        start: "Comenzar"
+        continue: "Continuar"
+        edit: "Revisar o cambiar"
+    task_section_component:
+      about_you:
+        title: "Sobre usted"
+        description: "Su nombre, fecha de nacimiento, número de Seguro Social y dirección."
+      family:
+        title: "Su familia"
+        description: "Su estado civil y las personas que mantiene. Esto determina su estado civil para efectos de la declaración y sus créditos."
+      income:
+        title: "Sus ingresos"
+        description: "Revise los formularios de ingresos que tenemos registrados para usted y agregue lo que falte."
+      refund:
+        title: "Reembolso o pago"
+        description: "Cómo quiere recibir su reembolso o cómo va a pagar."
+    edit_filer_name:
+      title: "¿Cuál es su nombre?"
+      hint: "Use el nombre que aparece en su tarjeta de Seguro Social."
+    edit_filer_identity:
+      title: "Su fecha de nacimiento y número de Seguro Social"
+      date_of_birth_legend: "Fecha de nacimiento"
+      ssn_label: "Número de Seguro Social"
+      ssn_hint: "Lo usamos para encontrar los formularios de ingresos que sus empleadores nos enviaron."
+    edit_contact:
+      title: "¿A dónde debemos enviarle correspondencia sobre su declaración?"
+      phone_label: "Número de teléfono"
+    edit_residency:
+      title: "¿Vivió en Colorado durante todo %{tax_year}?"
+      hint: "Responda sí si Colorado fue su hogar del 1 de enero al 31 de diciembre, aunque haya viajado o trabajado en otro lugar parte del año."
+    edit_marital_status:
+      title: "El 31 de diciembre de %{tax_year}, ¿estaba casado o casada?"
+      options:
+        unmarried: "No, no estaba casado o casada"
+        unmarried_hint: "Soltero, divorciado o legalmente separado"
+        married: "Sí, estaba casado o casada"
+        married_hint: "Incluso si su cónyuge falleció durante %{tax_year}"
+        widowed: "Mi cónyuge falleció en %{previous_year} o %{two_years_ago}"
+        widowed_hint: "Y no me he vuelto a casar"
+    edit_filing_jointly:
+      title: "¿Usted y su cónyuge quieren presentar una sola declaración juntos?"
+      hint: "La mayoría de las parejas casadas pagan menos impuestos cuando declaran juntas. Ambos son responsables de la declaración."
+      "yes": "Sí, declarar juntos"
+      "no": "No, declarar por separado"
+    edit_spouse:
+      title: "Cuéntenos sobre su cónyuge"
+      name_legend: "Nombre de su cónyuge"
+      date_of_birth_legend: "Fecha de nacimiento de su cónyuge"
+      ssn_label: "Número de Seguro Social de su cónyuge"
+    edit_dependents:
+      title: "¿Alguien dependió de usted en %{tax_year}?"
+      hint: "Un dependiente suele ser un hijo o familiar que vivió con usted y a quien usted mantuvo."
+      who_counts_summary: "¿Quién cuenta como dependiente?"
+      who_counts: "Por lo general, su hijo, hijastro, hijo de crianza, nieto, hermano, hermana o padre que vivió con usted más de la mitad del año y que no pagó la mayor parte de su propia manutención. Responderá algunas preguntas sobre cada persona."
+      list_heading: "Personas que agregó"
+      age: "%{age} años al final de %{tax_year}"
+      add: "Agregar un dependiente"
+      add_another: "Agregar otro dependiente"
+      "yes": "Sí"
+      "no": "No"
+    edit_home_costs:
+      title: "¿Pagó más de la mitad del costo de mantener su hogar en %{tax_year}?"
+      hint: "Cuente el alquiler o la hipoteca, los servicios públicos, las reparaciones, el impuesto a la propiedad y la comida que se consume en casa."
+      why: "Si lo hizo, puede usar un estado civil para efectos de la declaración con una deducción mayor."
+    edit_childcare:
+      title: "¿Pagó por cuidado de niños para poder trabajar o buscar trabajo?"
+      hint: "Cuente guardería, preescolar, cuidado antes y después de la escuela y campamento de día para un niño menor de 13 años, o el cuidado de un dependiente que no puede cuidarse solo."
+      amount_label: "¿Cuánto pagó en %{tax_year}? (en dólares)"
+    edit_income_documents:
+      title: "Revise sus formularios de ingresos"
+      lead: "Los empleadores y pagadores envían copias de estos formularios al Departamento de Hacienda. Compare cada uno con su propia copia."
+      none_on_file_heading: "No tenemos formularios de ingresos registrados para usted"
+      none_on_file: "Agregue cada formulario W-2 o 1099 que recibió para %{tax_year}."
+      on_file_tag: "Registrado en el Departamento"
+      you_added_tag: "Usted lo agregó"
+      amount: "Cantidad"
+      colorado_withholding: "Impuesto de Colorado retenido"
+      on_file_was: "Registrado: %{amount}"
+      status:
+        unreviewed: "Necesita su revisión"
+        confirmed: "Usted lo confirmó"
+        corrected: "Usted lo cambió"
+        disputed: "Usted dijo que no es suyo"
+        entered: "Usted lo agregó"
+      correct: "Es correcto"
+      change: "Algo es diferente"
+      not_mine: "No es mío"
+      undo: "Revisar de nuevo"
+      corrected_note: "Como sus cantidades son diferentes de las que informó el pagador, es posible que alguien del Departamento revise su declaración antes de aceptarla."
+      disputed_note: "No lo incluiremos en su declaración. Alguien del Departamento se comunicará con el pagador."
+      add_heading: "¿Falta un formulario?"
+      add: "Agregar un formulario de ingresos"
+      confirm_label: "Revisé todos los formularios de ingresos que recibí para %{tax_year}"
+    edit_interest:
+      title: "¿Ganó más de $1 en intereses de un banco o cooperativa de crédito en %{tax_year}?"
+      hint: "Su banco le envía el Formulario 1099-INT si ganó $10 o más."
+      amount_label: "Total de intereses tributables (en dólares)"
+      amount_hint: "Sume la casilla 1 de cada Formulario 1099-INT."
+    edit_other_income:
+      title: "¿Tuvo algún otro ingreso en %{tax_year}?"
+      hint: "Por ejemplo: trabajo por cuenta propia, ingresos de alquiler, venta de acciones o propiedades, o ingresos de otro estado."
+    edit_refund_method:
+      title: "¿Cómo quiere recibir un reembolso o pagar?"
+      lead: "Si le corresponde un reembolso, el depósito directo es la forma más rápida de recibirlo. Si debe, le mostraremos cómo pagar después de enviar la declaración."
+      options:
+        direct_deposit: "Depósito directo a mi cuenta bancaria"
+        direct_deposit_hint: "Por lo general en 7 a 10 días"
+        check: "Envíenme un cheque por correo"
+        check_hint: "Puede tardar de 3 a 4 semanas"
+      account_type_legend: "Tipo de cuenta"
+      checking: "Corriente"
+      savings: "Ahorros"
+      routing_label: "Número de ruta"
+      routing_hint: "9 dígitos, en la parte inferior izquierda de un cheque"
+      account_label: "Número de cuenta"
+    summary:
+      title: "Cómo calculamos su impuesto de Colorado"
+      lead: "El impuesto sobre el ingreso de Colorado comienza con su ingreso tributable federal. Aquí está cada paso, con lo que usted nos dijo."
+      refund_heading: "Su reembolso: %{amount}"
+      owed_heading: "Usted debe: %{amount}"
+      even_heading: "No debe nada y no le corresponde un reembolso"
+      filing_status_heading: "Su estado civil para efectos de la declaración: %{status}"
+      credits_heading: "Créditos y reembolsos a los que tiene derecho"
+      credits_none_heading: "Créditos que revisamos y a los que no tiene derecho"
+      not_qualified: "No aplica"
+      adjusted_note: "El Departamento cambió algunas cantidades de su declaración. Este es el cálculo después de esos cambios."
+      engine_note: "Calculado con %{engine} versión %{version}, un modelo de código abierto de la ley tributaria."
+      sections:
+        federal: "1. Sus ingresos (el punto de partida federal)"
+        colorado_income: "2. Cambios de Colorado a sus ingresos"
+        tax: "3. Su impuesto de Colorado"
+        credits: "4. Créditos y reembolsos"
+        payments: "5. Lo que ya pagó"
+        result: "6. El resultado"
+    review:
+      title: "Revise y firme su declaración"
+      lead: "Revise sus respuestas. Después de enviarla, no podrá cambiar su declaración aquí."
+      about_you: "Sobre usted"
+      family: "Su familia"
+      income: "Sus ingresos"
+      refund: "Reembolso o pago"
+      name: "Nombre"
+      date_of_birth: "Fecha de nacimiento"
+      ssn: "Número de Seguro Social"
+      address: "Dirección"
+      filing_status: "Estado civil para efectos de la declaración"
+      spouse: "Cónyuge"
+      dependents: "Dependientes"
+      none: "Ninguno"
+      childcare: "Cuidado de niños que pagó"
+      interest: "Intereses bancarios"
+      total_withholding: "Impuesto de Colorado retenido"
+      method: "Cómo recibirá un reembolso"
+      account: "Cuenta"
+      result_heading: "Su resultado"
+      sign_heading: "Firme su declaración"
+      declaration: "Bajo pena de perjurio, declaro que he examinado esta declaración y que, a mi leal saber y entender, es verdadera, correcta y completa."
+      declaration_label: "Estoy de acuerdo"
+      signature_label: "Escriba su nombre completo para firmar"
+      signature_hint: "Escríbalo como lo ingresó: %{name}"
+      submit: "Enviar mi declaración"
+    submit:
+      submitted: "Recibimos su declaración."
+    respond:
+      sent: "Gracias. Enviamos su respuesta al examinador."
+    stages:
+      received:
+        tag: "Recibida"
+        heading: "Recibimos su declaración"
+        body: "La estamos revisando ahora."
+      in_review:
+        tag: "En revisión"
+        heading: "Una persona está revisando su declaración"
+        body: "Algo en su declaración necesita una revisión más detallada. Por lo general toma unos días hábiles. No necesita hacer nada por ahora. Si necesitamos algo más de usted, se lo pediremos aquí."
+      needs_information:
+        tag: "Necesitamos información"
+        heading: "Tenemos una pregunta sobre su declaración"
+        body: "Responda abajo para que podamos terminar de revisar su declaración."
+      accepted:
+        tag: "Aceptada"
+        heading: "Su declaración fue aceptada"
+        body_refund_direct_deposit: "Su reembolso de %{amount} va en camino a su cuenta bancaria que termina en %{account}. Espere de 7 a 10 días."
+        body_refund_check: "Le enviaremos por correo su cheque de reembolso de %{amount} a la dirección de su declaración. Espere de 3 a 4 semanas."
+        body_owed: "Usted debe %{amount}. Vence el 15 de abril de %{due_year}."
+        body_even: "No debe nada y no le corresponde un reembolso."
+    status:
+      title: "Su declaración de Colorado de %{tax_year}"
+      confirmation: "Número de confirmación"
+      submitted_on: "Enviada"
+      timeline_heading: "Qué ha pasado"
+      timeline:
+        submitted: "Usted envió su declaración"
+        calculated: "Calculamos su impuesto"
+        screened_clear: "Las verificaciones automáticas no encontraron nada que revisar"
+        screened_flagged: "Las verificaciones automáticas enviaron su declaración a una persona para revisión"
+        information_requested: "El examinador le hizo una pregunta"
+        information_provided: "Usted respondió la pregunta"
+        adjusted: "El examinador cambió una cantidad en su declaración"
+        accepted: "Su declaración fue aceptada"
+      question_heading: "Pregunta del Departamento"
+      response_label: "Su respuesta"
+      response_hint: "No incluya números completos de Seguro Social ni de cuenta bancaria."
+      send: "Enviar respuesta"
+      adjustments_heading: "Cambios que hizo el Departamento"
+      adjustment: "%{field}: %{from} cambió a %{to}"
+      adjustment_reason: "Motivo: %{reason}"
+      see_calculation: "Vea cómo se calculó su impuesto"
+      past_questions_heading: "Preguntas y respuestas"
+  filing_statuses:
+    SINGLE: "Soltero"
+    JOINT: "Casado que presenta una declaración conjunta"
+    SEPARATE: "Casado que presenta una declaración por separado"
+    HEAD_OF_HOUSEHOLD: "Cabeza de familia"
+    SURVIVING_SPOUSE: "Cónyuge sobreviviente que reúne los requisitos"
+    reasons:
+      single: "No estaba casado o casada al final del año y no tiene dependientes."
+      single_did_not_pay_home_costs: "No estaba casado o casada al final del año. Cabeza de familia no aplica porque no pagó más de la mitad del costo de su hogar."
+      married_joint: "Estaba casado o casada al final del año y eligió declarar en conjunto."
+      married_separate: "Estaba casado o casada al final del año y eligió declarar por separado."
+      head_of_household: "No estaba casado o casada, tiene un dependiente que vivió con usted y pagó más de la mitad del costo de su hogar. Esto le da una deducción mayor que declarar como soltero."
+      surviving_spouse: "Su cónyuge falleció en uno de los últimos dos años, tiene un dependiente que vivió con usted y pagó más de la mitad del costo de su hogar. Recibe la misma deducción que una pareja casada."
+  adjustable_fields:
+    filer_wages: "Salarios"
+    filer_unemployment_compensation: "Compensación por desempleo"
+    filer_pension_income: "Ingresos de pensiones y anualidades"
+    filer_social_security: "Beneficios del Seguro Social"
+    taxable_interest: "Intereses bancarios"
+    childcare_expenses: "Gastos de cuidado de niños"
+    colorado_tax_withheld: "Impuesto de Colorado retenido"
+  dependents:
+    relationships:
+      child: "Hijo o hija"
+      stepchild: "Hijastro o hijastra"
+      foster_child: "Hijo o hija de crianza"
+      grandchild: "Nieto o nieta"
+      sibling: "Hermano o hermana"
+      parent: "Padre o madre"
+      other_relative: "Otro familiar"
+    form:
+      name_first: "Nombre"
+      name_last: "Apellido"
+      date_of_birth: "Fecha de nacimiento"
+      relationship: "¿Qué parentesco tiene esta persona con usted?"
+      select: "- Seleccione -"
+      ssn: "Número de Seguro Social"
+      lived_with: "¿Esta persona vivió con usted más de la mitad de %{tax_year}?"
+      lived_with_hint: "Cuente el tiempo fuera por estudios, hospitalización o vacaciones como tiempo viviendo con usted. Un bebé nacido durante el año cuenta como si hubiera vivido con usted todo el año."
+      student: "Esta persona fue estudiante de tiempo completo"
+      disabled: "Esta persona tiene una discapacidad permanente"
+      details_legend: "Marque las que apliquen"
+    new:
+      title: "Agregar un dependiente"
+    edit:
+      title: "Cambiar este dependiente"
+  income_documents:
+    kinds:
+      w2:
+        name: "Formulario W-2 (salarios)"
+        payer: "Empleador"
+        amount: "Salarios, propinas y otra compensación (casilla 1)"
+        withholding: "Impuesto sobre el ingreso de Colorado retenido (casilla 17)"
+      form_1099g:
+        name: "Formulario 1099-G (desempleo)"
+        payer: "Pagador"
+        amount: "Compensación por desempleo (casilla 1)"
+        withholding: "Impuesto sobre el ingreso de Colorado retenido (casilla 11)"
+      form_1099r:
+        name: "Formulario 1099-R (pensión o jubilación)"
+        payer: "Pagador"
+        amount: "Cantidad tributable (casilla 2a)"
+        withholding: "Impuesto sobre el ingreso de Colorado retenido (casilla 14)"
+      ssa_1099:
+        name: "Formulario SSA-1099 (Seguro Social)"
+        payer: "Pagador"
+        amount: "Beneficios netos (casilla 5)"
+        withholding: "Impuesto sobre el ingreso de Colorado retenido"
+    form:
+      kind: "¿Qué formulario es?"
+      owner: "¿De quién es el formulario?"
+      payer_name: "Nombre del empleador o pagador"
+      amount: "Cantidad (en dólares)"
+      colorado_withholding: "Impuesto sobre el ingreso de Colorado retenido (en dólares)"
+      colorado_withholding_hint: "Escriba 0 si el formulario no muestra ninguno."
+    new:
+      title: "Agregar un formulario de ingresos"
+    edit:
+      title: "Cambiar este formulario de ingresos"
+      title_on_file: "¿Qué es diferente en su copia?"
+      on_file_lead: "Escriba las cantidades de su propia copia de este formulario. %{payer} informó %{amount} con %{withholding} de impuesto de Colorado retenido."
+  tax_calculation:
+    lines:
+      total_income:
+        label: "Su ingreso total"
+        explanation: "Todo lo que ganó en %{tax_year} según los formularios de ingresos y los intereses de su declaración."
+      taxable_social_security:
+        label: "Parte de su Seguro Social que es tributable"
+        explanation: "La ley federal grava solo una parte de los beneficios del Seguro Social, según sus otros ingresos."
+      federal_agi:
+        label: "Ingreso bruto ajustado federal"
+        explanation: "Su ingreso total, contando solo la parte tributable del Seguro Social."
+      federal_deductions:
+        label: "Deducciones federales"
+        explanation: "Recibe la deducción estándar para su estado civil y edad: %{standard_deduction}."
+      federal_taxable_income:
+        label: "Ingreso tributable federal"
+        explanation: "Su ingreso menos sus deducciones. El impuesto de Colorado comienza con esta cantidad."
+      additions:
+        label: "Adiciones de Colorado"
+        explanation: "Ingresos que Colorado grava pero el gobierno federal no. La mayoría de las personas no tiene ninguna."
+      pension_subtraction:
+        label: "Ingresos de pensión y jubilación que Colorado no grava"
+        explanation: "Colorado permite que las personas de 55 años o más resten ingresos de pensión, jubilación y Seguro Social tributable, hasta un límite que depende de la edad."
+      other_subtractions:
+        label: "Otras sustracciones de Colorado"
+        explanation: "Otros ingresos que Colorado no grava."
+      subtractions:
+        label: "Total de sustracciones de Colorado"
+        explanation: "Ingresos que el gobierno federal grava pero Colorado no."
+      colorado_taxable_income:
+        label: "Ingreso tributable de Colorado"
+        explanation: "Ingreso tributable federal, más adiciones, menos sustracciones."
+      tax:
+        label: "Impuesto sobre el ingreso de Colorado"
+        explanation: "Colorado grava a todos con la misma tasa. Para %{tax_year} es %{rate} de su ingreso tributable de Colorado."
+      alternative_minimum_tax:
+        label: "Impuesto mínimo alternativo"
+        explanation: "Un impuesto adicional que aplica a muy pocas personas con ciertos tipos de ingresos."
+      nonrefundable_credits:
+        label: "Créditos que reducen su impuesto"
+        explanation: "Créditos que pueden bajar su impuesto a cero pero no se pagan como reembolso."
+      net_tax:
+        label: "Su impuesto antes de los créditos reembolsables"
+        explanation: "Impuesto sobre el ingreso de Colorado menos los créditos anteriores."
+      earned_income_credit:
+        label: "Crédito Tributario por Ingreso del Trabajo de Colorado"
+        explanation_yes: "Para personas que trabajan y tienen ingresos bajos o moderados. El crédito de Colorado es una parte del crédito federal al que tiene derecho (%{federal_eitc})."
+        explanation_no: "Para personas que trabajan y tienen ingresos bajos o moderados. Su ingreso supera el límite para el tamaño de su familia, o no tiene ingresos del trabajo."
+      child_tax_credit:
+        label: "Crédito Tributario por Hijos de Colorado"
+        explanation_yes: "Para familias con hijos menores de 6 años. Usted tiene %{children_under_6} y su ingreso está dentro del límite."
+        explanation_no: "Para familias con hijos menores de 6 años cuyo ingreso está dentro del límite."
+      family_affordability_credit:
+        label: "Crédito Tributario de Asequibilidad Familiar"
+        explanation_yes: "Para familias con hijos menores de 17 años. Usted tiene %{children_under_17}, y la cantidad depende de la edad de cada hijo y de su ingreso."
+        explanation_no: "Para familias con hijos menores de 17 años cuyo ingreso está dentro del límite."
+      child_care_credit:
+        label: "Crédito Tributario por Gastos de Cuidado de Niños"
+        explanation_yes: "Basado en los %{childcare_expenses} que pagó por cuidado de niños para poder trabajar."
+        explanation_no: "Para personas que pagaron por cuidado de niños para poder trabajar y cuyo ingreso está dentro del límite."
+      tabor_sales_tax_refund:
+        label: "Reembolso del impuesto estatal sobre las ventas (TABOR)"
+        explanation_yes: "Cuando Colorado recauda más de lo que permite la constitución estatal, devuelve el excedente a los residentes de todo el año por medio de sus declaraciones."
+        explanation_no: "Cuando Colorado recauda más de lo que permite la constitución estatal, devuelve el excedente a los residentes de todo el año. Este año no hay reembolso para usted."
+      care_worker_credit:
+        label: "Crédito Tributario para Trabajadores de Cuidado"
+        explanation_yes: "Para personas que trabajan en cuidado infantil, atención médica en el hogar o cuidado a largo plazo."
+        explanation_no: "Para personas que trabajan en cuidado infantil, atención médica en el hogar o cuidado a largo plazo. Este prototipo aún no pregunta sobre esto."
+      refundable_credits:
+        label: "Total de créditos y reembolsos"
+        explanation: "Se le pagan aunque sean mayores que su impuesto."
+      colorado_tax_withheld:
+        label: "Impuesto de Colorado que ya se descontó de su pago"
+        explanation: "La retención de Colorado en sus formularios de ingresos."
+      refund:
+        label: "Su reembolso"
+        explanation: "Pagó o se le acreditó más que su impuesto, así que recibe la diferencia."
+      amount_owed:
+        label: "Cantidad que debe"
+        explanation: "Su impuesto es mayor que sus créditos y lo que se le retuvo."
+  activerecord:
+    attributes:
+      tax_return:
+        filer_name_first: "Nombre"
+        filer_name_last: "Apellido"
+        signature_name: "Su firma"
+      information_request:
+        response: "Su respuesta"
+    errors:
+      messages:
+        blank: "Escriba esto para continuar"
+        choose_one: "Elija una respuesta"
+        invalid_ssn: "Escriba los 9 dígitos del número de Seguro Social"
+        invalid_zip: "Escriba un código postal de 5 dígitos"
+        not_a_number: "Escriba un número, sin centavos"
+        not_an_integer: "Escriba dólares enteros, sin centavos"
+        greater_than: "Escriba una cantidad mayor que %{count}"
+        greater_than_or_equal_to: "Escriba %{count} o más"
+        less_than_or_equal_to: "Escriba una cantidad de %{count} o menos"
+        too_long: "Use %{count} caracteres o menos"
+      models:
+        tax_return:
+          format: "%{message}"
+          attributes:
+            filer_name_first: { blank: "Escriba su nombre" }
+            filer_name_last: { blank: "Escriba su apellido" }
+            filer_date_of_birth:
+              blank: "Escriba su fecha de nacimiento"
+              in_future: "Escriba una fecha de nacimiento anterior al final del año tributario"
+              too_young: "Este prototipo es para personas de 16 años o más"
+            filer_ssn: { blank: "Escriba su número de Seguro Social" }
+            mailing_address_street_line_1: { blank: "Escriba su dirección" }
+            mailing_address_city: { blank: "Escriba su ciudad" }
+            mailing_address_state: { blank: "Elija su estado" }
+            full_year_resident:
+              part_year_not_supported: "Este prototipo solo atiende a personas que vivieron en Colorado todo el año. Los residentes de parte del año presentan el formulario DR 0104PN."
+            spouse_name_first: { blank: "Escriba el nombre de su cónyuge" }
+            spouse_name_last: { blank: "Escriba el apellido de su cónyuge" }
+            spouse_date_of_birth: { blank: "Escriba la fecha de nacimiento de su cónyuge" }
+            spouse_ssn:
+              blank: "Escriba el número de Seguro Social de su cónyuge"
+              same_as_filer: "Escriba el número de su cónyuge. Este es el suyo."
+            has_dependents:
+              add_a_dependent: "Agregue al menos un dependiente, o responda No"
+            childcare_expenses: { blank: "Escriba cuánto pagó por cuidado de niños" }
+            income_documents_reviewed:
+              confirm_income_documents: "Marque la casilla cuando haya revisado todos los formularios"
+              review_each_form: "Díganos si cada formulario registrado es correcto"
+            taxable_interest: { blank: "Escriba sus intereses tributables" }
+            has_other_income:
+              other_income_not_supported: "Este prototipo aún no puede manejar otros tipos de ingresos. Un sistema completo continuaría desde aquí."
+            bank_routing_number: { invalid_routing_number: "Escriba el número de ruta de 9 dígitos" }
+            bank_account_number: { invalid_account_number: "Escriba su número de cuenta, de 4 a 17 dígitos" }
+            declaration_accepted: { accept_declaration: "Marque la casilla para aceptar antes de enviar" }
+            signature_name:
+              blank: "Escriba su nombre completo para firmar"
+              must_match_name: "Escriba su nombre como aparece en su declaración"
+        dependent:
+          format: "%{message}"
+          attributes:
+            name_first: { blank: "Escriba su nombre" }
+            name_last: { blank: "Escriba su apellido" }
+            date_of_birth:
+              blank: "Escriba su fecha de nacimiento"
+              in_future: "Escriba una fecha de nacimiento anterior al final del año tributario"
+            ssn:
+              blank: "Escriba su número de Seguro Social"
+              already_listed: "Ya agregó a alguien con este número"
+        income_document:
+          format: "%{message}"
+          attributes:
+            payer_name: { blank: "Escriba el nombre que aparece en el formulario" }
+            amount:
+              not_a_number: "Escriba la cantidad en dólares enteros"
+              greater_than: "Escriba la cantidad del formulario"
+            colorado_withholding:
+              not_a_number: "Escriba la cantidad en dólares enteros, o 0"
+              more_than_amount: "El impuesto de Colorado retenido no puede ser mayor que el ingreso. Revise ambas casillas."
+        information_request:
+          format: "%{message}"
+          attributes:
+            response: { blank: "Escriba su respuesta antes de enviarla" }

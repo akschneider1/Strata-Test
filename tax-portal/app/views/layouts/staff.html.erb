@@ -1,0 +1,30 @@
+<%# Layout for the examiner portal: Strata's staff header with the Colorado Design System. %>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= safe_join([ (yield(:title) if content_for?(:title)), t("header.staff_title") ].compact, " | ") %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "colorado-design-system", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <%= javascript_include_tag '@uswds/uswds/dist/js/uswds-init.min.js' %>
+  </head>
+  <body>
+    <a class="usa-skipnav" href="#main-content"><%= t("shared.skip_to_content") %></a>
+    <div class="display-flex flex-column minh-viewport">
+      <%= render partial: "application/prototype_banner" %>
+      <%= render partial: "strata/staff/header" %>
+      <main id="main-content" class="grid-col-fill">
+        <section class="usa-section padding-top-4">
+          <div class="grid-container-widescreen">
+            <%= render partial: "application/flash" %>
+            <%= yield %>
+          </div>
+        </section>
+      </main>
+    </div>
+    <%= javascript_include_tag '@uswds/uswds/dist/js/uswds.min.js' %>
+  </body>
+</html>

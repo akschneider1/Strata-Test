@@ -3,7 +3,7 @@
 <html lang="<%= I18n.locale %>">
   <head>
     <title>
-      <%= content_for?(:title) ? "#{ yield(:title) } | #{ t('header.title') }" : t("header.title") %>
+      <%= safe_join([ (yield(:title) if content_for?(:title)), t("header.title") ].compact, " | ") %>
     </title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>

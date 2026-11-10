@@ -25,9 +25,9 @@ class TaxReturnCasesController < StaffController
 
   def show
     load_case_details
-    @adjustment = @case.return_adjustments.new
-    @information_request = @case.information_requests.new
-    @note = @case.case_notes.new
+    @adjustment = ReturnAdjustment.new(tax_return_case: @case)
+    @information_request = InformationRequest.new(tax_return_case: @case)
+    @note = CaseNote.new(tax_return_case: @case)
   end
 
   def assign_to_me
@@ -47,21 +47,21 @@ class TaxReturnCasesController < StaffController
     )
     return redirect_to(tax_return_case_path(@case), notice: t(".adjusted")) if @adjustment.persisted?
 
-    rerender_with(information_request: @case.information_requests.new, note: @case.case_notes.new)
+    rerender_with(information_request: InformationRequest.new(tax_return_case: @case), note: CaseNote.new(tax_return_case: @case))
   end
 
   def request_information
     @information_request = actions.request_information(params.require(:information_request).permit(:question)[:question])
     return redirect_to(tax_return_case_path(@case), notice: t(".requested")) if @information_request.persisted?
 
-    rerender_with(adjustment: @case.return_adjustments.new, note: @case.case_notes.new)
+    rerender_with(adjustment: ReturnAdjustment.new(tax_return_case: @case), note: CaseNote.new(tax_return_case: @case))
   end
 
   def add_note
     @note = actions.add_note(params.require(:case_note).permit(:body)[:body])
     return redirect_to(tax_return_case_path(@case, anchor: "notes")) if @note.persisted?
 
-    rerender_with(adjustment: @case.return_adjustments.new, information_request: @case.information_requests.new)
+    rerender_with(adjustment: ReturnAdjustment.new(tax_return_case: @case), information_request: InformationRequest.new(tax_return_case: @case))
   end
 
   private

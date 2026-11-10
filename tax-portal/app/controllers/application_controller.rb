@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
 
@@ -18,6 +20,10 @@ class ApplicationController < ActionController::Base
   def after_sign_in_path_for(resource)
     unless resource.is_a?(User)
       raise "Unexpected resource type"
+    end
+
+    if resource.mfa_preference.nil?
+      return users_mfa_preference_path
     end
 
     resource.examiner? ? staff_path : tax_returns_path

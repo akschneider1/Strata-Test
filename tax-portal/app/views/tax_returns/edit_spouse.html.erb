@@ -1,6 +1,6 @@
 <%= render layout: "question", locals: { title: page_t("title") } do |f| %>
   <h1 class="usa-form-heading font-heading-xl"><%= page_t("title") %></h1>
-  <%= f.name :spouse_name, legend: page_t("name_legend"), first_hint: "", last_hint: "" %>
+  <%= f.name :spouse_name, legend: page_t("name_legend") %>
   <%= f.memorable_date :spouse_date_of_birth, legend: page_t("date_of_birth_legend") %>
   <%= f.text_field :spouse_ssn, label: page_t("ssn_label"), width: "md", inputmode: "numeric", autocomplete: "off", maxlength: 11 %>
 <% end %>

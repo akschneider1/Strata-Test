@@ -1,0 +1,38 @@
+<% content_for :title, t(".title") %>
+<h1 class="font-heading-xl"><%= t(".title") %></h1>
+
+<nav class="display-flex border-bottom-1px border-base-light margin-bottom-3" aria-label="<%= t('.title') %>">
+  <% { open: tax_return_cases_path, closed: closed_tax_return_cases_path }.each do |key, path| %>
+    <%= link_to t(".#{key}"), path, class: class_names("padding-x-2 padding-y-1 text-no-underline", "border-bottom-05 border-primary text-bold": @showing == key), "aria-current": (@showing == key ? "page" : nil) %>
+  <% end %>
+</nav>
+
+<% if @cases.any? %>
+  <div class="usa-table-container--scrollable" tabindex="0">
+    <table class="usa-table usa-table--striped width-full">
+      <caption class="usa-sr-only"><%= t(".title") %></caption>
+      <thead>
+        <tr>
+          <% %w[taxpayer confirmation submitted step flags result].each do |column| %>
+            <th scope="col"><%= t(".columns.#{column}") %></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @cases.each do |kase| %>
+          <% calculation = kase.current_calculation %>
+          <tr>
+            <th scope="row"><%= link_to kase.tax_return.filer_full_name, tax_return_case_path(kase), class: "usa-link" %></th>
+            <td><%= kase.tax_return.confirmation_number %></td>
+            <td><%= l(kase.tax_return.submitted_at.in_time_zone("America/Denver"), format: :short) %></td>
+            <td><%= kase.outcome ? cods_tag(t("staff.outcomes.#{kase.outcome}"), "green") : case_step_tag(kase) %></td>
+            <td><%= kase.review_flags.size.positive? ? kase.review_flags.map { |flag| t("staff.flags.#{flag.code}.title") }.join("; ") : "—" %></td>
+            <td class="text-no-wrap"><%= calculation ? result_phrase(calculation.refund, calculation.amount_owed) : "—" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="text-base-darker"><%= t(".none") %></p>
+<% end %>
