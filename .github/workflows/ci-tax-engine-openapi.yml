@@ -23,6 +23,9 @@ concurrency:
 jobs:
   update-openapi-docs:
     runs-on: ubuntu-latest
+    # This job commits the regenerated spec back to the pull request branch.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
