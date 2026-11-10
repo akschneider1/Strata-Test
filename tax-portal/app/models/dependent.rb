@@ -3,7 +3,11 @@
 class Dependent < ApplicationRecord
   RELATIONSHIPS = %w[child stepchild foster_child grandchild sibling parent other_relative].freeze
 
+  include Strata::Attributes
+
   belongs_to :tax_return
+
+  strata_attribute :date_of_birth, :memorable_date
 
   encrypts :ssn, deterministic: true
   normalizes :ssn, with: ->(value) { value.to_s.gsub(/\D/, "").presence }
@@ -31,6 +35,6 @@ class Dependent < ApplicationRecord
   private
 
   def born_by_year_end
-    errors.add(:date_of_birth, :in_future) if date_of_birth.present? && date_of_birth > tax_return.year_end
+    errors.add(:date_of_birth, :in_future) if date_of_birth.present? && date_of_birth.to_date > tax_return.year_end
   end
 end

@@ -1,0 +1,7 @@
+<% title = page_t("title", tax_year: @tax_return.tax_year) %>
+<%= render layout: "question", locals: { title: title } do |f| %>
+  <%= f.yes_no :has_interest_income, legend: content_tag(:h1, title, class: "font-heading-xl margin-0"), hint: page_t("hint"), large_legend: true %>
+  <%= f.conditional :has_interest_income, eq: "true" do %>
+    <%= f.text_field :taxable_interest, label: page_t("amount_label"), hint: page_t("amount_hint"), prefix: "$", width: "md", inputmode: "numeric" %>
+  <% end %>
+<% end %>

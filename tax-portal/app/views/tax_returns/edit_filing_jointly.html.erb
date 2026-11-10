@@ -1,0 +1,4 @@
+<%= render layout: "question", locals: { title: page_t("title") } do |f| %>
+  <%= f.yes_no :filing_jointly, legend: content_tag(:h1, page_t("title"), class: "font-heading-xl margin-0"), hint: page_t("hint"), large_legend: true,
+        yes_options: { label: page_t("yes") }, no_options: { label: page_t("no") } %>
+<% end %>

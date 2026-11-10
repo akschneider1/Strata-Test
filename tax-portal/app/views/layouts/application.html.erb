@@ -20,7 +20,9 @@
   </head>
 
   <body>
+    <a class="usa-skipnav" href="#main-content"><%= t("shared.skip_to_content") %></a>
     <div class="display-flex flex-column minh-viewport">
+      <%= render partial: "application/prototype_banner" %>
       <%= render partial: 'application/header' %>
 
       <main id="main-content" class="grid-col-fill display-flex flex-column">

@@ -1,0 +1,98 @@
+<% year = @tax_return.tax_year %>
+<% stage = @case.stage %>
+<% content_for :title, t(".title", tax_year: year) %>
+<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
+<% timeline_keys = {
+  "return.calculated" => "calculated",
+  "review.information_requested" => "information_requested",
+  "taxpayer.information_provided" => "information_provided",
+  "review.adjusted" => "adjusted",
+  "return.accepted" => "accepted",
+  "return.accepted_with_adjustments" => "accepted"
+} %>
+
+<h1 class="font-heading-xl"><%= t(".title", tax_year: year) %></h1>
+<p><%= stage_tag(stage) %></p>
+
+<% alert_type = { accepted: :success, needs_information: :warning }.fetch(stage, :info) %>
+<%= cods_alert alert_type, heading: t("tax_returns.stages.#{stage}.heading"), data: { testid: "stage", stage: stage } do %>
+  <% if stage == :accepted %>
+    <% if @calculation.refund? && @tax_return.direct_deposit? %>
+      <%= t("tax_returns.stages.accepted.body_refund_direct_deposit", amount: money(@calculation.refund), account: @tax_return.bank_account_number.to_s.last(4)) %>
+    <% elsif @calculation.refund? %>
+      <%= t("tax_returns.stages.accepted.body_refund_check", amount: money(@calculation.refund)) %>
+    <% elsif @calculation.owes? %>
+      <%= t("tax_returns.stages.accepted.body_owed", amount: money(@calculation.amount_owed), due_year: year + 1) %>
+    <% else %>
+      <%= t("tax_returns.stages.accepted.body_even") %>
+    <% end %>
+  <% else %>
+    <%= t("tax_returns.stages.#{stage}.body") %>
+  <% end %>
+<% end %>
+
+<% if @information_request %>
+  <section class="margin-top-4 border-2px border-primary radius-md padding-3" aria-labelledby="question-heading">
+    <h2 id="question-heading" class="font-heading-lg margin-top-0"><%= t(".question_heading") %></h2>
+    <blockquote class="margin-x-0 padding-left-2 border-left-05 border-base-light"><%= simple_format(@information_request.question, class: "margin-y-1") %></blockquote>
+    <%= strata_form_with model: @information_request, url: respond_tax_return_path(@tax_return), method: :patch do |f| %>
+      <%= f.text_area :response, label: t(".response_label"), hint: t(".response_hint"), rows: 5 %>
+      <%= f.button t(".send"), type: :submit, class: "usa-button cods-button margin-top-2" %>
+    <% end %>
+  </section>
+<% end %>
+
+<dl class="margin-top-4">
+  <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
+    <dt><%= t(".confirmation") %></dt>
+    <dd class="margin-0 text-bold" data-testid="confirmation-number"><%= @tax_return.confirmation_number %></dd>
+  </div>
+  <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
+    <dt><%= t(".submitted_on") %></dt>
+    <dd class="margin-0 text-bold"><%= l(@tax_return.submitted_at.in_time_zone("America/Denver"), format: :long) %></dd>
+  </div>
+  <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
+    <dt><%= @calculation.owes? ? t("tax_calculation.lines.amount_owed.label") : t("tax_calculation.lines.refund.label") %></dt>
+    <dd class="margin-0 text-bold" data-testid="result-amount"><%= money(@calculation.owes? ? @calculation.amount_owed : @calculation.refund) %></dd>
+  </div>
+</dl>
+<p><%= link_to t(".see_calculation"), summary_tax_return_path(@tax_return), class: "usa-link" %></p>
+
+<% if @case.return_adjustments.any? %>
+  <section class="margin-top-4" aria-labelledby="adjustments-heading">
+    <h2 id="adjustments-heading" class="font-heading-lg"><%= t(".adjustments_heading") %></h2>
+    <ul class="usa-list">
+      <% @case.return_adjustments.order(:created_at).each do |adjustment| %>
+        <li>
+          <%= t(".adjustment", field: t("adjustable_fields.#{adjustment.field}"), from: money(adjustment.filed_amount), to: money(adjustment.adjusted_amount)) %><br>
+          <span class="text-base-darker"><%= t(".adjustment_reason", reason: adjustment.reason) %></span>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>
+
+<% answered = @case.information_requests.where.not(responded_at: nil).order(:created_at) %>
+<% if answered.any? %>
+  <section class="margin-top-4" aria-labelledby="past-questions-heading">
+    <h2 id="past-questions-heading" class="font-heading-lg"><%= t(".past_questions_heading") %></h2>
+    <% answered.each do |request| %>
+      <div class="border-left-05 border-base-light padding-left-2 margin-bottom-2">
+        <p class="margin-y-05"><strong><%= t(".question_heading") %>:</strong> <%= request.question %></p>
+        <p class="margin-y-05"><strong><%= t(".response_label") %>:</strong> <%= request.response %></p>
+      </div>
+    <% end %>
+  </section>
+<% end %>
+
+<section class="margin-top-4" aria-labelledby="timeline-heading">
+  <h2 id="timeline-heading" class="font-heading-lg"><%= t(".timeline_heading") %></h2>
+  <ol class="usa-list">
+    <li><%= t(".timeline.submitted") %> <span class="text-base-dark">· <%= l(@tax_return.submitted_at.in_time_zone("America/Denver"), format: :short) %></span></li>
+    <% @case.audit_lines.order(:created_at).each do |line| %>
+      <% key = line.action == "return.screened" ? (line.data["flags"].present? ? "screened_flagged" : "screened_clear") : timeline_keys[line.action] %>
+      <% next unless key %>
+      <li><%= t(".timeline.#{key}") %> <span class="text-base-dark">· <%= l(line.created_at.in_time_zone("America/Denver"), format: :short) %></span></li>
+    <% end %>
+  </ol>
+</section>

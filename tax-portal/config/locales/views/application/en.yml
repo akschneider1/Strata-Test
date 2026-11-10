@@ -11,7 +11,7 @@ en:
     account: My account
     language_toggle: English
     logout: "Log out"
-    title: "Application Title"
+    title: "Colorado Individual Income Tax"
     close: "Close"
   flash:
     error_heading:

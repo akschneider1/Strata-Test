@@ -1,0 +1,27 @@
+<%# locals: (income_document:, url:, method:) %>
+<% on_file = income_document.on_file? %>
+<% kind = "income_documents.kinds.#{income_document.kind}" %>
+<%= strata_form_with model: income_document, url: url, method: method do |f| %>
+  <% unless on_file %>
+    <%= f.fieldset t("income_documents.form.kind"), attribute: :kind do %>
+      <% IncomeDocument::KINDS.each do |k| %>
+        <%= f.radio_button :kind, k, label: t("income_documents.kinds.#{k}.name"), tile: false %>
+      <% end %>
+    <% end %>
+    <% if @tax_return.joint? %>
+      <%= f.fieldset t("income_documents.form.owner"), attribute: :owner do %>
+        <%= f.radio_button :owner, "filer", label: @tax_return.filer_name_first, tile: false %>
+        <%= f.radio_button :owner, "spouse", label: @tax_return.spouse_name_first, tile: false %>
+      <% end %>
+    <% end %>
+    <%= f.text_field :payer_name, label: t("income_documents.form.payer_name"), autocomplete: "off" %>
+  <% end %>
+  <%= f.text_field :amount, label: on_file ? "#{t("#{kind}.amount")} (#{t('income_documents.form.amount')})" : t("income_documents.form.amount"), hint: t("shared.dollars_hint"), prefix: "$", width: "md", inputmode: "numeric" %>
+  <%= f.text_field :colorado_withholding, label: on_file ? t("#{kind}.withholding") : t("income_documents.form.colorado_withholding"), hint: t("income_documents.form.colorado_withholding_hint"), prefix: "$", width: "md", inputmode: "numeric" %>
+
+  <hr class="border-base-lightest margin-top-4">
+  <ul class="usa-button-group">
+    <li class="usa-button-group__item"><%= link_to t("shared.cancel"), edit_income_documents_tax_return_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary" %></li>
+    <li class="usa-button-group__item"><%= f.button t("shared.save"), type: :submit, class: "usa-button cods-button" %></li>
+  </ul>
+<% end %>

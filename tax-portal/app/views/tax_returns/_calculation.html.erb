@@ -1,0 +1,39 @@
+<%# locals: (calculation:, tax_year:) %>
+<%# Every line of a calculation, grouped in the order of the return, each with a plain-language reason. %>
+<% TaxCalculation::SECTIONS.each do |section| %>
+  <% lines = calculation.section(section).reject { |line| TaxCalculation::CREDIT_IDS.include?(line.id) || line.id.in?(%w[refund amount_owed]) && line.amount.zero? } %>
+  <% lines = lines.reject { |line| line.amount.zero? && line.id.in?(%w[taxable_social_security additions pension_subtraction other_subtractions subtractions alternative_minimum_tax nonrefundable_credits]) } %>
+  <% credit_lines = section == "credits" ? calculation.credits : [] %>
+  <% next if lines.empty? && credit_lines.empty? %>
+  <section class="margin-top-4" aria-labelledby="section-<%= section %>">
+    <h2 id="section-<%= section %>" class="font-heading-lg border-bottom-2px border-primary padding-bottom-1"><%= t("tax_returns.summary.sections.#{section}") %></h2>
+    <dl class="margin-0">
+      <% (credit_lines.select { |line| line.amount.positive? } + lines).each do |line| %>
+        <div class="border-bottom-1px border-base-lighter padding-y-2" data-line="<%= line.id %>">
+          <div class="display-flex flex-justify gap-2">
+            <dt class="text-bold"><%= calculation_line_label(line) %></dt>
+            <dd class="margin-0 text-bold text-no-wrap"><%= money(line.amount) %></dd>
+          </div>
+          <dd class="margin-0 margin-top-05 text-base-darker measure-5">
+            <%= calculation_line_explanation(line, tax_year: tax_year) %>
+            <% if line.source_url.present? %>
+              <br><a class="usa-link font-body-2xs" href="<%= line.source_url %>" rel="noopener"><%= t("shared.source") %>: <%= line.source_title %></a>
+            <% end %>
+          </dd>
+        </div>
+      <% end %>
+    </dl>
+    <% not_qualified = credit_lines.select { |line| line.amount.zero? } %>
+    <% if not_qualified.any? %>
+      <details class="margin-top-2">
+        <summary class="usa-link"><%= t("tax_returns.summary.credits_none_heading") %> (<%= not_qualified.size %>)</summary>
+        <ul class="usa-list">
+          <% not_qualified.each do |line| %>
+            <li data-line="<%= line.id %>"><strong><%= calculation_line_label(line) %>.</strong> <%= calculation_line_explanation(line, tax_year: tax_year) %></li>
+          <% end %>
+        </ul>
+      </details>
+    <% end %>
+  </section>
+<% end %>
+<p class="font-body-2xs text-base-dark margin-top-3"><%= t("tax_returns.summary.engine_note", engine: calculation.engine, version: calculation.engine_version) %></p>

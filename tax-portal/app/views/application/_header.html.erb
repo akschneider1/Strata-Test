@@ -22,10 +22,10 @@
         <ul class="usa-nav__primary usa-accordion">
             <% if user_signed_in? %>
               <li class="usa-nav__primary-item">
-                <%= link_to t('header.account'), users_account_path, class: "usa-nav-link" %>
+                <span class="usa-nav-link text-normal"><%= t("header.signed_in_as", name: current_user.display_name) %></span>
               </li>
               <li class="usa-nav__primary-item">
-                <%= button_to t('header.logout'), destroy_user_session_path, method: :delete, class: "usa-nav-link" %>
+                <%= button_to t('header.logout'), current_user.provider == "demo" ? demo_sign_out_path : destroy_user_session_path, method: :delete, class: "usa-nav-link" %>
               </li>
             <% end %>
         </ul>

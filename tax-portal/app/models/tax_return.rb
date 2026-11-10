@@ -67,7 +67,8 @@ class TaxReturn < Strata::ApplicationForm
   end
 
   # Income
-  validates :income_documents_reviewed, acceptance: { accept: true, message: :confirm_income_documents }, on: Flow::INCOME_DOCUMENTS
+  # `acceptance` treats nil as accepted, so check for true explicitly.
+  validates :income_documents_reviewed, inclusion: { in: [ true ], message: :confirm_income_documents }, on: Flow::INCOME_DOCUMENTS
   validate :every_income_document_reviewed, on: Flow::INCOME_DOCUMENTS
   validates :has_interest_income, inclusion: { in: [ true, false ], message: :choose_one }, on: Flow::INTEREST
   validates :taxable_interest, presence: true, numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: MAX_AMOUNT, allow_blank: true }, on: Flow::INTEREST, if: :has_interest_income
@@ -83,7 +84,7 @@ class TaxReturn < Strata::ApplicationForm
   end
 
   # Signature
-  validates :declaration_accepted, acceptance: { accept: true, message: :accept_declaration }, on: :submit
+  validates :declaration_accepted, inclusion: { in: [ true ], message: :accept_declaration }, on: :submit
   validates :signature_name, presence: true, on: :submit
   validate :signature_matches_name, on: :submit
 
@@ -142,6 +143,19 @@ class TaxReturn < Strata::ApplicationForm
 
   def flow
     TaxReturnFlow.new(self)
+  end
+
+  # Where a checklist section stands. Pages that don't apply to this
+  # taxpayer are skipped, so they don't make a section look started.
+  def section_state(task)
+    return :cannot_start_yet unless task.dependencies_met?(flow)
+
+    pages = task.pages.select { |page| page.needed?(self) }
+    done = pages.count { |page| page.completed?(self) }
+    if done == pages.size then :completed
+    elsif done.positive? then :in_progress
+    else :not_started
+    end
   end
 
   def ready_to_calculate?

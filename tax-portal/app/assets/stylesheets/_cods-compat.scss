@@ -23,6 +23,15 @@
     background-color: transparent;
   }
 
+  // Same cause: "unstyled" buttons (buttons that look like links) pick up
+  // the primary background.
+  .usa-button.usa-button--unstyled,
+  .usa-button.usa-button--unstyled:hover,
+  .usa-button.usa-button--unstyled:active {
+    background-color: transparent;
+    color: var(--cods-color-text-action-link);
+  }
+
   // USWDS "global link styles" replacement: color links with the CoDS link
   // tokens. :where() keeps specificity at zero, so any component rule wins.
   :where(a) {

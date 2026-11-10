@@ -1,0 +1,5 @@
+<%= render layout: "question", locals: { title: page_t("title") } do |f| %>
+  <h1 class="usa-form-heading font-heading-xl"><%= page_t("title") %></h1>
+  <%= f.memorable_date :filer_date_of_birth, legend: page_t("date_of_birth_legend") %>
+  <%= f.text_field :filer_ssn, label: page_t("ssn_label"), hint: page_t("ssn_hint"), width: "md", inputmode: "numeric", autocomplete: "off", maxlength: 11 %>
+<% end %>

@@ -1,0 +1,15 @@
+<% title = page_t("title") %>
+<%= render layout: "question", locals: { title: title } do |f| %>
+  <%= f.fieldset content_tag(:h1, title, class: "font-heading-xl margin-0"), attribute: :refund_method, hint: page_t("lead"), large_legend: true do %>
+    <%= f.radio_button :refund_method, "direct_deposit", label: page_t("options.direct_deposit"), hint: page_t("options.direct_deposit_hint") %>
+    <%= f.radio_button :refund_method, "check", label: page_t("options.check"), hint: page_t("options.check_hint") %>
+  <% end %>
+  <%= f.conditional :refund_method, eq: "direct_deposit" do %>
+    <%= f.fieldset page_t("account_type_legend"), attribute: :bank_account_type do %>
+      <%= f.radio_button :bank_account_type, "checking", label: page_t("checking"), tile: false %>
+      <%= f.radio_button :bank_account_type, "savings", label: page_t("savings"), tile: false %>
+    <% end %>
+    <%= f.text_field :bank_routing_number, label: page_t("routing_label"), hint: page_t("routing_hint"), width: "md", inputmode: "numeric", autocomplete: "off", maxlength: 9 %>
+    <%= f.text_field :bank_account_number, label: page_t("account_label"), width: "md", inputmode: "numeric", autocomplete: "off", maxlength: 17 %>
+  <% end %>
+<% end %>

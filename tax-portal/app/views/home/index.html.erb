@@ -1,17 +1,41 @@
 <% content_for :title, t(".title") %>
-<%= content_for :main_col_class, "bg-base-lightest" %>
+<%= content_for :content_col_class, "desktop:grid-col-10" %>
 
-<h1 class="font-heading-2xl">
-  <%= t(".title") %>
-</h1>
-<p class="usa-intro">
-  <%= t('.intro') %>
-</p>
-<a href="<%= users_new_registration_path %>" class="usa-button">
-  <%= t('.signup') %>
-</a>
-<p>
-  <a class="usa-link" href="<%= new_user_session_path %>">
-    <%= t('.or_sign_in') %>
-  </a>
-</p>
+<h1 class="font-heading-xl"><%= t(".title") %></h1>
+<p class="usa-intro measure-5"><%= t(".lead") %></p>
+
+<h2 class="font-heading-lg"><%= t(".what_you_get_heading") %></h2>
+<ul class="usa-list measure-5">
+  <% t(".what_you_get").each do |item| %><li><%= item %></li><% end %>
+</ul>
+
+<% if @demo_users.any? %>
+  <section class="margin-top-5" aria-labelledby="demo-heading">
+    <h2 id="demo-heading" class="font-heading-lg"><%= t(".demo_heading") %></h2>
+    <p class="measure-5"><%= t(".demo_lead") %></p>
+    <% { taxpayer: t(".demo_taxpayers"), examiner: t(".demo_examiners") }.each do |role, heading| %>
+      <% users = @demo_users.select { |user| user.role == role.to_s } %>
+      <% next if users.empty? %>
+      <h3 class="font-heading-md"><%= heading %></h3>
+      <ul class="usa-card-group cods-card-group">
+        <% users.each do |user| %>
+          <li class="usa-card cods-card tablet:grid-col-6">
+            <div class="usa-card__container cods-card__container">
+              <div class="usa-card__header cods-card__header">
+                <h4 class="usa-card__heading cods-card__heading"><%= user.full_name %></h4>
+              </div>
+              <div class="usa-card__body cods-card__body">
+                <p><%= t("demo_users.#{user.uid.delete_prefix('demo-')}", default: "") %></p>
+              </div>
+              <div class="usa-card__footer cods-card__footer">
+                <%= button_to t(".demo_sign_in", name: user.full_name.split.first), demo_sign_in_path(user_id: user.id), class: "usa-button cods-button" %>
+              </div>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </section>
+<% else %>
+  <p class="margin-top-4"><%= link_to t(".sign_in"), new_user_session_path, class: "usa-button usa-button--big cods-button" %></p>
+<% end %>

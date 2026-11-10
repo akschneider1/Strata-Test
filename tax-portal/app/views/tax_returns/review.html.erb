@@ -1,0 +1,63 @@
+<% year = @tax_return.tax_year %>
+<% content_for :title, t("tax_returns.review.title") %>
+<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
+<% row = ->(label, value) { content_tag(:div, content_tag(:dt, label, class: "text-base-dark") + content_tag(:dd, value, class: "margin-0 text-bold"), class: "padding-y-1 border-bottom-1px border-base-lighter") } %>
+
+<%= render partial: "strata/shared/exit_link", locals: { exit_path: tax_return_path(@tax_return), exit_text: t("shared.back_to_checklist") } %>
+
+<h1 class="font-heading-xl"><%= t("tax_returns.review.title") %></h1>
+<p class="usa-intro"><%= t("tax_returns.review.lead") %></p>
+
+<%= render layout: "review_section", locals: { key: :about_you, path: edit_filer_name_tax_return_path(@tax_return) } do %>
+  <%= row.call(t("tax_returns.review.name"), @tax_return.filer_full_name) %>
+  <%= row.call(t("tax_returns.review.date_of_birth"), l(@tax_return.filer_date_of_birth.to_date, format: :long)) %>
+  <%= row.call(t("tax_returns.review.ssn"), masked(@tax_return.filer_ssn)) %>
+  <%= row.call(t("tax_returns.review.address"), [ @tax_return.mailing_address_street_line_1, @tax_return.mailing_address_street_line_2, "#{@tax_return.mailing_address_city}, #{@tax_return.mailing_address_state} #{@tax_return.mailing_address_zip_code}" ].compact_blank.join(", ")) %>
+<% end %>
+
+<%= render layout: "review_section", locals: { key: :family, path: edit_marital_status_tax_return_path(@tax_return) } do %>
+  <%= row.call(t("tax_returns.review.filing_status"), safe_join([ t("filing_statuses.#{@tax_return.filing_status.code}"), content_tag(:span, t("filing_statuses.reasons.#{@tax_return.filing_status.reason}"), class: "display-block text-normal font-body-xs text-base-darker") ])) %>
+  <% if @tax_return.joint? %>
+    <%= row.call(t("tax_returns.review.spouse"), "#{@tax_return.spouse_full_name} · #{masked(@tax_return.spouse_ssn)}") %>
+  <% end %>
+  <%= row.call(t("tax_returns.review.dependents"), @tax_return.qualifying_dependents.any? ? safe_join(@tax_return.qualifying_dependents.map { |d| "#{d.full_name} (#{d.age_at_year_end})" }, ", ") : t("tax_returns.review.none")) %>
+  <% if @tax_return.ask_childcare? && @tax_return.paid_childcare %>
+    <%= row.call(t("tax_returns.review.childcare"), money(@tax_return.childcare_expenses)) %>
+  <% end %>
+<% end %>
+
+<%= render layout: "review_section", locals: { key: :income, path: edit_income_documents_tax_return_path(@tax_return) } do %>
+  <% @tax_return.income_documents.included.in_display_order.each do |document| %>
+    <%= row.call("#{income_kind_label(document.kind)} · #{document.payer_name}", money(document.amount)) %>
+  <% end %>
+  <% if @tax_return.has_interest_income %>
+    <%= row.call(t("tax_returns.review.interest"), money(@tax_return.taxable_interest)) %>
+  <% end %>
+  <%= row.call(t("tax_returns.review.total_withholding"), money(@tax_return.total_colorado_withholding)) %>
+<% end %>
+
+<%= render layout: "review_section", locals: { key: :refund, path: edit_refund_method_tax_return_path(@tax_return) } do %>
+  <%= row.call(t("tax_returns.review.method"), t("tax_returns.edit_refund_method.options.#{@tax_return.refund_method}")) %>
+  <% if @tax_return.direct_deposit? %>
+    <%= row.call(t("tax_returns.review.account"), "#{t("tax_returns.edit_refund_method.#{@tax_return.bank_account_type}")} #{masked(@tax_return.bank_account_number)}") %>
+  <% end %>
+<% end %>
+
+<section class="margin-top-4" aria-labelledby="review-result">
+  <h2 id="review-result" class="font-heading-lg"><%= t("tax_returns.review.result_heading") %></h2>
+  <%= render "result", calculation: @calculation %>
+  <p><%= link_to t("tax_returns.show.see_calculation"), summary_tax_return_path(@tax_return), class: "usa-link" %></p>
+</section>
+
+<section class="margin-top-4" aria-labelledby="review-sign">
+  <h2 id="review-sign" class="font-heading-lg"><%= t("tax_returns.review.sign_heading") %></h2>
+  <%= strata_form_with model: @tax_return, url: submit_tax_return_path(@tax_return), method: :patch do |f| %>
+    <p class="measure-5"><%= t("tax_returns.review.declaration") %></p>
+    <%= f.form_group :declaration_accepted do %>
+      <%= f.field_error :declaration_accepted %>
+      <%= f.check_box :declaration_accepted, { label: t("tax_returns.review.declaration_label") } %>
+    <% end %>
+    <%= f.text_field :signature_name, label: t("tax_returns.review.signature_label"), hint: t("tax_returns.review.signature_hint", name: @tax_return.filer_full_name), autocomplete: "off" %>
+    <%= f.button t("tax_returns.review.submit"), type: :submit, class: "usa-button usa-button--big cods-button margin-top-3" %>
+  <% end %>
+</section>

@@ -1,0 +1,9 @@
+<% year = @tax_return.tax_year %>
+<% title = page_t("title", tax_year: year) %>
+<%= render layout: "question", locals: { title: title } do |f| %>
+  <%= f.fieldset content_tag(:h1, title, class: "font-heading-xl margin-0"), attribute: :marital_status, large_legend: true do %>
+    <%= f.radio_button :marital_status, "unmarried", label: page_t("options.unmarried"), hint: page_t("options.unmarried_hint") %>
+    <%= f.radio_button :marital_status, "married", label: page_t("options.married"), hint: page_t("options.married_hint", tax_year: year) %>
+    <%= f.radio_button :marital_status, "widowed", label: page_t("options.widowed", previous_year: year - 1, two_years_ago: year - 2), hint: page_t("options.widowed_hint") %>
+  <% end %>
+<% end %>

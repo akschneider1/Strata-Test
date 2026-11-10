@@ -1,0 +1,597 @@
+# Taxpayer portal text. Written to the IRS Direct File content style guide:
+# plain language, the taxpayer's own words, one idea per sentence, and no
+# personal information in titles, links or buttons.
+en:
+  header:
+    staff_title: "Colorado Department of Revenue · Examiner portal"
+    signed_in_as: "Signed in as %{name}"
+  prototype_banner:
+    heading: "Prototype:"
+    body: "This is a demonstration with made-up people. It can't file a real tax return."
+  flash:
+    not_authorized: "That page isn't available to your account."
+  shared:
+    "yes": "Yes"
+    "no": "No"
+    skip_to_content: "Skip to main content"
+    continue: "Save and continue"
+    back: "Back"
+    back_to_checklist: "Back to checklist"
+    edit: "Change"
+    remove: "Remove"
+    save: "Save"
+    cancel: "Cancel"
+    optional: "optional"
+    dollars_hint: "Whole dollars. For example, 1250"
+    why_we_ask: "Why we ask"
+    source: "Where this rule comes from"
+    filer: "You"
+    spouse: "Your spouse"
+  home:
+    index:
+      title: "File your 2025 Colorado income tax return"
+      lead: "Answer questions in plain language. We fill in what the Department of Revenue already knows, work out what you qualify for, and show you how your tax is calculated."
+      what_you_get_heading: "What's different"
+      what_you_get:
+        - "Your W-2 and 1099 information is filled in for you to check."
+        - "You don't choose a filing status or hunt for credits. We tell you what you qualify for and why."
+        - "You see every step of the calculation before you sign."
+        - "Most returns are accepted in minutes, and you can track yours."
+      sign_in: "Sign in"
+      demo_heading: "Try the demo"
+      demo_lead: "Pick a person to see the portal through their eyes. All of them are made up."
+      demo_taxpayers: "Taxpayers"
+      demo_examiners: "Department of Revenue examiners"
+      demo_sign_in: "Continue as %{name}"
+  demo_users:
+    maya: "Single, one W-2. Accepted automatically."
+    daniela: "Single parent of two. Sees the family credits she qualifies for."
+    walter: "Retired couple with pensions and Social Security."
+    jordan: "Reports more withholding than his employer did. Goes to an examiner."
+    examiner: "Reviews the returns that the automatic checks flag."
+  tax_returns:
+    actions:
+      exit: "Back to checklist"
+    steps:
+      filer_name: "Name"
+      filer_identity: "Birth date and SSN"
+      contact: "Address"
+      residency: "Residency"
+      marital_status: "Marital status"
+      filing_jointly: "Filing together"
+      spouse: "Your spouse"
+      dependents: "Dependents"
+      home_costs: "Home costs"
+      childcare: "Child care"
+      income_documents: "Income forms"
+      interest: "Interest"
+      other_income: "Other income"
+      refund_method: "Refund or payment"
+    errors:
+      tax_engine_unavailable: "We couldn't calculate your return just now. Nothing was lost. Please try again in a minute."
+    index:
+      title: "Your %{tax_year} Colorado income tax return"
+      lead: "It takes most people about 15 minutes. You can stop at any time and pick up where you left off."
+      need_heading: "What you'll need"
+      need:
+        - "Your Social Security number, and your spouse's and dependents' if you have them"
+        - "Your W-2s and 1099s, to check against what we already have"
+        - "Your bank routing and account number, if you want your refund by direct deposit"
+      who_heading: "Who can use this prototype"
+      who: "People who lived in Colorado for all of %{tax_year} and whose income came from wages, unemployment, retirement, Social Security or bank interest."
+      start: "Start my return"
+    show:
+      title: "Your %{tax_year} Colorado return"
+      lead: "Complete each section. You can change your answers until you sign and submit."
+      sections_heading: "Sections"
+      estimate_refund_heading: "Estimated refund so far"
+      estimate_owed_heading: "Estimated amount you owe so far"
+      estimate_body: "Based on what you've told us. It can change until you submit."
+      see_calculation: "See how we calculated this"
+      review_and_sign: "Review and sign"
+      finish_sections_first: "Complete every section to review and sign."
+      status:
+        completed: "Completed"
+        in_progress: "In progress"
+        not_started: "Not started"
+        cannot_start_yet: "Can't start yet"
+      actions:
+        start: "Start"
+        continue: "Continue"
+        edit: "Review or change"
+    task_section_component:
+      about_you:
+        title: "About you"
+        description: "Your name, birth date, Social Security number and address."
+      family:
+        title: "Your family"
+        description: "Your marital status and the people you support. This decides your filing status and credits."
+      income:
+        title: "Your income"
+        description: "Check the income forms we have on file for you and add anything missing."
+      refund:
+        title: "Refund or payment"
+        description: "How you want to get your refund, or how you'll pay."
+    edit_filer_name:
+      title: "What's your name?"
+      hint: "Use the name on your Social Security card."
+    edit_filer_identity:
+      title: "Your birth date and Social Security number"
+      date_of_birth_legend: "Date of birth"
+      ssn_label: "Social Security number"
+      ssn_hint: "We use this to find the income forms your employers sent us."
+    edit_contact:
+      title: "Where should we send mail about your return?"
+      phone_label: "Phone number"
+    edit_residency:
+      title: "Did you live in Colorado for all of %{tax_year}?"
+      hint: "Answer yes if Colorado was your home from January 1 through December 31, even if you traveled or worked elsewhere for part of the year."
+    edit_marital_status:
+      title: "On December 31, %{tax_year}, were you married?"
+      options:
+        unmarried: "No, I was not married"
+        unmarried_hint: "Single, divorced or legally separated"
+        married: "Yes, I was married"
+        married_hint: "Including if your spouse died during %{tax_year}"
+        widowed: "My spouse died in %{previous_year} or %{two_years_ago}"
+        widowed_hint: "And I have not remarried"
+    edit_filing_jointly:
+      title: "Do you and your spouse want to file one return together?"
+      hint: "Most married couples pay less tax when they file together. Both of you are responsible for the return."
+      "yes": "Yes, file together"
+      "no": "No, file separately"
+    edit_spouse:
+      title: "Tell us about your spouse"
+      name_legend: "Your spouse's name"
+      date_of_birth_legend: "Your spouse's date of birth"
+      ssn_label: "Your spouse's Social Security number"
+    edit_dependents:
+      title: "Did anyone depend on you in %{tax_year}?"
+      hint: "A dependent is usually a child or relative who lived with you and whom you supported."
+      who_counts_summary: "Who counts as a dependent?"
+      who_counts: "Usually your child, stepchild, foster child, grandchild, brother, sister or parent who lived with you for more than half the year and didn't pay for most of their own support. You'll answer a few questions about each person."
+      list_heading: "People you've added"
+      age: "Age %{age} at the end of %{tax_year}"
+      add: "Add a dependent"
+      add_another: "Add another dependent"
+      "yes": "Yes"
+      "no": "No"
+    edit_home_costs:
+      title: "Did you pay more than half the cost of keeping up your home in %{tax_year}?"
+      hint: "Count rent or mortgage, utilities, repairs, property tax and food eaten at home."
+      why: "If you did, you can use a filing status with a larger deduction."
+    edit_childcare:
+      title: "Did you pay for child care so you could work or look for work?"
+      hint: "Count day care, preschool, before- and after-school care and day camp for a child under 13, or care for a dependent who can't care for themselves."
+      amount_label: "How much did you pay in %{tax_year}? (in dollars)"
+    edit_income_documents:
+      title: "Check your income forms"
+      lead: "Employers and payers send copies of these forms to the Department of Revenue. Compare each one with your own copy."
+      none_on_file_heading: "We don't have any income forms on file for you"
+      none_on_file: "Add each W-2 or 1099 you received for %{tax_year}."
+      on_file_tag: "On file with the Department"
+      you_added_tag: "You added this"
+      amount: "Amount"
+      colorado_withholding: "Colorado tax withheld"
+      on_file_was: "On file: %{amount}"
+      status:
+        unreviewed: "Needs your review"
+        confirmed: "You confirmed this"
+        corrected: "You changed this"
+        disputed: "You said this isn't yours"
+        entered: "You added this"
+      correct: "This is correct"
+      change: "Something is different"
+      not_mine: "This isn't mine"
+      undo: "Review again"
+      corrected_note: "Because your numbers differ from what the payer reported, someone at the Department may review your return before it's accepted."
+      disputed_note: "We'll leave this off your return. Someone at the Department will follow up with the payer."
+      add_heading: "Missing a form?"
+      add: "Add an income form"
+      confirm_label: "I've checked every income form I received for %{tax_year}"
+    edit_interest:
+      title: "Did you earn more than $1 of interest from a bank or credit union in %{tax_year}?"
+      hint: "Your bank sends you Form 1099-INT if you earned $10 or more."
+      amount_label: "Total taxable interest (in dollars)"
+      amount_hint: "Add box 1 from each Form 1099-INT."
+    edit_other_income:
+      title: "Did you have any other income in %{tax_year}?"
+      hint: "For example: self-employment or gig work, rental income, sale of stocks or property, or income from another state."
+    edit_refund_method:
+      title: "How do you want to get a refund or pay?"
+      lead: "If you're due a refund, direct deposit is the fastest way to get it. If you owe, we'll show you how to pay after you submit."
+      options:
+        direct_deposit: "Direct deposit to my bank account"
+        direct_deposit_hint: "Usually within 7 to 10 days"
+        check: "Mail me a paper check"
+        check_hint: "Can take 3 to 4 weeks"
+      account_type_legend: "Type of account"
+      checking: "Checking"
+      savings: "Savings"
+      routing_label: "Routing number"
+      routing_hint: "9 digits, at the bottom left of a check"
+      account_label: "Account number"
+    summary:
+      title: "How we calculated your Colorado tax"
+      lead: "Colorado income tax starts from your federal taxable income. Here is each step, using what you told us."
+      refund_heading: "Your refund: %{amount}"
+      owed_heading: "You owe: %{amount}"
+      even_heading: "You don't owe anything and aren't due a refund"
+      filing_status_heading: "Your filing status: %{status}"
+      credits_heading: "Credits and refunds you qualify for"
+      credits_none_heading: "Credits we checked that you don't qualify for"
+      not_qualified: "Doesn't apply"
+      adjusted_note: "The Department changed some amounts on your return. This is the calculation after those changes."
+      engine_note: "Calculated with %{engine} version %{version}, an open-source model of tax law."
+      sections:
+        federal: "1. Your income (the federal starting point)"
+        colorado_income: "2. Colorado changes to your income"
+        tax: "3. Your Colorado tax"
+        credits: "4. Credits and refunds"
+        payments: "5. What you already paid"
+        result: "6. The result"
+    review:
+      title: "Review and sign your return"
+      lead: "Check your answers. After you submit, you can't change your return here."
+      about_you: "About you"
+      family: "Your family"
+      income: "Your income"
+      refund: "Refund or payment"
+      name: "Name"
+      date_of_birth: "Date of birth"
+      ssn: "Social Security number"
+      address: "Address"
+      filing_status: "Filing status"
+      spouse: "Spouse"
+      dependents: "Dependents"
+      none: "None"
+      childcare: "Child care you paid for"
+      interest: "Bank interest"
+      total_withholding: "Colorado tax withheld"
+      method: "How you'll get a refund"
+      account: "Account"
+      result_heading: "Your result"
+      sign_heading: "Sign your return"
+      declaration: "Under penalty of perjury, I declare that I have examined this return and, to the best of my knowledge and belief, it is true, correct and complete."
+      declaration_label: "I agree"
+      signature_label: "Type your full name to sign"
+      signature_hint: "Type it as you entered it: %{name}"
+      submit: "Submit my return"
+    submit:
+      submitted: "We got your return."
+    respond:
+      sent: "Thanks. We sent your answer to the examiner."
+    stages:
+      received:
+        tag: "Received"
+        heading: "We got your return"
+        body: "We're checking it now."
+      in_review:
+        tag: "In review"
+        heading: "A person is reviewing your return"
+        body: "Something on your return needs a closer look. This usually takes a few business days. You don't need to do anything right now. If we need more from you, we'll ask here."
+      needs_information:
+        tag: "We need information"
+        heading: "We have a question about your return"
+        body: "Answer below so we can finish reviewing your return."
+      accepted:
+        tag: "Accepted"
+        heading: "Your return was accepted"
+        body_refund_direct_deposit: "Your refund of %{amount} is on its way to your bank account ending in %{account}. Allow 7 to 10 days."
+        body_refund_check: "We'll mail your refund check for %{amount} to the address on your return. Allow 3 to 4 weeks."
+        body_owed: "You owe %{amount}. It's due April 15, %{due_year}."
+        body_even: "You don't owe anything and aren't due a refund."
+    status:
+      title: "Your %{tax_year} Colorado return"
+      confirmation: "Confirmation number"
+      submitted_on: "Submitted"
+      timeline_heading: "What's happened"
+      timeline:
+        submitted: "You submitted your return"
+        calculated: "We calculated your tax"
+        screened_clear: "Automatic checks found nothing to review"
+        screened_flagged: "Automatic checks sent your return to a person for review"
+        information_requested: "The examiner asked you a question"
+        information_provided: "You answered the question"
+        adjusted: "The examiner changed an amount on your return"
+        accepted: "Your return was accepted"
+      question_heading: "Question from the Department"
+      response_label: "Your answer"
+      response_hint: "Don't include full Social Security or bank account numbers."
+      send: "Send answer"
+      adjustments_heading: "Changes the Department made"
+      adjustment: "%{field}: %{from} changed to %{to}"
+      adjustment_reason: "Reason: %{reason}"
+      see_calculation: "See how your tax was calculated"
+      past_questions_heading: "Questions and answers"
+  filing_statuses:
+    SINGLE: "Single"
+    JOINT: "Married filing jointly"
+    SEPARATE: "Married filing separately"
+    HEAD_OF_HOUSEHOLD: "Head of household"
+    SURVIVING_SPOUSE: "Qualifying surviving spouse"
+    reasons:
+      single: "You weren't married at the end of the year and have no dependents."
+      single_did_not_pay_home_costs: "You weren't married at the end of the year. Head of household doesn't apply because you didn't pay more than half the cost of your home."
+      married_joint: "You were married at the end of the year and chose to file together."
+      married_separate: "You were married at the end of the year and chose to file separately."
+      head_of_household: "You weren't married, you have a dependent who lived with you, and you paid more than half the cost of your home. This gives you a larger deduction than filing as single."
+      surviving_spouse: "Your spouse died in one of the last two years, you have a dependent who lived with you, and you paid more than half the cost of your home. You get the same deduction as a married couple."
+  adjustable_fields:
+    filer_wages: "Wages"
+    filer_unemployment_compensation: "Unemployment compensation"
+    filer_pension_income: "Pension and annuity income"
+    filer_social_security: "Social Security benefits"
+    taxable_interest: "Bank interest"
+    childcare_expenses: "Child care expenses"
+    colorado_tax_withheld: "Colorado tax withheld"
+  dependents:
+    relationships:
+      child: "Son or daughter"
+      stepchild: "Stepchild"
+      foster_child: "Foster child"
+      grandchild: "Grandchild"
+      sibling: "Brother or sister"
+      parent: "Parent"
+      other_relative: "Other relative"
+    form:
+      name_first: "First name"
+      name_last: "Last name"
+      date_of_birth: "Date of birth"
+      relationship: "How is this person related to you?"
+      select: "- Select -"
+      ssn: "Social Security number"
+      lived_with: "Did this person live with you for more than half of %{tax_year}?"
+      lived_with_hint: "Count time away at school, in the hospital or on vacation as time living with you. A baby born during the year counts as living with you all year."
+      student: "This person was a full-time student"
+      disabled: "This person has a permanent disability"
+      details_legend: "Check any that apply"
+    new:
+      title: "Add a dependent"
+    edit:
+      title: "Change this dependent"
+  income_documents:
+    kinds:
+      w2:
+        name: "Form W-2 (wages)"
+        payer: "Employer"
+        amount: "Wages, tips and other compensation (box 1)"
+        withholding: "Colorado income tax withheld (box 17)"
+      form_1099g:
+        name: "Form 1099-G (unemployment)"
+        payer: "Payer"
+        amount: "Unemployment compensation (box 1)"
+        withholding: "Colorado income tax withheld (box 11)"
+      form_1099r:
+        name: "Form 1099-R (pension or retirement)"
+        payer: "Payer"
+        amount: "Taxable amount (box 2a)"
+        withholding: "Colorado income tax withheld (box 14)"
+      ssa_1099:
+        name: "Form SSA-1099 (Social Security)"
+        payer: "Payer"
+        amount: "Net benefits (box 5)"
+        withholding: "Colorado income tax withheld"
+    form:
+      kind: "Which form is it?"
+      owner: "Whose form is it?"
+      payer_name: "Name of the employer or payer"
+      amount: "Amount (in dollars)"
+      colorado_withholding: "Colorado income tax withheld (in dollars)"
+      colorado_withholding_hint: "Enter 0 if the form shows none."
+    new:
+      title: "Add an income form"
+    edit:
+      title: "Change this income form"
+      title_on_file: "What's different on your copy?"
+      on_file_lead: "Enter the amounts from your own copy of this form. %{payer} reported %{amount} with %{withholding} Colorado tax withheld."
+  tax_calculation:
+    lines:
+      total_income:
+        label: "Your total income"
+        explanation: "Everything you earned in %{tax_year} from the income forms and interest on your return."
+      taxable_social_security:
+        label: "Part of your Social Security that is taxable"
+        explanation: "Federal law taxes only part of Social Security benefits, depending on your other income."
+      federal_agi:
+        label: "Federal adjusted gross income"
+        explanation: "Your total income, counting only the taxable part of Social Security."
+      federal_deductions:
+        label: "Federal deductions"
+        explanation: "You get the standard deduction for your filing status and age: %{standard_deduction}."
+      federal_taxable_income:
+        label: "Federal taxable income"
+        explanation: "Your income minus your deductions. Colorado tax starts from this number."
+      additions:
+        label: "Colorado additions"
+        explanation: "Income Colorado taxes but the federal government doesn't. Most people have none."
+      pension_subtraction:
+        label: "Pension and retirement income Colorado doesn't tax"
+        explanation: "Colorado lets people 55 and older subtract pension, retirement and taxable Social Security income, up to a limit that depends on age."
+      other_subtractions:
+        label: "Other Colorado subtractions"
+        explanation: "Other income Colorado doesn't tax."
+      subtractions:
+        label: "Total Colorado subtractions"
+        explanation: "Income the federal government taxes but Colorado doesn't."
+      colorado_taxable_income:
+        label: "Colorado taxable income"
+        explanation: "Federal taxable income, plus additions, minus subtractions."
+      tax:
+        label: "Colorado income tax"
+        explanation: "Colorado taxes everyone at the same rate. For %{tax_year} it's %{rate} of your Colorado taxable income."
+      alternative_minimum_tax:
+        label: "Alternative minimum tax"
+        explanation: "An extra tax that applies to very few people with certain kinds of income."
+      nonrefundable_credits:
+        label: "Credits that reduce your tax"
+        explanation: "Credits that can lower your tax to zero but can't be paid out as a refund."
+      net_tax:
+        label: "Your tax before refundable credits"
+        explanation: "Colorado income tax minus the credits above."
+      earned_income_credit:
+        label: "Colorado Earned Income Tax Credit"
+        explanation_yes: "For people who work and have low to moderate income. Colorado's credit is a share of the federal credit you qualify for (%{federal_eitc})."
+        explanation_no: "For people who work and have low to moderate income. Your income is above the limit for your family size, or you don't have income from work."
+      child_tax_credit:
+        label: "Colorado Child Tax Credit"
+        explanation_yes: "For families with children under 6. You have %{children_under_6} and your income is within the limit."
+        explanation_no: "For families with children under 6 whose income is within the limit."
+      family_affordability_credit:
+        label: "Family Affordability Tax Credit"
+        explanation_yes: "For families with children under 17. You have %{children_under_17}, and the amount depends on each child's age and your income."
+        explanation_no: "For families with children under 17 whose income is within the limit."
+      child_care_credit:
+        label: "Child Care Expenses Tax Credit"
+        explanation_yes: "Based on the %{childcare_expenses} you paid for child care so you could work."
+        explanation_no: "For people who paid for child care so they could work and whose income is within the limit."
+      tabor_sales_tax_refund:
+        label: "State sales tax refund (TABOR)"
+        explanation_yes: "When Colorado collects more than the state constitution allows, it returns the extra to full-year residents through their tax returns."
+        explanation_no: "When Colorado collects more than the state constitution allows, it returns the extra to full-year residents. There is no refund for you this year."
+      care_worker_credit:
+        label: "Care Worker Tax Credit"
+        explanation_yes: "For people who work in child care, home health care or long-term care."
+        explanation_no: "For people who work in child care, home health care or long-term care. This prototype doesn't ask about it yet."
+      refundable_credits:
+        label: "Total credits and refunds"
+        explanation: "These are paid to you even if they're more than your tax."
+      colorado_tax_withheld:
+        label: "Colorado tax already taken out of your pay"
+        explanation: "The Colorado withholding on your income forms."
+      refund:
+        label: "Your refund"
+        explanation: "You paid or are credited more than your tax, so you get the difference back."
+      amount_owed:
+        label: "Amount you owe"
+        explanation: "Your tax is more than your credits and what was withheld."
+  activerecord:
+    attributes:
+      tax_return:
+        filer_name_first: "First name"
+        filer_name_last: "Last name"
+        filer_date_of_birth: "Date of birth"
+        filer_ssn: "Social Security number"
+        mailing_address_street_line_1: "Street address"
+        mailing_address_city: "City"
+        mailing_address_state: "State"
+        mailing_address_zip_code: "ZIP code"
+        spouse_name_first: "Spouse's first name"
+        spouse_name_last: "Spouse's last name"
+        spouse_date_of_birth: "Spouse's date of birth"
+        spouse_ssn: "Spouse's Social Security number"
+        childcare_expenses: "Amount you paid for child care"
+        taxable_interest: "Taxable interest"
+        bank_routing_number: "Routing number"
+        bank_account_number: "Account number"
+        signature_name: "Your signature"
+      dependent:
+        name_first: "First name"
+        name_last: "Last name"
+        date_of_birth: "Date of birth"
+        ssn: "Social Security number"
+      income_document:
+        payer_name: "Name of the employer or payer"
+        amount: "Amount"
+        colorado_withholding: "Colorado tax withheld"
+      information_request:
+        response: "Your answer"
+        question: "Question"
+      return_adjustment:
+        adjusted_amount: "New amount"
+        reason: "Reason"
+      case_note:
+        body: "Note"
+    errors:
+      messages:
+        blank: "Enter this to continue"
+        choose_one: "Choose an answer"
+        invalid_ssn: "Enter all 9 digits of the Social Security number"
+        invalid_zip: "Enter a 5-digit ZIP code"
+        not_a_number: "Enter a number, without cents"
+        not_an_integer: "Enter whole dollars, without cents"
+        greater_than: "Enter an amount more than %{count}"
+        greater_than_or_equal_to: "Enter %{count} or more"
+        less_than_or_equal_to: "Enter an amount of %{count} or less"
+        too_long: "Use %{count} characters or fewer"
+      models:
+        tax_return:
+          # Messages are complete sentences that say what to do.
+          format: "%{message}"
+          attributes:
+            filer_name_first: { blank: "Enter your first name" }
+            filer_name_last: { blank: "Enter your last name" }
+            filer_date_of_birth:
+              blank: "Enter your date of birth"
+              in_future: "Enter a date of birth before the end of the tax year"
+              too_young: "This prototype is for people 16 and older"
+            filer_ssn: { blank: "Enter your Social Security number" }
+            mailing_address_street_line_1: { blank: "Enter your street address" }
+            mailing_address_city: { blank: "Enter your city" }
+            mailing_address_state: { blank: "Choose your state" }
+            full_year_resident:
+              part_year_not_supported: "This prototype only handles people who lived in Colorado all year. Part-year residents file form DR 0104PN."
+            spouse_name_first: { blank: "Enter your spouse's first name" }
+            spouse_name_last: { blank: "Enter your spouse's last name" }
+            spouse_date_of_birth: { blank: "Enter your spouse's date of birth" }
+            spouse_ssn:
+              blank: "Enter your spouse's Social Security number"
+              same_as_filer: "Enter your spouse's number. This one is yours."
+            has_dependents:
+              add_a_dependent: "Add at least one dependent, or answer No"
+            childcare_expenses: { blank: "Enter how much you paid for child care" }
+            income_documents_reviewed:
+              confirm_income_documents: "Check the box when you've checked every form"
+              review_each_form: "Tell us whether each form on file is correct"
+            taxable_interest: { blank: "Enter your taxable interest" }
+            has_other_income:
+              other_income_not_supported: "This prototype can't handle other kinds of income yet. A full system would continue from here."
+            bank_routing_number: { invalid_routing_number: "Enter the 9-digit routing number" }
+            bank_account_number: { invalid_account_number: "Enter your account number, 4 to 17 digits" }
+            declaration_accepted: { accept_declaration: "Check the box to agree before you submit" }
+            signature_name:
+              blank: "Type your full name to sign"
+              must_match_name: "Type your name as it appears on your return"
+        dependent:
+          # Messages are complete sentences that say what to do.
+          format: "%{message}"
+          attributes:
+            name_first: { blank: "Enter their first name" }
+            name_last: { blank: "Enter their last name" }
+            date_of_birth:
+              blank: "Enter their date of birth"
+              in_future: "Enter a date of birth before the end of the tax year"
+            ssn:
+              blank: "Enter their Social Security number"
+              already_listed: "You've already added someone with this number"
+        income_document:
+          # Messages are complete sentences that say what to do.
+          format: "%{message}"
+          attributes:
+            payer_name: { blank: "Enter the name on the form" }
+            amount:
+              not_a_number: "Enter the amount in whole dollars"
+              greater_than: "Enter the amount from the form"
+            colorado_withholding:
+              not_a_number: "Enter the amount in whole dollars, or 0"
+              more_than_amount: "Colorado tax withheld can't be more than the amount of income. Check both boxes."
+        information_request:
+          # Messages are complete sentences that say what to do.
+          format: "%{message}"
+          attributes:
+            response: { blank: "Write your answer before you send it" }
+            question: { blank: "Write the question for the taxpayer" }
+        return_adjustment:
+          # Messages are complete sentences that say what to do.
+          format: "%{message}"
+          attributes:
+            field: { choose_one: "Choose the amount to change" }
+            adjusted_amount:
+              not_a_number: "Enter the new amount in whole dollars"
+              unchanged: "Enter an amount different from the current one"
+            reason: { blank: "Explain the change. The taxpayer will see this." }
+        case_note:
+          # Messages are complete sentences that say what to do.
+          format: "%{message}"
+          attributes:
+            body: { blank: "Write a note before you save" }

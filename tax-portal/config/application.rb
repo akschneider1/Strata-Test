@@ -14,6 +14,11 @@ module TemplateApplicationRails
     I18n.available_locales = [ :"en", :"es-US" ]
     I18n.default_locale = :"en"
     I18n.enforce_available_locales = true
+    # Let each model define how full error messages read (see
+    # activerecord.errors.models.*.format in config/locales/tax).
+    config.active_model.i18n_customize_full_message = true
+    # Strata SDK strings exist in English only; fall back to them in Spanish.
+    config.i18n.fallbacks = { "es-US": :en }
 
     # Support nested locale files
     config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]

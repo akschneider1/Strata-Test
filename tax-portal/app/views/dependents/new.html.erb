@@ -1,0 +1,5 @@
+<% content_for :title, t(".title") %>
+<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
+<h1 class="font-heading-xl"><%= t(".title") %></h1>
+<%= render "form", dependent: @dependent,
+      url: tax_return_dependents_path(@tax_return), method: :post %>

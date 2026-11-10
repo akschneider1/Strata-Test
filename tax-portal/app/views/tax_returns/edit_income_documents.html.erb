@@ -1,0 +1,108 @@
+<% year = @tax_return.tax_year %>
+<% documents = @tax_return.income_documents.includes(:wage_record).in_display_order %>
+<% content_for :title, page_t("title") %>
+
+<h1 class="font-heading-xl"><%= page_t("title") %></h1>
+<p class="usa-intro font-body-md"><%= page_t("lead") %></p>
+
+<% if documents.none? %>
+  <%= cods_alert :info, heading: page_t("none_on_file_heading") do %>
+    <%= page_t("none_on_file", tax_year: year) %>
+  <% end %>
+<% end %>
+
+<ul class="usa-card-group cods-card-group margin-top-3">
+  <% documents.each do |document| %>
+    <% kind = "income_documents.kinds.#{document.kind}" %>
+    <li class="usa-card cods-card tablet:grid-col-12" id="income_document_<%= document.id %>">
+      <div class="usa-card__container cods-card__container">
+        <div class="usa-card__header cods-card__header">
+          <p class="margin-0 margin-bottom-1">
+            <%= cods_tag(document.on_file? ? page_t("on_file_tag") : page_t("you_added_tag"), document.on_file? ? "blue" : nil) %>
+            <% unless document.review_status.in?(%w[entered]) %>
+              <%= cods_tag(page_t("status.#{document.review_status}"), { "unreviewed" => "yellow", "confirmed" => "green", "corrected" => "plum", "disputed" => "red" }[document.review_status]) %>
+            <% end %>
+          </p>
+          <h2 class="usa-card__heading cods-card__heading font-heading-md"><%= document.payer_name %></h2>
+          <p class="margin-0 text-base-dark">
+            <%= t("#{kind}.name") %><% if @tax_return.joint? %> · <%= t("shared.#{document.owner}") %><% end %>
+          </p>
+        </div>
+        <div class="usa-card__body cods-card__body">
+          <dl class="margin-0">
+            <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
+              <dt><%= t("#{kind}.amount") %></dt>
+              <dd class="margin-0 text-bold text-right text-no-wrap">
+                <%= money(document.amount) %>
+                <% if document.review_status == "corrected" && document.amount != document.wage_record.amount %>
+                  <br><span class="text-normal text-base-dark font-body-2xs"><%= page_t("on_file_was", amount: money(document.wage_record.amount)) %></span>
+                <% end %>
+              </dd>
+            </div>
+            <div class="display-flex flex-justify gap-2 padding-y-1">
+              <dt><%= t("#{kind}.withholding") %></dt>
+              <dd class="margin-0 text-bold text-right text-no-wrap">
+                <%= money(document.colorado_withholding) %>
+                <% if document.review_status == "corrected" && document.colorado_withholding != document.wage_record.colorado_withholding %>
+                  <br><span class="text-normal text-base-dark font-body-2xs"><%= page_t("on_file_was", amount: money(document.wage_record.colorado_withholding)) %></span>
+                <% end %>
+              </dd>
+            </div>
+          </dl>
+          <% if document.review_status == "corrected" %>
+            <p class="font-body-xs text-base-darker margin-bottom-0"><%= page_t("corrected_note") %></p>
+          <% elsif document.review_status == "disputed" %>
+            <p class="font-body-xs text-base-darker margin-bottom-0"><%= page_t("disputed_note") %></p>
+          <% end %>
+        </div>
+        <div class="usa-card__footer cods-card__footer">
+          <ul class="usa-button-group">
+            <% if document.review_status == "unreviewed" %>
+              <li class="usa-button-group__item">
+                <%= button_to page_t("correct"), confirm_tax_return_income_document_path(@tax_return, document), method: :patch, class: "usa-button cods-button", "aria-label": "#{t('.correct')}: #{document.payer_name}" %>
+              </li>
+              <li class="usa-button-group__item">
+                <%= link_to page_t("change"), edit_tax_return_income_document_path(@tax_return, document), class: "usa-button usa-button--outline cods-button cods-button--secondary", "aria-label": "#{t('.change')}: #{document.payer_name}" %>
+              </li>
+              <li class="usa-button-group__item">
+                <%= button_to page_t("not_mine"), dispute_tax_return_income_document_path(@tax_return, document), method: :patch, class: "usa-button usa-button--unstyled padding-y-105", "aria-label": "#{t('.not_mine')}: #{document.payer_name}" %>
+              </li>
+            <% elsif document.on_file? %>
+              <li class="usa-button-group__item">
+                <%= link_to t("shared.edit"), edit_tax_return_income_document_path(@tax_return, document), class: "usa-button usa-button--outline cods-button cods-button--secondary", "aria-label": "#{t('shared.edit')}: #{document.payer_name}" %>
+              </li>
+              <% unless document.review_status == "confirmed" %>
+                <li class="usa-button-group__item">
+                  <%= button_to page_t("correct"), confirm_tax_return_income_document_path(@tax_return, document), method: :patch, class: "usa-button usa-button--unstyled padding-y-105", "aria-label": "#{t('.correct')}: #{document.payer_name}" %>
+                </li>
+              <% end %>
+            <% else %>
+              <li class="usa-button-group__item">
+                <%= link_to t("shared.edit"), edit_tax_return_income_document_path(@tax_return, document), class: "usa-button usa-button--outline cods-button cods-button--secondary", "aria-label": "#{t('shared.edit')}: #{document.payer_name}" %>
+              </li>
+              <li class="usa-button-group__item">
+                <%= button_to t("shared.remove"), tax_return_income_document_path(@tax_return, document), method: :delete, class: "usa-button usa-button--unstyled padding-y-105", "aria-label": "#{t('shared.remove')}: #{document.payer_name}" %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </li>
+  <% end %>
+</ul>
+
+<h2 class="font-heading-md"><%= page_t("add_heading") %></h2>
+<p><%= link_to page_t("add"), new_tax_return_income_document_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary" %></p>
+
+<%= strata_form_with model: @tax_return, url: @flow_task.update_path, method: :patch do |f| %>
+  <%= f.form_group :income_documents_reviewed do %>
+    <%= f.field_error :income_documents_reviewed %>
+    <%= f.check_box :income_documents_reviewed, { label: page_t("confirm_label", tax_year: year) } %>
+  <% end %>
+
+  <hr class="border-base-lightest margin-top-4">
+  <ul class="usa-button-group">
+    <li class="usa-button-group__item"><%= link_to t("shared.back"), @flow_task.prev_path || @flow.start_path, class: "usa-button usa-button--outline cods-button cods-button--secondary" %></li>
+    <li class="usa-button-group__item"><%= f.button t("shared.continue"), type: :submit, class: "usa-button cods-button" %></li>
+  </ul>
+<% end %>

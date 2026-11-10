@@ -1,31 +1,37 @@
-class StaffController < Strata::StaffController
-  # This controller inherits from Strata::StaffController and provides access to the staff dashboard.
-  before_action :authenticate_user!
+# frozen_string_literal: true
 
-  # TODO implement staff policy
-  skip_after_action :verify_authorized
+# Base controller for the examiner portal. Everything under /staff requires
+# a signed-in examiner.
+class StaffController < Strata::StaffController
+  layout "staff"
+
+  before_action :authenticate_user!
+  before_action :authorize_staff
+  # Access is decided for the whole staff area by StaffPolicy, so there is
+  # no per-record scope to verify on index pages.
   skip_after_action :verify_policy_scoped
 
-  # The only available endpoint by default is the 'index' action, which renders the staff dashboard.
-  # You can add additional actions as needed for your specific staff workflows.
-  #
-  # To customize the case classes displayed in the header navigation:
-  # 
-  # Override the case_classes method to return an array of case model classes:
+  def index
+    @open_tasks = ReviewTask.incomplete
+    @my_tasks = @open_tasks.where(assignee_id: current_user.id)
+    @cases_by_step = TaxReturnCase.submitted.group(:business_process_current_step).count
+    @accepted_automatically = TaxReturnCase.where(outcome: "accepted").where.missing(:review_flags).count
+    @recent_activity = Strata::AuditLine.where(subject_type: "TaxReturnCase").order(created_at: :desc).limit(8)
+  end
+
+  protected
 
   def case_classes
-    # Add your case classes here
-    # Example: [MyCase, AnotherCase]
-    []
+    [ TaxReturnCase ]
   end
-  #
-  # To further customize the header cases links:
-  # 
-  # Override the set_header_cases_links method:
-  #   protected
-  #
-  #   def set_header_cases_links
-  #     super  # Call parent method for default behavior
-  #     # Add custom logic here if needed
-  #   end
+
+  def cases_links
+    [ { name: t("staff.header.returns"), path: tax_return_cases_path } ]
+  end
+
+  private
+
+  def authorize_staff
+    authorize :staff, :access?
+  end
 end
