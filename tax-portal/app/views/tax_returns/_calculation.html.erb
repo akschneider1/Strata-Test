@@ -10,10 +10,10 @@
     <dl class="margin-0">
       <% (credit_lines.select { |line| line.amount.positive? } + lines).each do |line| %>
         <div class="border-bottom-1px border-base-lighter padding-y-2" data-line="<%= line.id %>">
-          <div class="display-flex flex-justify gap-2">
-            <dt class="text-bold"><%= calculation_line_label(line) %></dt>
-            <dd class="margin-0 text-bold text-no-wrap"><%= money(line.amount) %></dd>
-          </div>
+          <dt class="display-flex flex-justify gap-2 text-bold">
+            <span><%= calculation_line_label(line) %></span>
+            <span class="text-no-wrap"><%= money(line.amount) %></span>
+          </dt>
           <dd class="margin-0 margin-top-05 text-base-darker measure-5">
             <%= calculation_line_explanation(line, tax_year: tax_year) %>
             <% if line.source_url.present? %>
