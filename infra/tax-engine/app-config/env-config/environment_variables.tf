@@ -3,6 +3,8 @@ locals {
   # This is a map rather than a list so that variables can be easily
   # overridden per environment using terraform's `merge` function
   default_extra_environment_variables = {
+    # Load the tax rules when the container starts, not on the first request.
+    TAX_ENGINE_PRELOAD = "true"
     # Example environment variables
     # WORKER_THREADS_COUNT    = 4
     # LOG_LEVEL               = "info"
@@ -19,6 +21,13 @@ locals {
   #   }
   # }
   secrets = {
+    # The token callers must send in the X-Auth header. tax-portal reads the
+    # same parameter (see infra/tax-portal/app-config/env-config).
+    API_AUTH_TOKEN = {
+      manage_method     = "generated"
+      secret_store_name = "/${var.app_name}-${var.environment}/service/api-auth-token"
+    }
+
     # Example generated secret
     # RANDOM_SECRET = {
     #   manage_method     = "generated"

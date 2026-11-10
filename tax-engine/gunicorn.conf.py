@@ -16,10 +16,10 @@ from src.app_config import AppConfig
 app_config = AppConfig()
 
 bind = app_config.host + ':' + str(app_config.port)
-# Calculates the number of usable cores and doubles it. Recommended number of workers per core is two.
-# https://docs.gunicorn.org/en/latest/design.html#how-many-workers
-# We use 'os.sched_getaffinity(pid)' not 'os.cpu_count()' because it returns only allowable CPUs.
-# os.sched_getaffinity(pid): Return the set of CPUs the process with PID pid is restricted to.
-# os.cpu_count(): Return the number of CPUs in the system.
-workers = len(os.sched_getaffinity(0)) * 2
-threads = 4
+# Each worker process loads its own copy of the tax rules (about 1.5 GB) and
+# calculations are CPU-bound, so one worker can only use one core. Run one
+# worker per container and add capacity by running more containers. Threads
+# keep health checks and cached results responsive while a calculation runs.
+# Set WEB_CONCURRENCY only on a host with a core and 1.5 GB to spare per worker.
+workers = int(os.getenv("WEB_CONCURRENCY", "1"))
+threads = int(os.getenv("WEB_THREADS", "8"))

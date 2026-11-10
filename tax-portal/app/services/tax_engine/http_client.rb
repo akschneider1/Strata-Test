@@ -3,7 +3,16 @@
 module TaxEngine
   # Calls the tax-engine app. Facts and results are never logged.
   class HttpClient
-    def initialize(url: ENV.fetch("TAX_ENGINE_URL", "http://127.0.0.1:3200"), token: ENV.fetch("TAX_ENGINE_API_TOKEN", "LOCAL_AUTH_12345678"))
+    # Local development falls back to the engine started by bin/demo. A
+    # deployed portal must be told where the engine is and given its token.
+    LOCAL_URL = "http://127.0.0.1:3200"
+    LOCAL_TOKEN = "LOCAL_AUTH_12345678"
+
+    def self.setting(name, local_default)
+      Rails.env.local? ? ENV.fetch(name, local_default) : ENV.fetch(name)
+    end
+
+    def initialize(url: self.class.setting("TAX_ENGINE_URL", LOCAL_URL), token: self.class.setting("TAX_ENGINE_API_TOKEN", LOCAL_TOKEN))
       @connection = Faraday.new(url: url, headers: { "X-Auth" => token }) do |faraday|
         faraday.request :json
         faraday.response :json
