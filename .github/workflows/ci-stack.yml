@@ -1,0 +1,113 @@
+name: CI Stack
+
+# Tests the app generator itself: for each Strata template, run
+# `bin/new-app` end to end (install template + infra layer, apply the
+# Colorado Design System / Strata SDK customizations, install dependencies,
+# run the app's lint and tests), then check that re-applying the
+# customizations is a no-op.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - bin/new-app
+      - bin/cods-upgrade
+      - bin/doctor
+      - bin/setup-env
+      - stack/**
+      - .github/workflows/ci-stack.yml
+  pull_request:
+    paths:
+      - bin/new-app
+      - bin/cods-upgrade
+      - bin/doctor
+      - bin/setup-env
+      - stack/**
+      - .github/workflows/ci-stack.yml
+  workflow_dispatch:
+
+concurrency:
+  group: ci-stack-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  new-app:
+    name: new-app (${{ matrix.template }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        template: [rails, nextjs, flask]
+    services:
+      # Same role/password the templates' local env files use.
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: secret123
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Read pinned versions
+        id: versions
+        run: |
+          # shellcheck disable=SC1091
+          source stack/versions.env
+          {
+            echo "ruby=$RUBY_VERSION"
+            echo "python=$PYTHON_VERSION"
+            echo "nava_platform_ref=$NAVA_PLATFORM_CLI_REF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: ruby/setup-ruby@v1
+        if: matrix.template == 'rails'
+        with:
+          ruby-version: ${{ steps.versions.outputs.ruby }}
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ steps.versions.outputs.python }}
+
+      - name: Install nava-platform and Poetry
+        run: |
+          python -m pip install --quiet uv
+          uv tool install --quiet "git+https://github.com/navapbc/platform-cli@${{ steps.versions.outputs.nava_platform_ref }}"
+          uv tool install --quiet poetry
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Configure git
+        run: |
+          git config user.name "ci-stack"
+          git config user.email "ci-stack@users.noreply.github.com"
+
+      - name: bin/new-app ${{ matrix.template }} ci-${{ matrix.template }}
+        env:
+          DB_HOST: 127.0.0.1
+        run: bin/new-app "${{ matrix.template }}" "ci-${{ matrix.template }}"
+
+      - name: Re-applying customizations is a no-op
+        run: |
+          bin/new-app --reapply "ci-${{ matrix.template }}"
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            git diff
+            echo "::error::bin/new-app --reapply changed files; customizations must be idempotent"
+            exit 1
+          fi
+
