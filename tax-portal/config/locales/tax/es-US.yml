@@ -352,6 +352,25 @@ es-US:
       title: "Agregar un dependiente"
     edit:
       title: "Cambiar este dependiente"
+    support:
+      page_title: "Algunas preguntas más sobre esta persona"
+      title: "Algunas preguntas más sobre %{name}"
+      lead: "Hacemos estas preguntas cuando la persona tiene 19 años o más, o no es su hijo, nieto, hermano o hermana."
+      income: "¿El ingreso total de esta persona en %{tax_year} fue menor de %{amount}?"
+      income_hint: "Cuente salarios, desempleo, intereses y otros ingresos sujetos a impuestos. No cuente los beneficios del Seguro Social que no pagaron impuestos."
+      support: "¿Usted pagó más de la mitad de los gastos de manutención de esta persona en %{tax_year}?"
+      support_hint: "Cuente vivienda, comida, ropa, atención médica y educación."
+    qualification:
+      counts: "Cuenta como su dependiente"
+      does_not_count: "No cuenta como su dependiente"
+      answer: "Responda dos preguntas más"
+      reasons:
+        qualifying_child: "Por su edad y porque vivió con usted."
+        qualifying_relative: "Porque tuvo pocos ingresos y usted pagó la mayor parte de sus gastos de manutención."
+        did_not_live_with_you: "Porque no vivió con usted más de la mitad del año."
+        needs_answers: "Primero necesitamos saber más."
+        income_too_high: "Porque sus ingresos fueron demasiado altos."
+        not_supported_by_you: "Porque usted no pagó más de la mitad de sus gastos de manutención."
   income_documents:
     kinds:
       w2:
@@ -509,8 +528,10 @@ es-US:
             spouse_ssn:
               blank: "Escriba el número de Seguro Social de su cónyuge"
               same_as_filer: "Escriba el número de su cónyuge. Este es el suyo."
+              same_as_dependent: "Escriba el número de su cónyuge. Este pertenece a un dependiente que usted agregó."
             has_dependents:
               add_a_dependent: "Agregue al menos un dependiente, o responda No"
+              finish_dependents: "Responda las preguntas que faltan sobre cada persona que agregó"
             childcare_expenses: { blank: "Escriba cuánto pagó por cuidado de niños" }
             income_documents_reviewed:
               confirm_income_documents: "Marque la casilla cuando haya revisado todos los formularios"
@@ -535,6 +556,10 @@ es-US:
             ssn:
               blank: "Escriba su número de Seguro Social"
               already_listed: "Ya agregó a alguien con este número"
+              same_as_filer: "Escriba el número de esta persona. Este es el suyo."
+              same_as_spouse: "Escriba el número de esta persona. Este es el de su cónyuge."
+            income_under_limit: { choose_one: "Elija Sí o No" }
+            supported_by_filer: { choose_one: "Elija Sí o No" }
         income_document:
           format: "%{message}"
           attributes:

@@ -11,6 +11,17 @@ module TaxEngine
   class Unavailable < Error; end
   class Rejected < Error; end
 
+  PARAMETERS_TTL = 1.hour
+
+  # The most income a person can have and still be claimed as a qualifying
+  # relative. A tax figure, so it comes from the engine, not the portal.
+  def self.qualifying_relative_income_limit(tax_year)
+    limits = Rails.cache.fetch("tax_engine/qualifying_relative_income_limits", expires_in: PARAMETERS_TTL) do
+      client.status&.fetch("qualifying_relative_income_limits", nil)
+    end
+    limits&.fetch(tax_year.to_s, nil) || raise(Unavailable, "Tax engine did not provide the income limit for #{tax_year}")
+  end
+
   def self.client
     case ENV.fetch("TAX_ENGINE_ADAPTER", "http")
     when "fake" then FakeClient.new

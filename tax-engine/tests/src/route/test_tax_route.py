@@ -100,4 +100,5 @@ def test_engine_status(client, fake_calculator):
         "engine_version": "0",
         "ready": True,
         "supported_tax_years": [2025],
+        "qualifying_relative_income_limits": {"2025": 5200},
     }

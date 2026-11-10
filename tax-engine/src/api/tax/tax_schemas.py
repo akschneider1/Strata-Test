@@ -71,3 +71,11 @@ class EngineStatusSchema(request_schema.OrderedSchema):
         metadata={"description": "False while the rules engine is still loading"}
     )
     supported_tax_years = fields.List(fields.Integer())
+    qualifying_relative_income_limits = fields.Dict(
+        keys=fields.String(),
+        values=fields.Integer(),
+        metadata={
+            "description": "By tax year: the most income a person can have "
+            "and still be claimed as a qualifying relative"
+        },
+    )

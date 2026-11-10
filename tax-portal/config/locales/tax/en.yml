@@ -350,6 +350,25 @@ en:
       title: "Add a dependent"
     edit:
       title: "Change this dependent"
+    support:
+      page_title: "A few more questions about this person"
+      title: "A few more questions about %{name}"
+      lead: "We ask these when someone is 19 or older, or isn't your child, grandchild, brother or sister."
+      income: "Was this person's total income for %{tax_year} less than %{amount}?"
+      income_hint: "Count wages, unemployment, interest and other taxable income. Don't count Social Security benefits that weren't taxed."
+      support: "Did you pay for more than half of this person's living costs in %{tax_year}?"
+      support_hint: "Count housing, food, clothing, medical care and education."
+    qualification:
+      counts: "Counts as your dependent"
+      does_not_count: "Doesn't count as your dependent"
+      answer: "Answer two more questions"
+      reasons:
+        qualifying_child: "Because of their age and because they lived with you."
+        qualifying_relative: "Because they had little income and you paid most of their living costs."
+        did_not_live_with_you: "Because they didn't live with you for more than half the year."
+        needs_answers: "We need to know more first."
+        income_too_high: "Because their income was too high."
+        not_supported_by_you: "Because you didn't pay more than half of their living costs."
   income_documents:
     kinds:
       w2:
@@ -537,8 +556,10 @@ en:
             spouse_ssn:
               blank: "Enter your spouse's Social Security number"
               same_as_filer: "Enter your spouse's number. This one is yours."
+              same_as_dependent: "Enter your spouse's number. This one belongs to a dependent you added."
             has_dependents:
               add_a_dependent: "Add at least one dependent, or answer No"
+              finish_dependents: "Answer the remaining questions about each person you added"
             childcare_expenses: { blank: "Enter how much you paid for child care" }
             income_documents_reviewed:
               confirm_income_documents: "Check the box when you've checked every form"
@@ -564,6 +585,10 @@ en:
             ssn:
               blank: "Enter their Social Security number"
               already_listed: "You've already added someone with this number"
+              same_as_filer: "Enter this person's own number. This one is yours."
+              same_as_spouse: "Enter this person's own number. This one is your spouse's."
+            income_under_limit: { choose_one: "Choose Yes or No" }
+            supported_by_filer: { choose_one: "Choose Yes or No" }
         income_document:
           # Messages are complete sentences that say what to do.
           format: "%{message}"

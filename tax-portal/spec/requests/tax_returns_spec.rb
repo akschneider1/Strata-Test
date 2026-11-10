@@ -74,6 +74,31 @@ RSpec.describe "Taxpayer portal" do
       expect(response).to redirect_to(tax_return_path(tax_return))
     end
 
+    it "asks about income and support for a dependent who isn't a qualifying child" do
+      tax_return = create(:tax_return, :complete, user: taxpayer)
+      person = { name_first: "Rosa", name_last: "Payer", relationship: "parent", ssn: "000-00-4444", lived_with_filer_over_half_year: "false", date_of_birth: { month: 4, day: 2, year: 1950 } }
+
+      post tax_return_dependents_path(tax_return), params: { dependent: person }
+      rosa = tax_return.dependents.sole
+      expect(response).to redirect_to(support_tax_return_dependent_path(tax_return, rosa))
+
+      get support_tax_return_dependent_path(tax_return, rosa)
+      expect(response.body).to include("A few more questions about Rosa", "less than $5,200")
+
+      patch update_dependents_tax_return_path(tax_return), params: { tax_return: { has_dependents: "true" } }
+      expect(response.body).to include("Answer the remaining questions about each person you added")
+
+      patch update_support_tax_return_dependent_path(tax_return, rosa), params: { dependent: { income_under_limit: "true" } }
+      expect(response).to have_http_status(:unprocessable_content)
+
+      patch update_support_tax_return_dependent_path(tax_return, rosa), params: { dependent: { income_under_limit: "true", supported_by_filer: "true" } }
+      expect(response).to redirect_to(edit_dependents_tax_return_path(tax_return))
+      expect(rosa.reload.qualifies?).to be(true)
+
+      get edit_dependents_tax_return_path(tax_return)
+      expect(response.body).to include("Counts as your dependent")
+    end
+
     it "prefills income forms on file and lets the taxpayer confirm them" do
       tax_return = create(:tax_return, :complete, user: taxpayer)
       create(:wage_record, ssn: tax_return.filer_ssn, kind: "form_1099g", payer_name: "CDLE", amount: 900, colorado_withholding: 0)

@@ -48,7 +48,7 @@ module TaxEngine
     end
 
     def status
-      { "engine" => "fake", "engine_version" => "0", "ready" => true }
+      { "engine" => "fake", "engine_version" => "0", "ready" => true, "qualifying_relative_income_limits" => { "2025" => 5_200 } }
     end
 
     private

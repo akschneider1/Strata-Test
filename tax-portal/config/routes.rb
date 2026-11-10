@@ -56,7 +56,12 @@ Rails.application.routes.draw do
         patch :respond
       end
 
-      resources :dependents, only: [ :new, :create, :edit, :update, :destroy ]
+      resources :dependents, only: [ :new, :create, :edit, :update, :destroy ] do
+        member do
+          get :support
+          patch :update_support
+        end
+      end
       resources :income_documents, only: [ :new, :create, :edit, :update, :destroy ] do
         member do
           patch :confirm

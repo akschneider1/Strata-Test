@@ -72,5 +72,9 @@ def engine_status() -> response.ApiResponse:
             "engine_version": calc.engine_version,
             "ready": calc.is_loaded,
             "supported_tax_years": list(calculator.SUPPORTED_TAX_YEARS),
+            "qualifying_relative_income_limits": {
+                str(year): limit
+                for year, limit in calculator.QUALIFYING_RELATIVE_INCOME_LIMIT.items()
+            },
         },
     )

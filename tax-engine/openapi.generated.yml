@@ -748,6 +748,12 @@ components:
           type: array
           items:
             type: integer
+        qualifying_relative_income_limits:
+          type: object
+          description: 'By tax year: the most income a person can have and still be
+            claimed as a qualifying relative'
+          additionalProperties:
+            type: integer
     UserSorting:
       type: object
       properties:

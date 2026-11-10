@@ -28,6 +28,11 @@ FILING_STATUSES = (
     "SURVIVING_SPOUSE",
 )
 
+# Most income a person can have and still be claimed as a qualifying relative
+# (the "gross income test"). Not a PolicyEngine parameter, so it is kept here:
+# 2025 amount from IRS Rev. Proc. 2024-40, section 3.25.
+QUALIFYING_RELATIVE_INCOME_LIMIT = {2025: 5_200}
+
 BOOK_2025 = "https://tax.colorado.gov/sites/tax/files/documents/Book104_2025.pdf"
 
 
