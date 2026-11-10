@@ -10,6 +10,7 @@ en:
   header:
     account: My account
     language_toggle: English
+    menu: "Menu"
     logout: "Log out"
     title: "Colorado Individual Income Tax"
     close: "Close"

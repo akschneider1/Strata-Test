@@ -1,41 +1,61 @@
 <% content_for :title, t(".title") %>
 <%= content_for :content_col_class, "desktop:grid-col-10" %>
+<%# While the demo people are still loading, check again shortly. Turbo ignores a refresh tag swapped in, so ask for a full load. %>
+<% loading = @demo_mode && @demo_users.none? %>
+<% if loading %>
+  <% content_for :head do %>
+    <%= tag.meta name: "turbo-visit-control", content: "reload" %>
+    <%= tag.meta "http-equiv": "refresh", content: "5" %>
+  <% end %>
+<% end %>
 
 <h1 class="font-heading-xl"><%= t(".title") %></h1>
-<p class="usa-intro measure-5"><%= t(".lead") %></p>
+<p class="font-body-md line-height-sans-5 measure-5"><%= t(".lead") %></p>
 
-<h2 class="font-heading-lg"><%= t(".what_you_get_heading") %></h2>
-<ul class="usa-list measure-5">
-  <% t(".what_you_get").each do |item| %><li><%= item %></li><% end %>
-</ul>
-
-<% if @demo_users.any? %>
-  <section class="margin-top-5" aria-labelledby="demo-heading">
+<% if @demo_mode %>
+  <section class="margin-top-4" aria-labelledby="demo-heading">
     <h2 id="demo-heading" class="font-heading-lg"><%= t(".demo_heading") %></h2>
     <p class="measure-5"><%= t(".demo_lead") %></p>
+
+    <% if loading %>
+      <%= cods_alert(:info, heading: t(".demo_loading_heading"), data: { testid: "demo-loading" }) { t(".demo_loading") } %>
+    <% end %>
+
     <% { taxpayer: t(".demo_taxpayers"), examiner: t(".demo_examiners") }.each do |role, heading| %>
       <% users = @demo_users.select { |user| user.role == role.to_s } %>
       <% next if users.empty? %>
-      <h3 class="font-heading-md"><%= heading %></h3>
-      <ul class="usa-card-group cods-card-group">
+      <h3 class="font-heading-md margin-top-3"><%= heading %></h3>
+      <ul class="usa-list usa-list--unstyled" data-testid="demo-<%= role %>s">
         <% users.each do |user| %>
-          <li class="usa-card cods-card tablet:grid-col-6">
-            <div class="usa-card__container cods-card__container">
-              <div class="usa-card__header cods-card__header">
-                <h4 class="usa-card__heading cods-card__heading"><%= user.full_name %></h4>
+          <li class="border-1px border-base-light radius-md padding-2 margin-bottom-2 maxw-none">
+            <div class="grid-row grid-gap flex-align-center">
+              <div class="tablet:grid-col-fill">
+                <h4 class="font-heading-md margin-0"><%= user.full_name %></h4>
+                <p class="margin-top-05 margin-bottom-0"><%= t("demo_users.#{user.uid.delete_prefix('demo-')}", default: "") %></p>
               </div>
-              <div class="usa-card__body cods-card__body">
-                <p><%= t("demo_users.#{user.uid.delete_prefix('demo-')}", default: "") %></p>
-              </div>
-              <div class="usa-card__footer cods-card__footer">
-                <%= button_to t(".demo_sign_in", name: user.full_name.split.first), demo_sign_in_path(user_id: user.id), class: "usa-button cods-button" %>
+              <div class="tablet:grid-col-auto margin-top-2 tablet:margin-top-0">
+                <%= button_to t(".demo_sign_in", name: user.full_name.split.first), demo_sign_in_path(user_id: user.id), class: "usa-button cods-button text-no-wrap margin-0" %>
               </div>
             </div>
           </li>
         <% end %>
       </ul>
     <% end %>
+
+    <h3 class="font-heading-md margin-top-3"><%= t(".demo_how_heading") %></h3>
+    <ul class="usa-list measure-5">
+      <% t(".demo_how").each do |item| %><li><%= item %></li><% end %>
+    </ul>
   </section>
-<% else %>
+<% end %>
+
+<section class="margin-top-4" aria-labelledby="different-heading">
+  <h2 id="different-heading" class="font-heading-lg"><%= t(".what_you_get_heading") %></h2>
+  <ul class="usa-list measure-5">
+    <% t(".what_you_get").each do |item| %><li><%= item %></li><% end %>
+  </ul>
+</section>
+
+<% unless @demo_mode %>
   <p class="margin-top-4"><%= link_to t(".sign_in"), new_user_session_path, class: "usa-button usa-button--big cods-button" %></p>
 <% end %>

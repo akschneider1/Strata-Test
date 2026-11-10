@@ -7,7 +7,15 @@ module DemoMode
     !Rails.env.production? && ENV["DEMO_MODE"] == "true"
   end
 
+  # The order the demo guide tells the story in.
+  STORY_ORDER = %w[demo-maya demo-daniela demo-walter demo-jordan demo-examiner demo-examiner2].freeze
+
+  def self.scope
+    User.where(provider: "demo")
+  end
+
+  # Demo people in story order, for the home page.
   def self.users
-    User.where(provider: "demo").order(:role, :full_name)
+    scope.sort_by { |user| [ STORY_ORDER.index(user.uid) || STORY_ORDER.size, user.full_name ] }
   end
 end

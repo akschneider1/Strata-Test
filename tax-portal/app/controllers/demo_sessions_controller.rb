@@ -7,7 +7,7 @@ class DemoSessionsController < ApplicationController
   def create
     raise ActionController::RoutingError, "Not Found" unless DemoMode.enabled?
 
-    user = DemoMode.users.find(params[:user_id])
+    user = DemoMode.scope.find(params[:user_id])
     sign_out(current_user) if current_user
     sign_in(user)
     redirect_to after_sign_in_path_for(user)
