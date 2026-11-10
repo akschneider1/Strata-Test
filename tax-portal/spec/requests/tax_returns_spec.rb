@@ -176,7 +176,9 @@ RSpec.describe "Taxpayer portal" do
 
     it "lets the taxpayer answer an examiner's question" do
       tax_return = create(:tax_return, :flagged, user: taxpayer)
-      ReturnProcessing::ExaminerActions.new(tax_return.tax_return_case, create(:examiner)).request_information("Which amount is on your W-2?")
+      examiner_actions = ReturnProcessing::ExaminerActions.new(tax_return.tax_return_case, create(:examiner))
+      examiner_actions.assign_to_me
+      examiner_actions.request_information("Which amount is on your W-2?")
 
       get tax_return_path(tax_return)
       expect(response.body).to include("We have a question about your return", "Which amount is on your W-2?")

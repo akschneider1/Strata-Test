@@ -28,6 +28,8 @@ class ServiceMeasures
 
   def accepted_after_review = flagged_cases.where(outcome: "accepted").count
   def accepted_with_adjustments = flagged_cases.where(outcome: "accepted_with_adjustments").count
+  def not_accepted = flagged_cases.where(outcome: "not_accepted").count
+  def second_review = by_step["second_review"].to_i
 
   # Share of filed returns, as a whole percentage, or nil when none are filed.
   def share(count)

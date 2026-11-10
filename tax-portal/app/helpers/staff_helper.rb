@@ -1,10 +1,17 @@
 # frozen_string_literal: true
 
 module StaffHelper
-  STEP_COLORS = { "review_return" => "yellow", "provide_information" => "red", "end" => "green" }.freeze
+  STEP_COLORS = { "review_return" => "yellow", "second_review" => "yellow", "provide_information" => "red", "end" => "green" }.freeze
 
   def case_step_tag(kase)
     cods_tag(t("staff.steps.#{kase.step}"), STEP_COLORS[kase.step])
+  end
+
+  # The outcome of a closed return, or where an open one stands.
+  def case_status_tag(kase)
+    return case_step_tag(kase) unless kase.outcome
+
+    cods_tag(t("staff.outcomes.#{kase.outcome}"), kase.accepted? ? "green" : "red")
   end
 
   # One sentence explaining why the automatic checks raised a flag.
@@ -25,6 +32,10 @@ module StaffHelper
     when "review.adjusted"
       t("staff.history.adjusted", field: t("adjustable_fields.#{data[:field]}"), from: money(data[:from]), to: money(data[:to]),
         before: result_phrase(data[:refund_before], data[:amount_owed_before]), after: result_phrase(data[:refund_after], data[:amount_owed_after]))
+    when "review.second_approval_requested", "review.confirmed"
+      t("staff.history.#{line.action.tr('.', '_')}", proposed: t("staff.outcomes.#{data[:proposed_outcome]}").downcase)
+    when "review.assigned"
+      t(data[:taken_over] ? "staff.history.review_taken_over" : "staff.history.review_assigned")
     when "return.accepted", "return.accepted_with_adjustments"
       t("staff.history.#{line.action.delete_prefix('return.')}", result: result_phrase(data[:refund], data[:amount_owed]),
         how: data[:automatic] ? t("staff.history.automatically") : "")

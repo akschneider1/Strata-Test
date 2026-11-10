@@ -38,6 +38,8 @@ class DemoData
     reset
     users = PEOPLE.to_h { |key, person| [ key, create_user(key, person[:name].join(" "), :taxpayer) ] }
     create_user(:examiner, "Priya Shah", :examiner)
+    # A second examiner, to confirm large changes.
+    create_user(:examiner2, "Marcus Reed", :examiner)
     WAGE_RECORDS.each { |record| WageRecord.create!(record.merge(tax_year: TaxReturn::CURRENT_TAX_YEAR)) }
 
     # Maya starts from nothing: she is the live "file a return" demo.

@@ -92,6 +92,9 @@ Rails.application.routes.draw do
       member do
         patch :assign_to_me
         patch :approve
+        post :reject
+        patch :confirm
+        post :send_back
         post :adjust
         post :request_information
         post :add_note

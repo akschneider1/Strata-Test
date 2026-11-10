@@ -170,7 +170,7 @@ test.describe('Taxpayer on a phone', () => {
 test.describe('Examiner', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
-  test('Priya reviews the flagged return with the taxpayer and accepts it with an adjustment', async ({
+  test('Priya reviews the flagged return with the taxpayer, and Marcus confirms the adjustment', async ({
     page,
   }) => {
     await signIn(page, 'Priya');
@@ -215,13 +215,24 @@ test.describe('Examiner', () => {
     await page.getByLabel('Amount to change').selectOption('colorado_tax_withheld');
     await page.getByLabel('New amount (in dollars)').fill('2900');
     await page
-      .getByRole('textbox', { name: 'Reason' })
+      .getByRole('textbox', { name: 'Reason', exact: true })
       .fill('Changed to the amount on the W-2 your employer filed, which you confirmed.');
     await page.getByRole('button', { name: 'Change and recalculate' }).click();
     await expect(page.getByTestId('current-result')).toHaveText('refund $705');
+    await expect(page.getByTestId('second-approval-note')).toContainText('a second examiner');
     await page.getByRole('button', { name: 'Accept with adjustments' }).click();
+    await expect(page.getByTestId('case-step')).toHaveAttribute('data-step', 'second_review');
+    await signOut(page);
+
+    // A change this large takes a second examiner
+    await signIn(page, 'Marcus');
+    await page.getByRole('button', { name: 'Pick up next return' }).click();
+    await expect(page.getByRole('heading', { name: 'Jordan Lee' })).toBeVisible();
+    await expect(page.getByTestId('proposal')).toContainText('Priya Shah proposes accepting');
+    await expectAccessible(page);
+    await page.getByRole('button', { name: 'Confirm' }).click();
     await expect(page.getByTestId('case-step')).toHaveAttribute('data-step', 'end');
-    await expect(page.getByTestId('history').locator('li')).toHaveCount(7);
+    await expect(page.getByTestId('history').locator('li')).toHaveCount(8);
 
     // The service measures reflect the review
     await page.getByRole('link', { name: 'Service measures' }).click();

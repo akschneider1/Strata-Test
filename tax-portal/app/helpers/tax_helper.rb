@@ -59,7 +59,7 @@ module TaxHelper
   end
 
   def stage_tag(stage)
-    color = { received: "blue", in_review: "yellow", needs_information: "red", accepted: "green" }[stage]
+    color = { received: "blue", in_review: "yellow", needs_information: "red", accepted: "green", not_accepted: "red" }[stage]
     cods_tag(t("tax_returns.stages.#{stage}.tag"), color)
   end
 end

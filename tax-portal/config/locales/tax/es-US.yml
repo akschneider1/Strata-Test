@@ -51,6 +51,7 @@ es-US:
     walter: "Pareja jubilada con pensiones y Seguro Social."
     jordan: "Declara más retención de la que informó su empleador. Pasa a un examinador."
     examiner: "Revisa las declaraciones que las verificaciones automáticas señalan."
+    examiner2: "Un segundo examinador, que confirma los cambios grandes."
   tax_returns:
     actions:
       exit: "Volver a la lista"
@@ -284,6 +285,11 @@ es-US:
         body_refund_check: "Le enviaremos por correo su cheque de reembolso de %{amount} a la dirección de su declaración. Espere de 3 a 4 semanas."
         body_owed: "Usted debe %{amount}. Vence el 15 de abril de %{due_year}."
         body_even: "No debe nada y no le corresponde un reembolso."
+      not_accepted:
+        tag: "No aceptada"
+        heading: "No pudimos aceptar su declaración"
+        body: "Su declaración no se ha presentado. El motivo aparece abajo. Para presentarla, corrija el problema y comuníquese con el Departamento de Hacienda. Este prototipo no puede reabrir una declaración."
+        reason_heading: "Por qué no pudimos aceptarla"
     status:
       title: "Su declaración de Colorado de %{tax_year}"
       confirmation: "Número de confirmación"
@@ -298,6 +304,7 @@ es-US:
         information_provided: "Usted respondió la pregunta"
         adjusted: "El examinador cambió una cantidad en su declaración"
         accepted: "Su declaración fue aceptada"
+        not_accepted: "No pudimos aceptar su declaración"
       question_heading: "Pregunta del Departamento"
       response_label: "Su respuesta"
       response_hint: "No incluya números completos de Seguro Social ni de cuenta bancaria."

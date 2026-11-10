@@ -49,6 +49,7 @@ en:
     walter: "Retired couple with pensions and Social Security."
     jordan: "Reports more withholding than his employer did. Goes to an examiner."
     examiner: "Reviews the returns that the automatic checks flag."
+    examiner2: "A second examiner, who confirms large changes."
   tax_returns:
     actions:
       exit: "Back to checklist"
@@ -282,6 +283,11 @@ en:
         body_refund_check: "We'll mail your refund check for %{amount} to the address on your return. Allow 3 to 4 weeks."
         body_owed: "You owe %{amount}. It's due April 15, %{due_year}."
         body_even: "You don't owe anything and aren't due a refund."
+      not_accepted:
+        tag: "Not accepted"
+        heading: "We could not accept your return"
+        body: "Your return has not been filed. The reason is below. To file, fix the problem and contact the Department of Revenue. This prototype can't reopen a return."
+        reason_heading: "Why we couldn't accept it"
     status:
       title: "Your %{tax_year} Colorado return"
       confirmation: "Confirmation number"
@@ -296,6 +302,7 @@ en:
         information_provided: "You answered the question"
         adjusted: "The examiner changed an amount on your return"
         accepted: "Your return was accepted"
+        not_accepted: "We could not accept your return"
       question_heading: "Question from the Department"
       response_label: "Your answer"
       response_hint: "Don't include full Social Security or bank account numbers."

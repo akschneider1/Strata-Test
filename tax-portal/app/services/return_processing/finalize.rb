@@ -5,7 +5,10 @@ module ReturnProcessing
   # where the refund would be released or the balance due billed.
   class Finalize
     def self.call(kase)
-      outcome = kase.return_adjustments.any? ? "accepted_with_adjustments" : "accepted"
+      outcome = if kase.proposed_outcome == "not_accepted" then "not_accepted"
+      elsif kase.return_adjustments.any? then "accepted_with_adjustments"
+      else "accepted"
+      end
       calculation = kase.current_calculation
 
       Strata::AuditLog.record do |log|

@@ -8,8 +8,10 @@ RSpec.describe ServiceMeasures do
 
   let(:examiner) { create(:examiner) }
 
-  def actions(kase)
-    ReturnProcessing::ExaminerActions.new(kase, examiner)
+  def actions(kase, user = examiner)
+    ReturnProcessing::ExaminerActions.new(kase, user).tap do |actions|
+      actions.assign_to_me if kase.step == "review_return" && kase.open_task&.assignee_id.nil?
+    end
   end
 
   it "reports nothing when no returns are filed" do
@@ -49,6 +51,8 @@ RSpec.describe ServiceMeasures do
     kase.reload
     actions(kase).adjust(field: "colorado_tax_withheld", amount: 1_650, reason: "Matches the W-2 on file.")
     actions(kase.reload).approve
+    expect(described_class.new).to have_attributes(second_review: 1, decided: 0)
+    actions(kase.reload, create(:examiner)).confirm
 
     after = described_class.new
     expect(after).to have_attributes(

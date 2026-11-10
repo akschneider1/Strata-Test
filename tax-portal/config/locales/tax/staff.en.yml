@@ -4,6 +4,7 @@ en:
   tasks:
     types:
       review_task: "Review flagged return"
+      second_review_task: "Confirm another examiner's decision"
     statuses:
       pending: "To do"
       completed: "Done"
@@ -27,12 +28,14 @@ en:
       calculate_return: "Calculating"
       screen_return: "Automatic checks"
       review_return: "Needs review"
+      second_review: "Needs a second examiner"
       provide_information: "Waiting on taxpayer"
       finalize_return: "Finalizing"
       end: "Closed"
     outcomes:
       accepted: "Accepted as filed"
       accepted_with_adjustments: "Accepted with adjustments"
+      not_accepted: "Not accepted"
     flags:
       income_lower_than_record:
         title: "Income lower than reported by payer"
@@ -63,6 +66,12 @@ en:
       taxpayer_information_provided: "Taxpayer answered"
       adjusted: "%{field} changed from %{from} to %{to}. Result went from %{before} to %{after}"
       review_note_added: "Note added"
+      review_assigned: "Examiner picked up the return"
+      review_taken_over: "Examiner took the return over from another examiner"
+      review_second_approval_requested: "Examiner proposed: %{proposed}. Sent to a second examiner"
+      review_confirmed: "Second examiner confirmed: %{proposed}"
+      review_sent_back: "Second examiner sent the return back"
+      not_accepted: "Return not accepted"
       accepted: "Return accepted as filed %{how}: %{result}"
       accepted_with_adjustments: "Return accepted with adjustments: %{result}"
       automatically: "automatically"
@@ -110,6 +119,8 @@ en:
         flagged: "Sent to an examiner"
         accepted_after_review: "Reviewed and accepted as filed"
         accepted_with_adjustments: "Reviewed and accepted with adjustments"
+        not_accepted: "Reviewed and not accepted"
+        second_review: "Waiting for a second examiner"
         waiting_to_be_processed: "Filed, waiting to be calculated"
         in_review: "With an examiner now"
         waiting_on_taxpayer: "Waiting on the taxpayer now"
@@ -140,6 +151,8 @@ en:
   tax_return_cases:
     errors:
       not_under_review: "This return isn't under review right now, so that action isn't available."
+      not_assigned: "This return isn't assigned to you. Assign it to yourself first."
+      same_examiner: "You proposed this outcome, so a different examiner has to confirm it."
       tax_engine_unavailable: "The tax engine didn't respond, so nothing was changed. Try again in a minute."
     index:
       title: "Returns"
@@ -155,6 +168,15 @@ en:
         result: "Result"
     approve:
       approved: "Return approved."
+      sent_for_confirmation: "Sent to a second examiner to confirm."
+    reject:
+      sent_for_confirmation: "Sent to a second examiner to confirm."
+      reason_needed: "Enter the reason the return can't be accepted."
+    confirm:
+      confirmed: "Confirmed. The return is closed."
+    send_back:
+      sent_back: "Sent back to the first examiner."
+      note_needed: "Enter a note saying why you are sending it back."
     adjust:
       adjusted: "Amount changed and return recalculated."
     request_information:
@@ -204,6 +226,23 @@ en:
       history_heading: "History"
       actions_heading: "Actions"
       assign_to_me: "Assign to me"
+      not_assigned: "No one has picked up this return. Assign it to yourself to work on it."
+      assigned_to_other: "%{name} is working on this return. Assign it to yourself to take it over."
+      second_approval_note: "Your changes move the result by %{amount} or more, so a second examiner will confirm before the return is closed."
+      reject_heading: "Don't accept the return"
+      reject_lead: "For a return that can't be processed as filed. A second examiner will confirm."
+      reject_reason: "Reason for not accepting"
+      reject_hint: "The taxpayer will see this. Say what is wrong and what they can do."
+      reject_submit: "Propose not accepting"
+      proposal_heading: "Waiting for a second examiner"
+      proposal:
+        accepted_with_adjustments: "%{name} proposes accepting this return with adjustments. The taxpayer would get %{result}."
+        not_accepted: "%{name} proposes not accepting this return."
+      waiting_for_second: "You proposed this, so another examiner has to confirm it."
+      confirm: "Confirm"
+      send_back_note: "Or send it back with a note"
+      send_back_hint: "Only examiners see this."
+      send_back: "Send back"
       waiting_on_taxpayer: "This return is waiting on the taxpayer. You'll get it back when they answer."
       closed: "This return is closed."
       approve_heading: "Accept the return"
@@ -231,5 +270,6 @@ en:
       calculate_return: "Tax is calculated by the tax engine (automatic)"
       screen_return: "Checks compare the return with records on file (automatic)"
       review_return: "An examiner reviews flagged returns (examiner)"
+      second_review: "A second examiner confirms large changes (examiner)"
       provide_information: "The taxpayer answers an examiner's question (taxpayer)"
       finalize_return: "The return is accepted and the refund released (automatic)"

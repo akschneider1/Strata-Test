@@ -12,7 +12,7 @@ class StaffController < Strata::StaffController
   skip_after_action :verify_policy_scoped
 
   def index
-    @open_tasks = ReviewTask.incomplete
+    @open_tasks = Strata::Task.incomplete
     @my_tasks = @open_tasks.where(assignee_id: current_user.id)
     @cases_by_step = TaxReturnCase.submitted.group(:business_process_current_step).count
     @accepted_automatically = TaxReturnCase.where(outcome: "accepted").where.missing(:review_flags).count

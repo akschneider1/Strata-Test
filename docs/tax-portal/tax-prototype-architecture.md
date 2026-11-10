@@ -115,6 +115,17 @@ A filed return is never edited. An examiner's change is a
 `ReturnAdjustment`; the case keeps both the filed and the adjusted
 calculation.
 
+Controls on examiners (`app/services/return_processing/examiner_actions.rb`):
+
+- Only the examiner a return is assigned to can act on it. Taking a return
+  over from someone else is allowed and is written to the history.
+- A change of $500 or more to what the taxpayer receives, and any decision
+  not to accept a return, goes to a `second_review` step. A different
+  examiner confirms it or sends it back with a note; the examiner who
+  proposed it can't confirm it. The $500 is illustrative, not policy.
+- A return that isn't accepted closes with the outcome `not_accepted` and a
+  reason the taxpayer sees. The prototype can't reopen it for correction.
+
 ### Data protection
 
 - SSNs and bank account numbers use Active Record encryption
