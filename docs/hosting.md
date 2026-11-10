@@ -133,7 +133,7 @@ about 2.8 GB of memory.
    already says so; check that the publish screen shows the same.)
 5. Make sure the published app has the database and the secrets attached.
 
-To reload the demo people on a running workspace: `bin/serve --reset`.
+To put the demo people back to the start, choose **Start the demo over** on the home page. From a shell, `bin/serve --reset` does the same when starting.
 
 ### If something fails
 
