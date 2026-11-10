@@ -136,6 +136,13 @@ JS
 
   cods_npm_install "$app" --rails
 
+  # Install OS security updates when building the image (the Flask template
+  # already does). Without this the image scans fail whenever the base image
+  # lags behind Debian's fixes.
+  if ! grep -q 'apt-get upgrade' "$app/Dockerfile"; then
+    perl -0pi -e 's/(RUN apt-get update -qq \\\n)(\s+&& apt-get install)/$1    && apt-get upgrade -y \\\n$2/g' "$app/Dockerfile"
+  fi
+
   customize_rails_infra "$app"
 
   log "$app: updating lockfiles"

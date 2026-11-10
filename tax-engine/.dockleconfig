@@ -4,5 +4,8 @@
 # https://github.com/goodwithtech/dockle#accept-suspicious-environment-variables--files--file-extensions
 # DOCKLE_ACCEPT_FILES="file1,path/to/file2,file3/path,etc"
 
-# The apiflask/settings file is a stub file that apiflask creates, and has no sensitive data in. We are ignoring it since it is unused
-DOCKLE_ACCEPT_FILES=tax-engine/.venv/lib/python3.13/site-packages/apiflask/settings.py
+# Dockle flags any file called settings.py as a possible credentials file.
+# The ones in the image are library modules with no secrets in them
+# (apiflask, plus jedi and h2, which PolicyEngine depends on). Dockle matches
+# on the file name, not the path.
+DOCKLE_ACCEPT_FILES=settings.py
