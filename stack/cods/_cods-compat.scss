@@ -49,4 +49,15 @@
   :where(a):active {
     color: var(--cods-color-text-action-link-active);
   }
+
+  // Touch targets. USWDS buttons and form controls are 40px tall, a little
+  // under the 44px that phones and tablets need for a comfortable tap
+  // (WCAG 2.5.5). Below desktop width, make them at least 44px.
+  @media (max-width: 63.99em) {
+    .usa-button:not(.usa-button--unstyled),
+    .usa-input,
+    .usa-select {
+      min-height: 2.75rem;
+    }
+  }
 }

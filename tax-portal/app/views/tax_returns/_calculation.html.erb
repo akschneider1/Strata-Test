@@ -17,7 +17,7 @@
           <dd class="margin-0 margin-top-05 text-base-darker measure-5">
             <%= calculation_line_explanation(line, tax_year: tax_year) %>
             <% if line.source_url.present? %>
-              <br><a class="usa-link font-body-2xs" href="<%= line.source_url %>" rel="noopener"><%= t("shared.source") %>: <%= line.source_title %></a>
+              <br><a class="usa-link font-body-2xs display-inline-block padding-y-105" href="<%= line.source_url %>" rel="noopener" title="<%= line.source_title %>"><%= t("shared.source") %><span class="usa-sr-only">: <%= calculation_line_label(line) %>. <%= line.source_title %></span></a>
             <% end %>
           </dd>
         </div>
@@ -26,7 +26,7 @@
     <% not_qualified = credit_lines.select { |line| line.amount.zero? } %>
     <% if not_qualified.any? %>
       <details class="margin-top-2">
-        <summary class="usa-link"><%= t("tax_returns.summary.credits_none_heading") %> (<%= not_qualified.size %>)</summary>
+        <summary class="usa-link padding-y-105"><%= t("tax_returns.summary.credits_none_heading") %> (<%= not_qualified.size %>)</summary>
         <ul class="usa-list">
           <% not_qualified.each do |line| %>
             <li data-line="<%= line.id %>"><strong><%= calculation_line_label(line) %>.</strong> <%= calculation_line_explanation(line, tax_year: tax_year) %></li>

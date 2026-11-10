@@ -26,7 +26,7 @@
           </div>
           <div class="usa-card__footer cods-card__footer display-flex flex-align-center gap-2">
             <%= link_to t("shared.edit"), edit_tax_return_dependent_path(@tax_return, dependent), class: "usa-button usa-button--outline cods-button cods-button--secondary", "aria-label": "#{t('shared.edit')} #{dependent.name_first}" %>
-            <%= button_to t("shared.remove"), tax_return_dependent_path(@tax_return, dependent), method: :delete, class: "usa-button usa-button--unstyled", "aria-label": "#{t('shared.remove')} #{dependent.name_first}" %>
+            <%= button_to t("shared.remove"), tax_return_dependent_path(@tax_return, dependent), method: :delete, class: "usa-button usa-button--unstyled padding-y-105", "aria-label": "#{t('shared.remove')} #{dependent.name_first}" %>
           </div>
         </div>
       </li>
@@ -52,7 +52,7 @@
       <p><%= link_to page_t("add"), new_tax_return_dependent_path(@tax_return), class: "usa-button cods-button" %></p>
     <% end %>
     <details class="margin-top-2">
-      <summary class="usa-link"><%= page_t("who_counts_summary") %></summary>
+      <summary class="usa-link padding-y-105"><%= page_t("who_counts_summary") %></summary>
       <p><%= page_t("who_counts") %></p>
     </details>
   <% end %>

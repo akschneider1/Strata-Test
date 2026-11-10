@@ -65,7 +65,7 @@
   </div>
   <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
     <dt><%= t(".submitted_on") %></dt>
-    <dd class="margin-0 text-bold"><%= l(@tax_return.submitted_at.in_time_zone("America/Denver"), format: :long) %></dd>
+    <dd class="margin-0 text-bold"><%= plain_time(@tax_return.submitted_at) %></dd>
   </div>
   <% unless stage == :not_accepted %>
   <div class="display-flex flex-justify border-bottom-1px border-base-lighter padding-y-1">
@@ -74,7 +74,7 @@
   </div>
   <% end %>
 </dl>
-<p><%= link_to t(".see_calculation"), summary_tax_return_path(@tax_return), class: "usa-link" %></p>
+<p><%= link_to t(".see_calculation"), summary_tax_return_path(@tax_return), class: "usa-link display-inline-block padding-y-105" %></p>
 
 <% if @case.return_adjustments.any? %>
   <section class="margin-top-4" aria-labelledby="adjustments-heading">
@@ -106,11 +106,11 @@
 <section class="margin-top-4" aria-labelledby="timeline-heading">
   <h2 id="timeline-heading" class="font-heading-lg"><%= t(".timeline_heading") %></h2>
   <ol class="usa-list">
-    <li><%= t(".timeline.submitted") %> <span class="text-base-dark">· <%= l(@tax_return.submitted_at.in_time_zone("America/Denver"), format: :short) %></span></li>
+    <li><%= t(".timeline.submitted") %> <span class="text-base-dark">· <%= short_time(@tax_return.submitted_at) %></span></li>
     <% @case.audit_lines.order(:created_at).each do |line| %>
       <% key = line.action == "return.screened" ? (line.data["flags"].present? ? "screened_flagged" : "screened_clear") : timeline_keys[line.action] %>
       <% next unless key %>
-      <li><%= t(".timeline.#{key}") %> <span class="text-base-dark">· <%= l(line.created_at.in_time_zone("America/Denver"), format: :short) %></span></li>
+      <li><%= t(".timeline.#{key}") %> <span class="text-base-dark">· <%= short_time(line.created_at) %></span></li>
     <% end %>
   </ol>
 </section>
