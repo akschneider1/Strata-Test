@@ -101,6 +101,7 @@ en:
         flagged: "Sent to an examiner"
         accepted_after_review: "Reviewed and accepted as filed"
         accepted_with_adjustments: "Reviewed and accepted with adjustments"
+        waiting_to_be_processed: "Filed, waiting to be calculated"
         in_review: "With an examiner now"
         waiting_on_taxpayer: "Waiting on the taxpayer now"
       time:

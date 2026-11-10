@@ -12,6 +12,7 @@ class ServiceMeasures
 
   def filed = @cases.size
   def decided = decided_cases.size
+  def waiting_to_be_processed = @cases.count { |kase| kase.step == ReturnProcessing::PENDING_STEP }
   def in_review = @cases.count { |kase| kase.step == "review_return" }
   def waiting_on_taxpayer = @cases.count { |kase| kase.step == "provide_information" }
 

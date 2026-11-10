@@ -69,6 +69,7 @@ en:
       refund_method: "Refund or payment"
     errors:
       tax_engine_unavailable: "We couldn't calculate your return just now. Nothing was lost. Please try again in a minute."
+      estimate_unavailable: "We can't show your estimate right now. You can keep working on your return, and nothing was lost."
     index:
       title: "Your %{tax_year} Colorado income tax return"
       lead: "It takes most people about 15 minutes. You can stop at any time and pick up where you left off."
@@ -265,7 +266,7 @@ en:
       received:
         tag: "Received"
         heading: "We got your return"
-        body: "We're checking it now."
+        body: "We're checking it now. This page will update on its own, usually within a minute."
       in_review:
         tag: "In review"
         heading: "A person is reviewing your return"

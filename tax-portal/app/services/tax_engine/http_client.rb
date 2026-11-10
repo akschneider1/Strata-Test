@@ -12,14 +12,12 @@ module TaxEngine
       Rails.env.local? ? ENV.fetch(name, local_default) : ENV.fetch(name)
     end
 
-    def initialize(url: self.class.setting("TAX_ENGINE_URL", LOCAL_URL), token: self.class.setting("TAX_ENGINE_API_TOKEN", LOCAL_TOKEN))
+    def initialize(url: self.class.setting("TAX_ENGINE_URL", LOCAL_URL), token: self.class.setting("TAX_ENGINE_API_TOKEN", LOCAL_TOKEN), timeout: TaxEngine::INTERACTIVE_TIMEOUT)
       @connection = Faraday.new(url: url, headers: { "X-Auth" => token }) do |faraday|
         faraday.request :json
         faraday.response :json
-        # The first calculation after the engine starts can take ~30 seconds
-        # while it loads the tax rules.
-        faraday.options.timeout = 90
-        faraday.options.open_timeout = 5
+        faraday.options.timeout = timeout
+        faraday.options.open_timeout = 3
       end
     end
 

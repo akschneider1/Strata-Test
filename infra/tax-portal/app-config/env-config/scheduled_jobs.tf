@@ -6,6 +6,13 @@ locals {
   # The syntax for `schedule_expression` is explained in the following documentation:
   # https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-scheduled-rule-pattern.html
   scheduled_jobs = {
+    # Returns are processed by a background job as soon as they are filed.
+    # This picks up any that job missed, for example because the tax engine
+    # was unavailable or a container was replaced mid-job.
+    process_pending_returns = {
+      task_command        = ["bin/rails", "tax:process_pending"]
+      schedule_expression = "rate(5 minutes)"
+    }
     # cron = {
     #   task_command        = ["python", "-m", "flask", "--app", "app.py", "cron"]
     #   schedule_expression = "cron(0 * ? * * *)"

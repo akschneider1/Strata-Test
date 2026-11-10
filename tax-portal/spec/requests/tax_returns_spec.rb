@@ -146,17 +146,32 @@ RSpec.describe "Taxpayer portal" do
       expect(tax_return.reload).to be_in_progress
     end
 
-    it "tells the taxpayer to try again when the tax engine is down, without losing anything" do
+    it "accepts a filing when the tax engine is down and processes it later" do
       tax_return = create(:tax_return, :complete, user: taxpayer)
-      allow(TaxEngine).to receive(:client).and_return(instance_double(TaxEngine::FakeClient).tap { |client|
-        allow(client).to receive(:calculate).and_raise(TaxEngine::Unavailable)
-      })
+      tax_return.calculate!
+      allow(TaxEngine).to receive(:client).and_raise(TaxEngine::Unavailable)
 
       patch submit_tax_return_path(tax_return), params: { tax_return: { declaration_accepted: "1", signature_name: "Tess Payer" } }
+      follow_redirect!
 
-      expect(response).to redirect_to(tax_return_path(tax_return))
-      expect(tax_return.reload).to be_in_progress
-      expect(tax_return.tax_return_case.step).to eq("file_return")
+      kase = tax_return.reload.tax_return_case
+      expect(tax_return).to be_submitted
+      expect(kase).to have_attributes(step: "calculate_return", stage: :received)
+      expect(response.body).to include("We got your return", tax_return.confirmation_number, "This page will update on its own", "$231")
+
+      allow(TaxEngine).to receive(:client).and_call_original
+      expect(ReturnProcessing.process_pending).to eq(1)
+      expect(kase.reload).to have_attributes(step: "end", outcome: "accepted")
+    end
+
+    it "shows the checklist without an estimate when the tax engine is down" do
+      tax_return = create(:tax_return, :complete, user: taxpayer)
+      allow(TaxEngine).to receive(:client).and_raise(TaxEngine::Unavailable)
+
+      get tax_return_path(tax_return)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("show your estimate right now", "Review and sign")
     end
 
     it "lets the taxpayer answer an examiner's question" do

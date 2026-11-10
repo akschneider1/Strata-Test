@@ -11,6 +11,9 @@ require "active_support/core_ext/integer/time"
 Rails.application.default_url_options[:host] = "localhost"
 
 Rails.application.configure do
+  # Run background jobs as they are queued, so a filed return is processed
+  # before the test looks at it.
+  config.active_job.queue_adapter = :inline
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Set auth_adapter to ensure tests run against appropriate auth mock

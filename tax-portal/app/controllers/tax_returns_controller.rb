@@ -32,11 +32,11 @@ class TaxReturnsController < ApplicationController
     authorize @tax_return
     if @tax_return.submitted?
       @case = @tax_return.tax_return_case
-      @calculation = @case.current_calculation
+      @calculation = current_calculation
       @information_request = @case.open_information_request
       render :status
     else
-      @calculation = @tax_return.calculate! if @tax_return.ready_to_calculate?
+      @calculation = estimate
     end
   end
 
@@ -45,7 +45,7 @@ class TaxReturnsController < ApplicationController
     authorize @tax_return
     return redirect_to(tax_return_path(@tax_return)) unless @tax_return.submitted? || @tax_return.ready_to_calculate?
 
-    @calculation = @tax_return.submitted? ? @tax_return.tax_return_case.current_calculation : @tax_return.calculate!
+    @calculation = @tax_return.submitted? ? current_calculation : @tax_return.calculate!
     @filed_calculation = @tax_return.tax_return_case.filed_calculation if @tax_return.submitted?
   end
 
@@ -61,22 +61,10 @@ class TaxReturnsController < ApplicationController
     return redirect_to(tax_return_path(@tax_return)) unless @flow.completed?
 
     @tax_return.assign_attributes(params.require(:tax_return).permit(:declaration_accepted, :signature_name))
-    # Processing runs within this request. Strata logs a failed processing
-    # step instead of raising, so check that the case moved on; if it didn't
-    # (for example the tax engine is down), undo the submission so nothing is
-    # half-filed and the taxpayer can try again.
-    stalled = false
-    submitted = TaxReturn.transaction(requires_new: true) do
-      raise ActiveRecord::Rollback unless @tax_return.submit_application
-
-      stalled = @tax_return.tax_return_case.reload.processing_stalled?
-      raise ActiveRecord::Rollback if stalled
-
-      true
-    end
-    raise TaxEngine::Unavailable, "Return processing did not complete" if stalled
-
-    if submitted
+    # Filing records the return and queues its processing (ProcessReturnJob).
+    # The taxpayer gets a confirmation straight away, whatever the tax engine
+    # is doing.
+    if @tax_return.submit_application
       redirect_to tax_return_path(@tax_return), notice: t(".submitted")
     else
       @calculation = @tax_return.calculate!
@@ -96,7 +84,7 @@ class TaxReturnsController < ApplicationController
       redirect_to tax_return_path(@tax_return), notice: t(".sent")
     else
       @case = kase
-      @calculation = kase.current_calculation
+      @calculation = current_calculation
       @information_request = request
       render :status, status: :unprocessable_content
     end
@@ -119,6 +107,22 @@ class TaxReturnsController < ApplicationController
 
   def authorize_update
     authorize @tax_return, :update?
+  end
+
+  # After filing: the processed result, or, in the moments before processing
+  # finishes, the calculation the taxpayer saw when they signed.
+  def current_calculation
+    @tax_return.tax_return_case.current_calculation || @tax_return.tax_calculation
+  end
+
+  # The running estimate on the checklist. It is a convenience, so if the
+  # engine doesn't answer the checklist still shows, without it.
+  def estimate
+    @tax_return.calculate! if @tax_return.ready_to_calculate?
+  rescue TaxEngine::Error => error
+    Rails.logger.warn("Estimate unavailable: #{error.class.name}")
+    flash.now[:alert] = t("tax_returns.errors.estimate_unavailable")
+    nil
   end
 
   def prefill_income_documents

@@ -71,6 +71,7 @@ es-US:
       refund_method: "Reembolso o pago"
     errors:
       tax_engine_unavailable: "No pudimos calcular su declaración en este momento. No se perdió nada. Inténtelo de nuevo en un minuto."
+      estimate_unavailable: "No podemos mostrar su cálculo estimado en este momento. Puede seguir trabajando en su declaración, y no se perdió nada."
     index:
       title: "Su declaración de impuestos de Colorado de %{tax_year}"
       lead: "A la mayoría de las personas les toma unos 15 minutos. Puede detenerse en cualquier momento y continuar donde se quedó."
@@ -267,7 +268,7 @@ es-US:
       received:
         tag: "Recibida"
         heading: "Recibimos su declaración"
-        body: "La estamos revisando ahora."
+        body: "La estamos revisando ahora. Esta página se actualizará sola, por lo general en menos de un minuto."
       in_review:
         tag: "En revisión"
         heading: "Una persona está revisando su declaración"

@@ -1,6 +1,14 @@
 <% year = @tax_return.tax_year %>
 <% stage = @case.stage %>
 <% content_for :title, t(".title", tax_year: year) %>
+<%# Processing usually finishes within seconds of filing: check again shortly. %>
+<%# Turbo ignores a refresh tag swapped into the page, so also ask it to load this page in full. %>
+<% if stage == :received %>
+  <% content_for :head do %>
+    <%= tag.meta name: "turbo-visit-control", content: "reload" %>
+    <%= tag.meta "http-equiv": "refresh", content: "3" %>
+  <% end %>
+<% end %>
 <%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
 <% timeline_keys = {
   "return.calculated" => "calculated",

@@ -8,12 +8,12 @@
 #                                                                                 ▲            └─information requested─▶ provide_information
 #                                                                                 └────────────────information provided──────┘
 #
-# Returns with no flags are accepted without anyone touching them. Events
-# are delivered synchronously, so an unflagged return is accepted within the
-# taxpayer's submit request.
+# Returns with no flags are accepted without anyone touching them. Filing
+# only queues the calculation (ProcessReturnJob); the checks and acceptance
+# follow in that job, usually within a second or two of filing.
 class TaxReturnBusinessProcess < Strata::BusinessProcess
   applicant_task("file_return")
-  system_process("calculate_return", ->(kase) { ReturnProcessing::Calculate.call(kase) })
+  system_process("calculate_return", ->(kase) { ProcessReturnJob.perform_later(kase.id) })
   system_process("screen_return", ->(kase) { ReturnProcessing::Screen.call(kase) })
   staff_task("review_return", ReviewTask)
   applicant_task("provide_information")

@@ -85,10 +85,26 @@ file_return ─submitted─▶ calculate_return ─▶ screen_return ─┬─cl
                                                                               └──────────── information provided ───────┘
 ```
 
-Events are delivered synchronously, so a return with no flags is accepted
-inside the taxpayer's submit request. If a step fails (for example the tax
-engine is down), the submission is rolled back and the taxpayer is asked to
-try again.
+Filing only records the return and queues `ProcessReturnJob`. The taxpayer
+gets a confirmation number straight away and their status page shows
+"Received", then updates on its own. The job calculates the return, runs
+the checks and, when nothing is flagged, accepts it, usually within a second
+or two.
+
+The case is the record of what is left to do: a case still at
+`calculate_return` has not been processed. If the job fails or is lost (the
+tax engine is down, a container is replaced), nothing is lost and the
+taxpayer is not asked to file again. `bin/rails tax:process_pending` picks
+those cases up; in AWS it runs every five minutes (see
+`infra/tax-portal/app-config/env-config/scheduled_jobs.tf`).
+
+Pages a person is waiting on give the engine 10 seconds; background
+processing gives it 60. If the engine doesn't answer, the checklist shows
+without its estimate.
+
+Not yet done: jobs run inside the web process. That is enough with the
+scheduled sweep behind it, but a production service should run them in
+separate workers with a durable queue.
 
 The automatic checks are in `app/services/return_processing/screen.rb`:
 income lower or withholding higher than the payer reported, a record on file

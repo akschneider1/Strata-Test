@@ -8,7 +8,7 @@ module ReturnProcessing
     def self.call(kase)
       tax_return = kase.tax_return
       facts = TaxEngine::Facts.from_tax_return(tax_return)
-      calculation = tax_return.calculate!
+      calculation = tax_return.calculate!(client: TaxEngine.client(timeout: ReturnProcessing::BACKGROUND_TIMEOUT))
 
       Strata::AuditLog.record do |log|
         kase.update!(facts: kase.facts.merge("filed_facts" => facts.to_h, "filed_calculation" => calculation.data))
