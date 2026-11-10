@@ -6,4 +6,19 @@ namespace :tax do
     processed = ReturnProcessing.process_pending
     puts "Processed #{processed} return(s); #{ReturnProcessing.pending.count} still waiting"
   end
+
+  desc "Estimate the share of returns the automatic checks would flag. Usage: tax:review_rate[500]"
+  task :review_rate, [ :returns ] => :environment do |_task, args|
+    ActiveRecord::Base.logger = nil
+    result = ReviewRateStudy.new(returns: (args[:returns] || 500).to_i).run
+    puts "Returns filed: #{result.returns} (#{result.seconds}s, tax engine: #{ENV.fetch('TAX_ENGINE_ADAPTER', 'http')})"
+    puts "Sent to an examiner: #{result.flagged} (#{result.flagged_share}%)"
+    puts "By reason (a return can have more than one):"
+    result.by_code.each { |code, count| puts format("  %-34s %5d  %5.1f%%   only reason on %d", code, count, result.share(count), result.only_code[code].to_i) }
+    puts "By household:"
+    result.by_household.sort.each do |household, count|
+      flagged = result.flagged_by_household[household].to_i
+      puts format("  %-22s %5d returns  %5d flagged  %5.1f%%", household, count, flagged, flagged * 100.0 / count)
+    end
+  end
 end
