@@ -28,6 +28,8 @@ What to learn from the IRS's own free filing service is in
 [docs/tax-portal/direct-file-lessons.md](docs/tax-portal/direct-file-lessons.md),
 and a script for testing the prototype with people is in
 [docs/tax-portal/usability-test-kit.md](docs/tax-portal/usability-test-kit.md).
+The UX audit of the taxpayer portal is in
+[docs/tax-portal/ux-audit.md](docs/tax-portal/ux-audit.md).
 
 ```bash
 bin/setup-env --postgres
