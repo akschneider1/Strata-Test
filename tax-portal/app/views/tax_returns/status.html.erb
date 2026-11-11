@@ -116,14 +116,14 @@
 <section class="margin-top-4" aria-labelledby="timeline-heading">
   <h2 id="timeline-heading" class="font-heading-lg"><%= t(".timeline_heading") %></h2>
   <ol class="usa-list usa-list--unstyled border-top-1px border-base-lighter" data-testid="timeline">
-    <li class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
+    <li class="display-flex flex-justify flex-wrap gap-1 border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
       <span><%= t(".timeline.submitted") %></span>
       <span class="text-base-dark text-right text-no-wrap"><%= short_time(@tax_return.submitted_at) %></span>
     </li>
     <% @case.audit_lines.order(:created_at).each do |line| %>
       <% key = line.action == "return.screened" ? (line.data["flags"].present? ? "screened_flagged" : "screened_clear") : timeline_keys[line.action] %>
       <% next unless key %>
-      <li class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
+      <li class="display-flex flex-justify flex-wrap gap-1 border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
         <span><%= t(".timeline.#{key}") %></span>
         <span class="text-base-dark text-right text-no-wrap"><%= short_time(line.created_at) %></span>
       </li>

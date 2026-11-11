@@ -168,7 +168,7 @@ test.describe('Taxpayer on a phone', () => {
     await expectAccessible(page);
     await page.getByRole('link', { name: 'Back' }).first().click();
 
-    await page.getByRole('button', { name: 'Español' }).first().click();
+    await page.getByRole('link', { name: 'Español' }).first().click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'es-US');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Cómo calculamos su impuesto de Colorado'

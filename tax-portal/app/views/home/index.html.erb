@@ -36,7 +36,7 @@
                   <% unless loading %>
                     <div class="grid-col-12 tablet:grid-col-auto tablet:width-card-lg margin-top-2 tablet:margin-top-0 tablet:margin-left-3">
                       <%# The first person in each group is where the demo guide starts, so theirs is the main button. %>
-                      <%= button_to t(".demo_sign_in", name: person.first_name), demo_sign_in_path(person: person.key),
+                      <%= button_to t(".demo_sign_in", name: person.first_name), demo_sign_in_path(person: person.key, locale: I18n.locale),
                             form_class: "display-flex",
                             class: class_names("usa-button cods-button text-no-wrap margin-0 flex-fill", "usa-button--outline cods-button--secondary": index.positive?) %>
                     </div>
@@ -52,7 +52,7 @@
         <details class="margin-top-3" data-testid="demo-reset">
           <summary class="usa-link padding-y-105"><%= t(".demo_reset_summary") %></summary>
           <p class="measure-5"><%= t(".demo_reset_lead") %></p>
-          <%= button_to t(".demo_reset"), demo_reset_path, class: "usa-button usa-button--outline cods-button cods-button--secondary" %>
+          <%= button_to t(".demo_reset"), demo_reset_path(locale: I18n.locale), class: "usa-button usa-button--outline cods-button cods-button--secondary" %>
         </details>
       <% end %>
     </section>

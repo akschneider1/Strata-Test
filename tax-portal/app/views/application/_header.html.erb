@@ -28,11 +28,11 @@
               <% if current_user.provider == "demo" %>
                 <%# In a demo, the way back to the list of people. %>
                 <li class="usa-nav__primary-item">
-                  <%= button_to t("header.switch_person"), demo_sign_out_path, method: :delete, class: "usa-nav-link", data: { testid: "switch-person" } %>
+                  <%= button_to t("header.switch_person"), demo_sign_out_path(locale: I18n.locale), method: :delete, class: "usa-nav-link", data: { testid: "switch-person" } %>
                 </li>
               <% end %>
               <li class="usa-nav__primary-item">
-                <%= button_to t('header.logout'), current_user.provider == "demo" ? demo_sign_out_path : destroy_user_session_path, method: :delete, class: "usa-nav-link" %>
+                <%= button_to t('header.logout'), current_user.provider == "demo" ? demo_sign_out_path(locale: I18n.locale) : destroy_user_session_path, method: :delete, class: "usa-nav-link" %>
               </li>
             <% end %>
         </ul>
