@@ -58,10 +58,14 @@ module StaffHelper
     end
   end
 
-  def audit_line_summary(line)
+  # `brief: true` leaves out the tax engine's name and version, for the
+  # dashboard. The return's History keeps them.
+  def audit_line_summary(line, brief: false)
     data = line.data.symbolize_keys
     case line.action
     when "return.calculated"
+      return t("staff.history.calculated_brief", result: result_phrase(data[:refund], data[:amount_owed])) if brief
+
       t("staff.history.calculated", engine: data[:engine], version: data[:engine_version], result: result_phrase(data[:refund], data[:amount_owed]))
     when "return.screened"
       data[:flags].present? ? t("staff.history.flagged", count: data[:flags].size) : t("staff.history.cleared")

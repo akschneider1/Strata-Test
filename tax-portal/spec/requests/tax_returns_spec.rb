@@ -219,6 +219,16 @@ RSpec.describe "Taxpayer portal" do
       expect(tax_return.tax_return_case.reload.step).to eq("review_return")
     end
 
+    it "shows the date fields and the step indicator in Spanish" do
+      tax_return = create(:tax_return, user: taxpayer)
+
+      get edit_filer_identity_tax_return_path(tax_return, locale: "es-US")
+
+      expect(response.body).to include(">Mes</label>", ">Día</label>", ">Año</label>", ">Enero</option>")
+      expect(response.body).not_to include(">Month</label>", ">January</option>")
+      expect(response.body).to include("de 4")
+    end
+
     it "serves the interview in Spanish" do
       tax_return = create(:tax_return, user: taxpayer)
 

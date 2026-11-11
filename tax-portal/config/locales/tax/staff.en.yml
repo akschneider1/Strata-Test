@@ -101,6 +101,7 @@ en:
       difference: "Difference: %{amount}."
     history:
       calculated: "Return calculated: %{result} (%{engine} %{version})"
+      calculated_brief: "Return calculated: %{result}"
       cleared: "Automatic checks found nothing to review"
       flagged:
         one: "Automatic checks raised 1 flag"
@@ -152,7 +153,7 @@ en:
       gap: "More pages"
     measures:
       title: "Service measures"
-      lead: "How returns are moving through processing, from what the system already records."
+      lead: "How returns are moving through processing, from what the system already records. In the demo these count a handful of made-up returns, so read them as what the page measures, not how a real service would perform."
       none: "No returns have been filed yet."
       not_yet: "None yet"
       under_a_minute: "Under a minute"

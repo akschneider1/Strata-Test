@@ -776,7 +776,7 @@ en:
             adjusted_amount:
               not_a_number: "Enter the new amount in whole dollars"
               unchanged: "Enter an amount different from the current one"
-            reason: { blank: "Explain the change. The taxpayer will see this." }
+            reason: { blank: "Explain why you changed the amount" }
         case_note:
           # Messages are complete sentences that say what to do.
           format: "%{message}"

@@ -168,7 +168,7 @@ RSpec.describe "Examiner portal" do
       post adjust_tax_return_case_path(kase), params: { return_adjustment: { field: "", adjusted_amount: "", reason: "" } }
 
       expect(response).to have_http_status(:unprocessable_content)
-      expect(response.body).to include("Choose the amount to change", "Explain the change")
+      expect(response.body).to include("Choose the amount to change", "Explain why you changed the amount")
     end
 
     it "asks the taxpayer a question and adds notes" do

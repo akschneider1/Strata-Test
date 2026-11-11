@@ -50,7 +50,7 @@
       <% @recent_activity.each do |line| %>
         <li class="border-top-1px border-base-lighter padding-y-105 maxw-none">
           <% if (kase = @recent_cases[line.subject_id]) %><strong><%= kase.tax_return.filer_full_name %>:</strong><% end %>
-          <%= link_to audit_line_summary(line), tax_return_case_path(line.subject_id), class: "usa-link" %>
+          <%= link_to audit_line_summary(line, brief: true), tax_return_case_path(line.subject_id), class: "usa-link" %>
           <span class="text-base-dark font-body-2xs display-block margin-top-05"><%= actor_name(line) %> · <%= staff_time(line.created_at) %></span>
         </li>
       <% end %>

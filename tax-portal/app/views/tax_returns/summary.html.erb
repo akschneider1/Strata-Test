@@ -1,5 +1,4 @@
 <% content_for :title, t(".title") %>
-<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
 <% status = @calculation.filing_status %>
 <% credits = @calculation.credits_received %>
 
@@ -11,9 +10,10 @@
 
 <%= render "result", calculation: @calculation, breakdown: true %>
 
-<%# At a glance: the two things nobody had to work out for themselves. %>
-<div class="usa-card-group cods-card-group margin-top-3">
-  <section class="usa-card cods-card maxw-none" aria-labelledby="filing-status-heading">
+<%# At a glance: the two things nobody had to work out for themselves. Beside the steps on a wide screen, above them on a phone. %>
+<div class="grid-row grid-gap-4">
+<div class="grid-col-12 desktop:grid-col-4 desktop:order-2 margin-top-3">
+  <section class="cods-card maxw-none margin-bottom-2" aria-labelledby="filing-status-heading">
     <div class="usa-card__container cods-card__container">
       <div class="usa-card__header cods-card__header">
         <h2 id="filing-status-heading" class="usa-card__heading cods-card__heading"><%= t(".filing_status_heading", status: t("filing_statuses.#{status}")) %></h2>
@@ -26,7 +26,7 @@
     </div>
   </section>
   <% if credits.any? %>
-    <section class="usa-card cods-card maxw-none" aria-labelledby="credits-glance-heading">
+    <section class="cods-card maxw-none margin-bottom-2" aria-labelledby="credits-glance-heading">
       <div class="usa-card__container cods-card__container">
         <div class="usa-card__header cods-card__header">
           <h2 id="credits-glance-heading" class="usa-card__heading cods-card__heading"><%= t(".credits_heading") %></h2>
@@ -46,6 +46,7 @@
   <% end %>
 </div>
 
+<div class="grid-col-12 desktop:grid-col-8 desktop:order-1">
 <%= render "calculation", calculation: @calculation, tax_year: @tax_return.tax_year %>
 
 <section class="usa-summary-box margin-top-5" aria-labelledby="new-rates-heading">
@@ -59,3 +60,5 @@
 </section>
 
 <p class="margin-top-4"><%= render partial: "strata/shared/exit_link", locals: { exit_path: tax_return_path(@tax_return), exit_text: t("shared.back") } %></p>
+</div>
+</div>

@@ -72,6 +72,24 @@ RSpec.describe "Home page" do
       expect(response.body).to include("You owe", "can&#39;t take payments yet")
     end
 
+    it "keeps Spanish when a visitor chooses a person, and when they switch" do
+      get "/es-us"
+      expect(response.body).to include("/demo/sign_in?locale=es-US")
+
+      post demo_sign_in_path(person: "maya", locale: "es-US")
+      expect(response.location).to include("/es-us/")
+
+      delete demo_sign_out_path(locale: "es-US")
+      expect(response.location).to end_with("/es-us")
+    end
+
+    it "falls back to English for a language it doesn't have" do
+      get "/about", params: { locale: "zz" }
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('lang="en"')
+    end
+
     it "is available in Spanish" do
       get "/es-us"
 

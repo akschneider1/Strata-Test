@@ -9,7 +9,6 @@
     <%= tag.meta "http-equiv": "refresh", content: "3" %>
   <% end %>
 <% end %>
-<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
 <% timeline_keys = {
   "return.calculated" => "calculated",
   "review.information_requested" => "information_requested",
@@ -22,6 +21,9 @@
 
 <% hero t(".title", tax_year: year) %>
 
+<%# The timeline sits beside the details on a wide screen, and under them on a phone. %>
+<div class="grid-row grid-gap-4">
+<div class="grid-col-12 desktop:grid-col-8">
 <% alert_type = { accepted: :success, needs_information: :warning, not_accepted: :error }.fetch(stage, :info) %>
 <%# An accepted return with tax due is not a "success" for the taxpayer: there is still something to do. %>
 <% alert_type = :info if stage == :accepted && @calculation.owes? %>
@@ -113,20 +115,23 @@
   </section>
 <% end %>
 
-<section class="margin-top-4" aria-labelledby="timeline-heading">
-  <h2 id="timeline-heading" class="font-heading-lg"><%= t(".timeline_heading") %></h2>
+</div>
+
+<section class="grid-col-12 desktop:grid-col-4 margin-top-4 desktop:margin-top-0" aria-labelledby="timeline-heading">
+  <h2 id="timeline-heading" class="font-heading-lg desktop:margin-top-0"><%= t(".timeline_heading") %></h2>
   <ol class="usa-list usa-list--unstyled border-top-1px border-base-lighter" data-testid="timeline">
-    <li class="display-flex flex-justify flex-wrap gap-1 border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
+    <li class="display-flex flex-column border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
       <span><%= t(".timeline.submitted") %></span>
-      <span class="text-base-dark text-right text-no-wrap"><%= short_time(@tax_return.submitted_at) %></span>
+      <span class="text-base-dark font-body-xs"><%= short_time(@tax_return.submitted_at) %></span>
     </li>
     <% @case.audit_lines.order(:created_at).each do |line| %>
       <% key = line.action == "return.screened" ? (line.data["flags"].present? ? "screened_flagged" : "screened_clear") : timeline_keys[line.action] %>
       <% next unless key %>
-      <li class="display-flex flex-justify flex-wrap gap-1 border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
+      <li class="display-flex flex-column border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
         <span><%= t(".timeline.#{key}") %></span>
-        <span class="text-base-dark text-right text-no-wrap"><%= short_time(line.created_at) %></span>
+        <span class="text-base-dark font-body-xs"><%= short_time(line.created_at) %></span>
       </li>
     <% end %>
   </ol>
 </section>
+</div>
