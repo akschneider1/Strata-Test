@@ -53,6 +53,7 @@ services:
     healthCheckPath: /health
     dockerCommand: >-
       sh -c "./bin/rails db:prepare &&
+      (./bin/rails tax:demo_warm &) &&
       exec ./bin/rails server -b 0.0.0.0"
     envVars:
       - key: RAILS_ENV

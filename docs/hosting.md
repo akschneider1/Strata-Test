@@ -109,31 +109,58 @@ about 2.8 GB of memory.
    Replit's Agent offers to set the project up or rewrite it, decline: the
    repository already has `.replit` and `replit.nix`.
 2. Wait for Replit to install the tools listed in `replit.nix`.
-3. Add a PostgreSQL database to the app (the Database tool). That sets
-   `DATABASE_URL`, which `bin/serve` reads.
+3. Don't add a Replit database. On Replit, `bin/serve` runs its own
+   Postgres on the same machine. Replit's database is on another machine,
+   and the trip to it made every page two to four times slower in testing.
+   Nothing in the demo needs to last: each visitor's copy is disposable.
 4. Make sure the workspace has at least 4 GB of memory.
 5. Press **Run**. The first run installs dependencies and builds the
    portal, which takes several minutes. The portal then opens on port 3100;
    visitors can choose a demo person about a minute later, once the tax
-   engine has loaded.
+   engine has loaded. A little after that the console says "Demo warmed
+   up", and from then on choosing a person takes about a second.
 
 ### Publish it
 
 1. Generate the secrets once, in the Replit shell, and add each line to the
-   app's **Secrets**. Leave out `DB_PASSWORD`; Replit's database has its own.
+   app's **Secrets**. Leave out `DB_PASSWORD`.
 
    ```bash
    bin/hosting-secrets
    ```
 
    Without this, a published app makes new secrets every time it is
-   republished, and the stored demo people can no longer be read.
+   republished. That signs visitors out but does no other harm, because
+   the demo starts clean on every start.
 2. Choose **Publish**, then **Reserved VM**. Autoscale won't work: the tax
    engine has to stay loaded in memory.
 3. Pick a machine with at least 4 GB of memory. 8 GB leaves headroom.
 4. Build command: `bin/serve --build`. Run command: `bin/serve`. (`.replit`
    already says so; check that the publish screen shows the same.)
-5. Make sure the published app has the database and the secrets attached.
+5. Make sure the published app has the secrets attached. If a Replit
+   database is attached from an earlier setup, it is ignored; you can
+   remove it.
+
+### If it is slow
+
+Open `/demo/diagnostics` on the running app. It times one trip to the
+database, one trip to the tax engine and one new calculation, and shows the
+processors and memory. The page says what good looks like and what each
+slow number means.
+
+What to expect:
+
+- **After any restart**, the tax engine takes about a minute to load, then
+  about another half minute to warm up. Until "Demo warmed up" appears in
+  the console, a visitor's first click can take ten seconds or more.
+- **A machine that sleeps when idle** goes through that every time it
+  wakes. A Reserved VM that stays on avoids it.
+- **A slow processor** makes each new calculation slow. The demo people are
+  calculated ahead of time, so they stay fast. A return someone types in
+  waits for one calculation at the checklist and at review.
+
+The console shows one line per page with how long it took
+(`portal: ... Completed 200 OK in 85ms`).
 
 Every visitor has their own copy of the demo, so there is nothing to reset
 between showings. A visitor can choose **Start the demo over** on the home
@@ -153,6 +180,9 @@ Replit:
 | "an open port was not detected" when publishing | The run command isn't `bin/serve`, or the build step was skipped and the first start is slow | Set the build command to `bin/serve --build` |
 | The app stops or restarts after a minute | Out of memory while the tax engine loads | Use a larger machine |
 | The home page says "The demo is getting ready" and has no buttons | The tax engine hasn't finished loading, or failed | Wait a minute; then look at `tmp/serve/engine.log` |
+| "SERVE_DATABASE=local needs the Postgres server programs" | `initdb` isn't installed | Check `pkgs.postgresql` is in `replit.nix`, or set `SERVE_DATABASE=url` and add a database |
+| "Starting the database failed" | See `tmp/serve/postgres.log` | Often a port clash: set `SERVE_DATABASE_PORT` to another port |
+| Every page takes a second or more | Open `/demo/diagnostics` | See [If it is slow](#if-it-is-slow) |
 
 Logs are in `tmp/serve/`. Send the last lines of the one that failed and it
 can usually be fixed quickly.

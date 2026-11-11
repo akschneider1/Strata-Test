@@ -16,6 +16,13 @@ namespace :tax do
     puts "Processed #{processed} return(s); #{ReturnProcessing.pending.count} still waiting"
   end
 
+  desc "Get the demo ready before the first visitor: run the demo households through the tax engine once"
+  task demo_warm: :environment do
+    ActiveRecord::Base.logger = nil
+    result = DemoWarmup.run
+    puts "Demo warmed up: #{result.households} households in #{result.seconds}s"
+  end
+
   desc "Estimate the share of returns the automatic checks would flag. Usage: tax:review_rate[500]"
   task :review_rate, [ :returns ] => :environment do |_task, args|
     ActiveRecord::Base.logger = nil

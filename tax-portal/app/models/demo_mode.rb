@@ -36,8 +36,10 @@ module DemoMode
 
   # Whether the tax engine has loaded its rules. A new copy of the demo files
   # a few returns, which needs it.
+  # Once it is ready it stays ready, so the answer is remembered and the
+  # home page doesn't ask the engine on every visit.
   def self.ready?
-    TaxEngine.client(timeout: 3).status&.fetch("ready", false) == true
+    @ready ||= TaxEngine.client(timeout: 3).status&.fetch("ready", false) == true
   rescue TaxEngine::Error
     false
   end

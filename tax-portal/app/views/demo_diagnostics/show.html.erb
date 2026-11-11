@@ -1,0 +1,31 @@
+<% content_for :title, t(".title") %>
+<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
+<% hero t(".title"), intro: t(".lead") %>
+<% d = @diagnostics %>
+<% database = d.database_round_trip_ms %>
+<% engine = d.engine_round_trip_ms %>
+<% calculation = d.new_calculation_ms %>
+<% memory = d.memory_gb %>
+<% unit = ->(value) { value ? t(".milliseconds", count: number_with_delimiter(value)) : t(".no_answer") } %>
+
+<table class="usa-table usa-table--borderless width-full" data-testid="diagnostics">
+  <caption class="usa-sr-only"><%= t(".title") %></caption>
+  <thead>
+    <tr><th scope="col"><%= t(".measure") %></th><th scope="col"><%= t(".result") %></th><th scope="col"><%= t(".good") %></th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row"><%= t(".database") %></th><td data-testid="database-ms"><%= unit.call(database) %></td><td><%= t(".database_good") %></td></tr>
+    <tr><th scope="row"><%= t(".database_place") %></th><td><%= d.database_on_this_machine? ? t(".this_machine") : t(".another_machine") %></td><td><%= t(".this_machine") %></td></tr>
+    <tr><th scope="row"><%= t(".engine") %></th><td><%= unit.call(engine) %></td><td><%= t(".engine_good") %></td></tr>
+    <tr><th scope="row"><%= t(".engine_ready") %></th><td><%= d.engine_ready? ? t(".yes") : t(".no") %></td><td><%= t(".yes") %></td></tr>
+    <tr><th scope="row"><%= t(".calculation") %></th><td data-testid="calculation-ms"><%= unit.call(calculation) %></td><td><%= t(".calculation_good") %></td></tr>
+    <tr><th scope="row"><%= t(".processors") %></th><td><%= d.processors %></td><td><%= t(".processors_good") %></td></tr>
+    <tr><th scope="row"><%= t(".memory") %></th><td><%= memory ? t(".memory_value", total: memory[0], available: memory[1]) : t(".no_answer") %></td><td><%= t(".memory_good") %></td></tr>
+    <tr><th scope="row"><%= t(".copies") %></th><td><%= d.demo_copies %></td><td></td></tr>
+  </tbody>
+</table>
+
+<h2><%= t(".reading_heading") %></h2>
+<ul class="usa-list measure-5">
+  <% t(".reading").each do |item| %><li><%= item %></li><% end %>
+</ul>

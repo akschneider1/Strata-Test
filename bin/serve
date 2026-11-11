@@ -16,6 +16,12 @@
 # Settings (all optional):
 #   PORT           Port the portal listens on (default 3100). Most hosts set this.
 #   ENGINE_PORT    Port the tax engine listens on, on this machine only (default 3200).
+#   SERVE_DATABASE "local" runs a private Postgres on this machine (data in
+#                  tmp/serve/pgdata) and ignores DATABASE_URL. Fastest, and
+#                  fine for a demo: every visitor's copy is disposable. Needs
+#                  the Postgres server programs (initdb, pg_ctl). This is the
+#                  default on Replit. "url" uses DATABASE_URL (or the DB_*
+#                  settings) and is the default everywhere else.
 #   DATABASE_URL   postgres://user:password@host:port/database. Both apps share
 #                  the one database. Default: the local Postgres from
 #                  bin/setup-env --postgres.
@@ -118,7 +124,42 @@ fi
 [[ -f "$BUILD_MARKER" && "$(cat "$BUILD_MARKER")" == "$(source_version)" ]] || build
 
 # -- Database ---------------------------------------------------------------
-if [[ -n "${DATABASE_URL:-}" ]]; then
+LOCAL_DB=false
+# On Replit the offered database is on another machine, which makes every
+# page slow, so keep the database here unless told otherwise.
+if [[ -z "${SERVE_DATABASE:-}" && -n "${REPL_ID:-}${REPLIT_DEPLOYMENT:-}" ]]; then SERVE_DATABASE=local; fi
+if [[ "${SERVE_DATABASE:-}" == local ]]; then
+  # A Postgres of our own, on this machine. A database on another machine
+  # adds a network trip to every query, and a page makes ten or more.
+  LOCAL_DB=true
+  if ! have initdb; then
+    for dir in /usr/lib/postgresql/*/bin; do [[ -x "$dir/initdb" ]] && PATH="$dir:$PATH"; done
+  fi
+  if ! have initdb || ! have pg_ctl; then die "SERVE_DATABASE=local needs the Postgres server programs (initdb, pg_ctl)."; fi
+  PGDATA_DIR="${SERVE_DATABASE_DIR:-$REPO_ROOT/tmp/serve/pgdata}"
+  # Postgres won't run as root. Where we are root, run it as the postgres user.
+  pg_run() {
+    if [[ "$(id -u)" == 0 ]]; then runuser -u postgres -- env "PATH=$PATH" "$@"; else "$@"; fi
+  }
+  mkdir -p "$PGDATA_DIR"
+  if [[ "$(id -u)" == 0 ]]; then chown postgres "$PGDATA_DIR" "$LOG_DIR"; fi
+  if [[ ! -f "$PGDATA_DIR/PG_VERSION" ]]; then
+    log "Creating a database on this machine"
+    pg_run initdb -D "$PGDATA_DIR" -U app --auth=trust -E UTF8 >"$LOG_DIR/postgres-init.log" 2>&1 ||
+      die "Creating the database failed. See $LOG_DIR/postgres-init.log."
+  fi
+  unset DATABASE_URL
+  export DB_HOST=127.0.0.1 DB_PORT="${SERVE_DATABASE_PORT:-5433}" DB_USER=app DB_PASSWORD=unused
+  export DB_NAME=tax_prototype_hosted DB_SSL_MODE=disable
+  pg_run pg_ctl -D "$PGDATA_DIR" status >/dev/null 2>&1 ||
+    pg_run pg_ctl -D "$PGDATA_DIR" -l "$LOG_DIR/postgres.log" -w \
+      -o "-p $DB_PORT -c listen_addresses=127.0.0.1 -c unix_socket_directories=$PGDATA_DIR" start >/dev/null ||
+    die "Starting the database failed. See $LOG_DIR/postgres.log."
+  ok "database running on this machine"
+  # Copies of the demo from an earlier run may have been written with other
+  # secrets. Nothing in them needs keeping, so start clean.
+  RESET=true
+elif [[ -n "${DATABASE_URL:-}" ]]; then
   # Both apps read DB_* settings, so split the URL into them.
   eval "$(
     python3 - "$DATABASE_URL" <<'PY'
@@ -173,6 +214,7 @@ stop() {
   trap - EXIT INT TERM
   for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; done
   wait 2>/dev/null || true
+  if [[ "$LOCAL_DB" == true ]]; then pg_run pg_ctl -D "$PGDATA_DIR" -m fast stop >/dev/null 2>&1 || true; fi
 }
 trap stop EXIT INT TERM
 
@@ -206,7 +248,9 @@ fi
 # Start the portal before the engine is ready, so the host sees an open port
 # and a working home page straight away.
 log "Starting the portal on port $PORTAL_PORT"
-bin/rails server -p "$PORTAL_PORT" -b 0.0.0.0 >"$LOG_DIR/portal.log" 2>&1 &
+# The full log goes to a file. The console gets one line per request with
+# how long it took, so a host's log panel shows where time goes.
+bin/rails server -p "$PORTAL_PORT" -b 0.0.0.0 > >(tee "$LOG_DIR/portal.log" | grep --line-buffered -E "Completed [0-9]+|FATAL|Error" | sed -u 's/^/portal: /' >&2) 2>&1 &
 pids+=($!)
 for _ in $(seq 1 90); do
   curl -fsS "http://127.0.0.1:$PORTAL_PORT/up" >/dev/null 2>&1 && break
@@ -225,9 +269,20 @@ done
 engine_ready || die "The tax engine did not start. See $LOG_DIR/engine.log."
 ok "tax engine ready"
 
+# The engine's first calculations are slow. Run the demo households through
+# it now, in the background, so the first visitor doesn't wait for them.
+(
+  if bin/rails tax:demo_warm >"$LOG_DIR/warm.log" 2>&1; then
+    ok "$(tail -1 "$LOG_DIR/warm.log")"
+  else
+    warn "Warming up the demo failed. The first visitor will wait longer. See $LOG_DIR/warm.log."
+  fi
+) &
+
 ok "ready"
 log "Logs: tmp/serve/   Stop: Ctrl-C"
 
-# Stop everything if either app exits.
-wait -n
+# Stop everything if either app exits. (Name them: the warm-up above also
+# runs in the background, and finishing is not a failure.)
+wait -n "${pids[@]}"
 die "One of the apps stopped. See $LOG_DIR."

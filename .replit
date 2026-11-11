@@ -3,6 +3,8 @@
 #
 # In the workspace, Run starts both apps on port 3100.
 # To publish, choose a Reserved VM with at least 4 GB of memory.
+# On Replit, bin/serve keeps its database on the same machine (see
+# SERVE_DATABASE in bin/serve). No Replit database is needed.
 run = "bin/serve"
 entrypoint = "README.md"
 

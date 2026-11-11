@@ -90,6 +90,7 @@ services:
       - -c
       - >-
         ./bin/rails db:prepare &&
+        (./bin/rails tax:demo_warm &) &&
         exec ./bin/rails server -b 0.0.0.0 -p 3100
     ports:
       - "${PORT:-3100}:3100"
