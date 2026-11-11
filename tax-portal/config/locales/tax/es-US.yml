@@ -321,6 +321,11 @@ es-US:
       even_heading: "No debe nada y no le corresponde un reembolso"
       filing_status_heading: "Su estado civil para efectos de la declaración: %{status}"
       credits_heading: "Créditos y reembolsos a los que tiene derecho"
+      glance_label: "Cómo llegamos a esta cantidad"
+      glance:
+        tax: "Su impuesto de Colorado"
+        credits: "Créditos y reembolsos"
+        withheld: "Impuesto que ya pagó"
       credits_none_heading: "Créditos que revisamos y a los que no tiene derecho"
       not_qualified: "No aplica"
       adjusted_note: "El Departamento cambió algunas cantidades de su declaración. Este es el cálculo después de esos cambios."
@@ -421,6 +426,8 @@ es-US:
         reason_heading: "Por qué no pudimos aceptarla"
     status:
       title: "Su declaración de Colorado de %{tax_year}"
+      details_heading: "Los datos de su presentación"
+      stage_label: "Estado"
       confirmation: "Número de confirmación"
       submitted_on: "Enviada"
       timeline_heading: "Qué ha pasado"

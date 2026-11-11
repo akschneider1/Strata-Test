@@ -1,5 +1,4 @@
 <% content_for :title, t(".title") %>
-<%= content_for :content_col_class, "desktop:grid-col-10" %>
 <%# A visitor's first choice files a few returns, which needs the tax engine. While it loads its rules, check again shortly. Turbo ignores a refresh tag swapped in, so ask for a full load. %>
 <% loading = @demo_mode && !@demo_ready && !@has_space %>
 <% if loading %>
@@ -12,60 +11,80 @@
 <% hero t(".title"), intro: t(".lead"), home: false %>
 
 <% if @demo_mode %>
-  <section aria-labelledby="demo-heading">
-    <h2 id="demo-heading" class="font-heading-lg"><%= t(".demo_heading") %></h2>
-    <p class="measure-5"><%= t(".demo_lead") %></p>
+  <div class="grid-row grid-gap desktop:grid-gap-6">
+    <section class="desktop:grid-col-8" aria-labelledby="demo-heading">
+      <h2 id="demo-heading" class="font-heading-lg margin-top-0"><%= t(".demo_heading") %></h2>
+      <p class="measure-5"><%= t(".demo_lead") %></p>
 
-    <% if loading %>
-      <%= cods_alert(:info, heading: t(".demo_loading_heading"), data: { testid: "demo-loading" }) { t(".demo_loading") } %>
-    <% end %>
+      <% if loading %>
+        <%= cods_alert(:info, heading: t(".demo_loading_heading"), data: { testid: "demo-loading" }) { t(".demo_loading") } %>
+      <% end %>
 
-    <% { taxpayer: t(".demo_taxpayers"), examiner: t(".demo_examiners") }.each do |role, heading| %>
-      <% people = @people.select { |person| person.role == role.to_s } %>
-      <h3 class="font-heading-md margin-top-3"><%= heading %></h3>
-      <ul class="usa-list usa-list--unstyled display-flex flex-column gap-2" data-testid="demo-<%= role %>s">
-        <% people.each do |person| %>
-          <li class="cods-card maxw-none margin-bottom-2">
-            <div class="usa-card__container cods-card__container padding-2 grid-row grid-gap flex-align-center flex-row">
-              <div class="tablet:grid-col-fill">
-                <h4 class="usa-card__heading cods-card__heading margin-0"><%= person.name %></h4>
-                <p class="margin-top-05 margin-bottom-0"><%= t("demo_users.#{person.key}") %></p>
-              </div>
-              <% unless loading %>
-                <div class="tablet:grid-col-auto margin-top-2 tablet:margin-top-0">
-                  <%= button_to t(".demo_sign_in", name: person.first_name), demo_sign_in_path(person: person.key), class: "usa-button cods-button text-no-wrap margin-0" %>
+      <% { taxpayer: t(".demo_taxpayers"), examiner: t(".demo_examiners") }.each do |role, heading| %>
+        <% people = @people.select { |person| person.role == role.to_s } %>
+        <h3 class="font-heading-md margin-top-4 margin-bottom-2"><%= heading %></h3>
+        <ul class="add-list-reset" data-testid="demo-<%= role %>s">
+          <% people.each_with_index do |person, index| %>
+            <%# CoDS zeroes a card's own margin, so the list item carries the space between cards. %>
+            <li class="margin-bottom-2">
+              <div class="cods-card maxw-none">
+                <div class="usa-card__container cods-card__container padding-3 grid-row flex-align-center flex-row">
+                  <div class="tablet:grid-col-fill">
+                    <h4 class="usa-card__heading cods-card__heading margin-0"><%= person.name %></h4>
+                    <p class="margin-top-05 margin-bottom-0"><%= t("demo_users.#{person.key}") %></p>
+                  </div>
+                  <% unless loading %>
+                    <div class="grid-col-12 tablet:grid-col-auto tablet:width-card-lg margin-top-2 tablet:margin-top-0 tablet:margin-left-3">
+                      <%# The first person in each group is where the demo guide starts, so theirs is the main button. %>
+                      <%= button_to t(".demo_sign_in", name: person.first_name), demo_sign_in_path(person: person.key),
+                            form_class: "display-flex",
+                            class: class_names("usa-button cods-button text-no-wrap margin-0 flex-fill", "usa-button--outline cods-button--secondary": index.positive?) %>
+                    </div>
+                  <% end %>
                 </div>
-              <% end %>
-            </div>
-          </li>
-        <% end %>
-      </ul>
-    <% end %>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
 
-    <h3 class="font-heading-md margin-top-3"><%= t(".demo_how_heading") %></h3>
+      <% if @has_space %>
+        <details class="margin-top-3" data-testid="demo-reset">
+          <summary class="usa-link padding-y-105"><%= t(".demo_reset_summary") %></summary>
+          <p class="measure-5"><%= t(".demo_reset_lead") %></p>
+          <%= button_to t(".demo_reset"), demo_reset_path, class: "usa-button usa-button--outline cods-button cods-button--secondary" %>
+        </details>
+      <% end %>
+    </section>
+
+    <div class="desktop:grid-col-4 margin-top-4 desktop:margin-top-0">
+      <section class="usa-summary-box margin-top-0" aria-labelledby="demo-how-heading">
+        <div class="usa-summary-box__body">
+          <h3 id="demo-how-heading" class="usa-summary-box__heading"><%= t(".demo_how_heading") %></h3>
+          <div class="usa-summary-box__text">
+            <ul class="usa-list">
+              <% t(".demo_how").each do |item| %><li><%= item %></li><% end %>
+            </ul>
+            <p class="margin-bottom-0"><%= link_to t(".about_link"), about_path, class: "usa-link usa-summary-box__link" %></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="margin-top-4" aria-labelledby="different-heading">
+        <h2 id="different-heading" class="font-heading-lg"><%= t(".what_you_get_heading") %></h2>
+        <ul class="usa-list">
+          <% t(".what_you_get").each do |item| %><li><%= item %></li><% end %>
+        </ul>
+      </section>
+    </div>
+  </div>
+<% else %>
+  <section aria-labelledby="different-heading">
+    <h2 id="different-heading" class="font-heading-lg margin-top-0"><%= t(".what_you_get_heading") %></h2>
     <ul class="usa-list measure-5">
-      <% t(".demo_how").each do |item| %><li><%= item %></li><% end %>
+      <% t(".what_you_get").each do |item| %><li><%= item %></li><% end %>
     </ul>
-
-    <p class="margin-top-2"><%= link_to t(".about_link"), about_path, class: "usa-link display-inline-block padding-y-105" %></p>
-
-    <% if @has_space %>
-      <details class="margin-top-2" data-testid="demo-reset">
-        <summary class="usa-link padding-y-105"><%= t(".demo_reset_summary") %></summary>
-        <p class="measure-5"><%= t(".demo_reset_lead") %></p>
-        <%= button_to t(".demo_reset"), demo_reset_path, class: "usa-button usa-button--outline cods-button cods-button--secondary" %>
-      </details>
-    <% end %>
   </section>
-<% end %>
 
-<section class="margin-top-4" aria-labelledby="different-heading">
-  <h2 id="different-heading" class="font-heading-lg"><%= t(".what_you_get_heading") %></h2>
-  <ul class="usa-list measure-5">
-    <% t(".what_you_get").each do |item| %><li><%= item %></li><% end %>
-  </ul>
-</section>
-
-<% unless @demo_mode %>
   <p class="margin-top-4"><%= link_to t(".sign_in"), new_user_session_path, class: "usa-button usa-button--big cods-button" %></p>
 <% end %>

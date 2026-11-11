@@ -2,7 +2,9 @@
 <% under_review = @case.step == "review_return" %>
 <% second_approval = under_review && ReturnProcessing::ExaminerActions.new(@case, current_user).needs_second_approval? %>
 <% content_for :title, t(".title", confirmation: tr.confirmation_number) %>
-<% fact = ->(label, value) { content_tag(:div, content_tag(:dt, label, class: "text-base-dark font-body-2xs") + content_tag(:dd, value, class: "margin-0 text-bold"), class: "margin-right-4 margin-bottom-1") } %>
+<% fact = ->(label, value) { content_tag(:div, content_tag(:dt, label, class: "text-base-dark font-body-2xs") + content_tag(:dd, value, class: "margin-0 margin-top-05 text-bold"), class: "margin-right-5 margin-bottom-2") } %>
+<% questions = @case.information_requests.order(:created_at).to_a %>
+<% adjustments = @case.return_adjustments.order(:created_at).includes(:adjusted_by).to_a %>
 
 <nav class="usa-breadcrumb cods-breadcrumbs padding-top-0" aria-label="Breadcrumbs">
   <ol class="usa-breadcrumb__list">
@@ -16,28 +18,31 @@
   <span data-testid="case-step" data-step="<%= @case.step %>"><%= case_status_tag(@case) %></span>
 </div>
 
-<dl class="display-flex flex-wrap margin-top-1 margin-bottom-3">
+<dl class="display-flex flex-wrap margin-top-2 margin-bottom-2 border-bottom-1px border-base-lighter">
+  <%= fact.call(t(".result_filed"), result_label(@filed_calculation.refund, @filed_calculation.amount_owed)) %>
+  <% if @case.adjusted_calculation %>
+    <%= fact.call(t(".result_current"), content_tag(:span, result_label(@calculation.refund, @calculation.amount_owed), data: { testid: "current-result" })) %>
+  <% end %>
   <%= fact.call(t(".ssn"), masked(tr.filer_ssn)) %>
   <%= fact.call(t(".filing_status"), t("filing_statuses.#{@filed_calculation.filing_status}")) %>
-  <%= fact.call(t(".submitted"), l(tr.submitted_at.in_time_zone("America/Denver"), format: :short)) %>
+  <%= fact.call(t(".submitted"), staff_time(tr.submitted_at)) %>
   <% if @task %>
     <%= fact.call(t(".assigned_to"), @task.assignee_id ? User.find(@task.assignee_id).display_name : t(".unassigned")) %>
     <%= fact.call(t(".due"), l(@task.due_on, format: :short)) %>
   <% end %>
-  <%= fact.call(t(".result_filed"), result_phrase(@filed_calculation.refund, @filed_calculation.amount_owed)) %>
-  <% if @case.adjusted_calculation %>
-    <%= fact.call(t(".result_current"), content_tag(:span, result_phrase(@calculation.refund, @calculation.amount_owed), data: { testid: "current-result" })) %>
-  <% end %>
 </dl>
 
-<div class="grid-row grid-gap-4">
+<div class="grid-row grid-gap-6">
   <div class="desktop:grid-col-8">
     <section aria-labelledby="flags-heading">
-      <h2 id="flags-heading" class="font-heading-lg margin-top-0"><%= t(".flags_heading") %></h2>
+      <h2 id="flags-heading" class="font-heading-lg margin-top-2">
+        <%= t(@flags.none? ? ".flags_heading_none" : (@case.step == "end" ? ".flags_heading_closed" : ".flags_heading")) %>
+      </h2>
       <% if @flags.any? %>
         <% @flags.each do |flag| %>
           <%= cods_alert(flag.resolved? ? :success : :warning, heading: t("staff.flags.#{flag.code}.title"), class: "margin-bottom-2", data: { flag: flag.code }) do %>
             <%= flag_description(flag) %>
+            <% if flag_difference(flag) %><strong><%= flag_difference(flag) %></strong><% end %>
             <% if flag.resolved? %><strong><%= t(".resolved") %>.</strong><% end %>
           <% end %>
         <% end %>
@@ -46,15 +51,16 @@
       <% end %>
     </section>
 
-    <section class="margin-top-4" aria-labelledby="income-heading">
-      <h2 id="income-heading" class="font-heading-lg"><%= t(".income_heading") %></h2>
-      <div class="usa-table-container--scrollable" tabindex="0">
-        <table class="usa-table usa-table--compact width-full font-body-xs">
+    <section class="margin-top-5" aria-labelledby="income-heading">
+      <h2 id="income-heading" class="font-heading-lg margin-bottom-0"><%= t(".income_heading") %></h2>
+      <p class="text-base-darker margin-top-05"><%= t(".income_lead") %></p>
+      <div class="usa-table-container--scrollable margin-top-0" tabindex="0">
+        <table class="usa-table usa-table--borderless width-full margin-top-0" data-testid="comparison">
           <caption class="usa-sr-only"><%= t(".income_heading") %></caption>
           <thead>
             <tr>
               <% %w[form reported_amount on_file_amount reported_withholding on_file_withholding status].each do |column| %>
-                <th scope="col"><%= t(".income_columns.#{column}") %></th>
+                <th scope="col"<%= ' class="text-right"'.html_safe if column.match?(/amount|withholding/) %>><%= t(".income_columns.#{column}") %></th>
               <% end %>
             </tr>
           </thead>
@@ -62,25 +68,28 @@
             <% @income_documents.each do |document| %>
               <% record = document.wage_record %>
               <% disputed = document.review_status == "disputed" %>
+              <%# A reported amount that differs from the record on file gets a "Differs" tag, so the mismatch does not depend on color. %>
               <% cell = ->(reported, on_file) do
                    differs = record && !disputed && reported != on_file
-                   content_tag(:td, money(reported) + (differs ? content_tag(:span, " #{t('.differs')}", class: "usa-sr-only") : ""), class: class_names("text-right", "bg-warning-lighter text-bold": differs))
+                   content_tag(:td, class: "text-right text-no-wrap", data: { differs: differs ? "true" : nil }) do
+                     differs ? safe_join([ cods_tag(t(".differs"), "yellow"), " ", content_tag(:strong, money(reported)) ]) : money(reported)
+                   end
                  end %>
               <tr>
-                <th scope="row"><%= income_kind_label(document.kind) %><% if tr.joint? %> · <%= document.owner == "filer" ? tr.filer_name_first : tr.spouse_name_first %><% end %><span class="display-block text-normal"><%= document.payer_name %></span></th>
+                <th scope="row"><%= income_kind_label(document.kind) %><% if tr.joint? %> · <%= document.owner == "filer" ? tr.filer_name_first : tr.spouse_name_first %><% end %><span class="display-block text-normal text-base-darker"><%= document.payer_name %></span></th>
                 <% if disputed %>
                   <td class="text-right"><%= t(".left_off") %></td>
                 <% else %>
                   <%= cell.call(document.amount, record&.amount) %>
                 <% end %>
-                <td class="text-right"><%= record ? money(record.amount) : t(".no_record") %></td>
+                <td class="text-right text-no-wrap"><%= record ? money(record.amount) : t(".no_record") %></td>
                 <% if disputed %>
                   <td class="text-right">—</td>
                 <% else %>
                   <%= cell.call(document.colorado_withholding, record&.colorado_withholding) %>
                 <% end %>
-                <td class="text-right"><%= record ? money(record.colorado_withholding) : t(".no_record") %></td>
-                <td><%= t("tax_returns.edit_income_documents.status.#{document.review_status}") %></td>
+                <td class="text-right text-no-wrap"><%= record ? money(record.colorado_withholding) : t(".no_record") %></td>
+                <td><%= t("staff.income_status.#{document.review_status}") %></td>
               </tr>
             <% end %>
           </tbody>
@@ -88,32 +97,10 @@
       </div>
     </section>
 
-    <section class="margin-top-4" aria-labelledby="household-heading">
-      <h2 id="household-heading" class="font-heading-lg"><%= t(".household_heading") %></h2>
-      <dl class="display-flex flex-wrap">
-        <% if tr.joint? %><%= fact.call(t(".spouse"), "#{tr.spouse_full_name} · #{masked(tr.spouse_ssn)}") %><% end %>
-        <%= fact.call(t(".dependents"), tr.dependents.any? ? tr.dependents.map { |d| "#{d.full_name} (#{d.age_at_year_end}, #{t("dependents.relationships.#{d.relationship}").downcase})" }.join("; ") : t(".none")) %>
-      </dl>
-    </section>
-
-    <% if @case.return_adjustments.any? %>
-      <section class="margin-top-4" aria-labelledby="adjustments-heading">
-        <h2 id="adjustments-heading" class="font-heading-lg"><%= t(".adjustments_heading") %></h2>
-        <ul class="usa-list">
-          <% @case.return_adjustments.order(:created_at).includes(:adjusted_by).each do |adjustment| %>
-            <li>
-              <strong><%= t("adjustable_fields.#{adjustment.field}") %>: <%= money(adjustment.filed_amount) %> → <%= money(adjustment.adjusted_amount) %></strong><br>
-              <%= t(".adjustment_by", name: adjustment.adjusted_by.display_name, reason: adjustment.reason) %>
-            </li>
-          <% end %>
-        </ul>
-      </section>
-    <% end %>
-
-    <% if @case.information_requests.any? %>
-      <section class="margin-top-4" aria-labelledby="questions-heading">
+    <% if questions.any? %>
+      <section class="margin-top-5" aria-labelledby="questions-heading">
         <h2 id="questions-heading" class="font-heading-lg"><%= t(".questions_heading") %></h2>
-        <% @case.information_requests.order(:created_at).each do |request| %>
+        <% questions.each do |request| %>
           <div class="border-left-05 border-base-light padding-left-2 margin-bottom-2">
             <p class="margin-y-05"><strong><%= t(".asked") %>:</strong> <%= request.question %></p>
             <% if request.answered? %>
@@ -126,6 +113,26 @@
       </section>
     <% end %>
 
+    <% if adjustments.any? %>
+      <section class="margin-top-5" aria-labelledby="adjustments-heading">
+        <h2 id="adjustments-heading" class="font-heading-lg"><%= t(".adjustments_heading") %></h2>
+        <% adjustments.each do |adjustment| %>
+          <div class="border-left-05 border-base-light padding-left-2 margin-bottom-2">
+            <p class="margin-y-05"><strong><%= t("adjustable_fields.#{adjustment.field}") %>: <%= money(adjustment.filed_amount) %> → <%= money(adjustment.adjusted_amount) %></strong></p>
+            <p class="margin-y-05"><%= t(".adjustment_by", name: adjustment.adjusted_by.display_name, reason: adjustment.reason) %></p>
+          </div>
+        <% end %>
+      </section>
+    <% end %>
+
+    <section class="margin-top-5" aria-labelledby="household-heading">
+      <h2 id="household-heading" class="font-heading-lg"><%= t(".household_heading") %></h2>
+      <dl class="display-flex flex-wrap margin-y-0">
+        <% if tr.joint? %><%= fact.call(t(".spouse"), "#{tr.spouse_full_name} · #{masked(tr.spouse_ssn)}") %><% end %>
+        <%= fact.call(t(".dependents"), tr.dependents.any? ? tr.dependents.map { |d| "#{d.full_name} (#{d.age_at_year_end}, #{t("dependents.relationships.#{d.relationship}").downcase})" }.join("; ") : t(".none")) %>
+      </dl>
+    </section>
+
     <section class="margin-top-4" aria-labelledby="calculation-heading">
       <h2 id="calculation-heading" class="font-heading-lg margin-bottom-0"><%= t(".calculation_heading") %></h2>
       <p class="text-base-darker margin-top-05"><%= t(".calculation_lead") %></p>
@@ -135,32 +142,32 @@
       </details>
     </section>
 
-    <section class="margin-top-4" id="notes" aria-labelledby="notes-heading">
+    <section class="margin-top-5" id="notes" aria-labelledby="notes-heading">
       <h2 id="notes-heading" class="font-heading-lg"><%= t(".notes_heading") %></h2>
       <% notes = @case.case_notes.order(:created_at).includes(:author) %>
       <% if notes.any? %>
         <% notes.each do |note| %>
           <div class="border-left-05 border-base-light padding-left-2 margin-bottom-2">
             <%= simple_format(note.body, class: "margin-y-05") %>
-            <p class="margin-y-05 font-body-2xs text-base-dark"><%= note.author.display_name %> · <%= l(note.created_at.in_time_zone("America/Denver"), format: :short) %></p>
+            <p class="margin-y-05 font-body-2xs text-base-dark"><%= note.author.display_name %> · <%= staff_time(note.created_at) %></p>
           </div>
         <% end %>
       <% else %>
         <p class="text-base-darker"><%= t(".no_notes") %></p>
       <% end %>
       <%= strata_form_with model: @note, url: add_note_tax_return_case_path(@case), method: :post do |f| %>
-        <%= f.text_area :body, label: t(".note_label"), hint: t(".note_hint"), rows: 3 %>
+        <%= f.text_area :body, label: t(".note_label"), hint: t(".note_hint"), rows: 2 %>
         <%= f.button t(".note_submit"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
       <% end %>
     </section>
 
-    <section class="margin-top-4" aria-labelledby="history-heading">
+    <section class="margin-top-5" aria-labelledby="history-heading">
       <h2 id="history-heading" class="font-heading-lg"><%= t(".history_heading") %></h2>
-      <ol class="usa-list usa-list--unstyled" data-testid="history">
+      <ol class="usa-list usa-list--unstyled border-bottom-1px border-base-lighter" data-testid="history">
         <% @history.each do |line| %>
-          <li class="border-top-1px border-base-lighter padding-y-1 maxw-none">
+          <li class="border-top-1px border-base-lighter padding-y-105 maxw-none">
             <%= audit_line_summary(line) %>
-            <span class="text-base-dark font-body-2xs display-block"><%= actor_name(line) %> · <%= l(line.created_at.in_time_zone("America/Denver"), format: :short) %></span>
+            <span class="text-base-dark font-body-2xs display-block margin-top-05"><%= actor_name(line) %> · <%= staff_time(line.created_at) %></span>
           </li>
         <% end %>
       </ol>
@@ -168,8 +175,8 @@
   </div>
 
   <aside class="desktop:grid-col-4" aria-labelledby="actions-heading">
-    <div class="border-1px border-base-light radius-md padding-3 position-sticky top-2">
-      <h2 id="actions-heading" class="font-heading-lg margin-top-0"><%= t(".actions_heading") %></h2>
+    <div class="usa-summary-box margin-top-2 position-sticky top-2" data-testid="actions">
+      <h2 id="actions-heading" class="usa-summary-box__heading font-heading-lg margin-top-0"><%= t(".actions_heading") %></h2>
       <% mine = @task && @task.assignee_id == current_user.id %>
       <% if under_review && !mine %>
         <p data-testid="not-assigned">
@@ -177,41 +184,50 @@
         </p>
         <%= button_to t(".assign_to_me"), assign_to_me_tax_return_case_path(@case), method: :patch, class: "usa-button cods-button" %>
       <% elsif under_review %>
+        <%# One main action, then the others folded away. A section opens by itself when its form has a mistake to fix. %>
+        <% panel = ->(id, heading, open: false, &block) do
+             content_tag(:h4, class: "usa-accordion__heading cods-accordion__heading") do
+               content_tag(:button, heading, type: "button", class: "usa-accordion__button cods-accordion__trigger", "aria-expanded": open.to_s, "aria-controls": id)
+             end + content_tag(:div, capture(&block), id: id, class: "usa-accordion__content cods-accordion__panel", hidden: !open)
+           end %>
         <h3 class="font-heading-md margin-top-0"><%= t(".approve_heading") %></h3>
-        <p class="margin-top-0 text-base-darker">
+        <p class="margin-top-0">
           <%= t(@case.return_adjustments.any? ? ".approve_hint_adjusted" : ".approve_hint_filed", result: result_phrase(@calculation.refund, @calculation.amount_owed)) %>
         </p>
         <% if second_approval %>
-          <p class="margin-top-0 text-base-darker" data-testid="second-approval-note"><%= t(".second_approval_note", amount: money(ReturnProcessing::ExaminerActions::SECOND_APPROVAL_THRESHOLD)) %></p>
+          <p class="margin-top-0" data-testid="second-approval-note"><%= t(".second_approval_note", amount: money(ReturnProcessing::ExaminerActions::SECOND_APPROVAL_THRESHOLD)) %></p>
         <% end %>
         <%= button_to t(@case.return_adjustments.any? ? ".approve_adjusted" : ".approve_as_filed"), approve_tax_return_case_path(@case), method: :patch, class: "usa-button cods-button" %>
 
-        <hr class="margin-y-3 border-base-lighter">
-        <h3 class="font-heading-md"><%= t(".adjust_heading") %></h3>
-        <%= strata_form_with model: @adjustment, url: adjust_tax_return_case_path(@case), method: :post do |f| %>
-          <% facts = @case.adjusted_facts %>
-          <%= f.select :field, [ [ t(".select"), "" ] ] + TaxEngine::Facts::ADJUSTABLE.keys.map { |field| [ "#{t("adjustable_fields.#{field}")} (#{t('.current_amount', amount: money(facts.value(field)))})", field ] }, { label: t(".adjust_field") } %>
-          <%= f.text_field :adjusted_amount, label: t(".adjust_amount"), prefix: "$", inputmode: "numeric" %>
-          <%= f.text_area :reason, label: t(".adjust_reason"), hint: t(".adjust_reason_hint"), rows: 3 %>
-          <%= f.button t(".adjust_submit"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
-        <% end %>
+        <h3 class="font-heading-md margin-top-4 margin-bottom-1"><%= t(".other_actions") %></h3>
+        <div class="usa-accordion usa-accordion--bordered cods-accordion bg-white" data-testid="other-actions">
+          <%= panel.call("action-ask", t(".request_heading"), open: @information_request.errors.any?) do %>
+            <%= strata_form_with model: @information_request, url: request_information_tax_return_case_path(@case), method: :post do |f| %>
+              <%= f.text_area :question, label: t(".request_question"), hint: t(".request_hint"), rows: 4 %>
+              <%= f.button t(".request_submit"), type: :submit, class: "usa-button cods-button margin-top-2" %>
+            <% end %>
+          <% end %>
 
-        <hr class="margin-y-3 border-base-lighter">
-        <h3 class="font-heading-md"><%= t(".request_heading") %></h3>
-        <%= strata_form_with model: @information_request, url: request_information_tax_return_case_path(@case), method: :post do |f| %>
-          <%= f.text_area :question, label: t(".request_question"), hint: t(".request_hint"), rows: 4 %>
-          <%= f.button t(".request_submit"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
-        <% end %>
+          <%= panel.call("action-adjust", t(".adjust_heading"), open: @adjustment.errors.any?) do %>
+            <%= strata_form_with model: @adjustment, url: adjust_tax_return_case_path(@case), method: :post do |f| %>
+              <% facts = @case.adjusted_facts %>
+              <%= f.select :field, [ [ t(".select"), "" ] ] + TaxEngine::Facts::ADJUSTABLE.keys.map { |field| [ "#{t("adjustable_fields.#{field}")} (#{t('.current_amount', amount: money(facts.value(field)))})", field ] }, { label: t(".adjust_field") } %>
+              <%= f.text_field :adjusted_amount, label: t(".adjust_amount"), prefix: "$", inputmode: "numeric" %>
+              <%= f.text_area :reason, label: t(".adjust_reason"), hint: t(".adjust_reason_hint"), rows: 3 %>
+              <%= f.button t(".adjust_submit"), type: :submit, class: "usa-button cods-button margin-top-2" %>
+            <% end %>
+          <% end %>
 
-        <hr class="margin-y-3 border-base-lighter" id="reject">
-        <h3 class="font-heading-md"><%= t(".reject_heading") %></h3>
-        <p class="margin-top-0 text-base-darker"><%= t(".reject_lead") %></p>
-        <%= form_with url: reject_tax_return_case_path(@case), method: :post, scope: :rejection, class: "usa-form maxw-none" do |f| %>
-          <%= f.label :reason, t(".reject_reason"), class: "usa-label" %>
-          <span class="usa-hint" id="reject-hint"><%= t(".reject_hint") %></span>
-          <%= f.text_area :reason, rows: 3, class: "usa-textarea", "aria-describedby": "reject-hint" %>
-          <%= f.button t(".reject_submit"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
-        <% end %>
+          <%= panel.call("reject", t(".reject_heading")) do %>
+            <p class="margin-top-0"><%= t(".reject_lead") %></p>
+            <%= form_with url: reject_tax_return_case_path(@case), method: :post, scope: :rejection, class: "usa-form maxw-none" do |f| %>
+              <%= f.label :reason, t(".reject_reason"), class: "usa-label" %>
+              <span class="usa-hint" id="reject-hint"><%= t(".reject_hint") %></span>
+              <%= f.text_area :reason, rows: 3, required: true, class: "usa-textarea", "aria-describedby": "reject-hint" %>
+              <%= f.button t(".reject_submit"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
+            <% end %>
+          <% end %>
+        </div>
       <% elsif @case.step == "second_review" %>
         <% proposer = @case.proposed_by %>
         <h3 class="font-heading-md margin-top-0"><%= t(".proposal_heading") %></h3>
@@ -222,21 +238,21 @@
           <p><strong><%= t(".reject_reason") %>:</strong> <%= @case.not_accepted_reason %></p>
         <% end %>
         <% if proposer == current_user %>
-          <p class="text-base-darker"><%= t(".waiting_for_second") %></p>
+          <p class="margin-bottom-0"><%= t(".waiting_for_second") %></p>
         <% else %>
           <%= button_to t(".confirm"), confirm_tax_return_case_path(@case), method: :patch, class: "usa-button cods-button" %>
-          <hr class="margin-y-3 border-base-lighter">
+          <h3 class="font-heading-md margin-top-4 margin-bottom-0"><%= t(".send_back_heading") %></h3>
           <%= form_with url: send_back_tax_return_case_path(@case), method: :post, scope: :send_back, class: "usa-form maxw-none" do |f| %>
             <%= f.label :note, t(".send_back_note"), class: "usa-label" %>
             <span class="usa-hint" id="send-back-hint"><%= t(".send_back_hint") %></span>
-            <%= f.text_area :note, rows: 3, class: "usa-textarea", "aria-describedby": "send-back-hint" %>
+            <%= f.text_area :note, rows: 3, required: true, class: "usa-textarea bg-white", "aria-describedby": "send-back-hint" %>
             <%= f.button t(".send_back"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
           <% end %>
         <% end %>
       <% elsif @case.step == "provide_information" %>
-        <p><%= t(".waiting_on_taxpayer") %></p>
+        <p class="margin-bottom-0"><%= t(".waiting_on_taxpayer") %></p>
       <% else %>
-        <p><%= t(".closed") %> <strong><%= t("staff.outcomes.#{@case.outcome}") if @case.outcome %></strong></p>
+        <p class="margin-bottom-0"><%= t(".closed") %> <strong><%= t("staff.outcomes.#{@case.outcome}") if @case.outcome %></strong></p>
       <% end %>
     </div>
   </aside>

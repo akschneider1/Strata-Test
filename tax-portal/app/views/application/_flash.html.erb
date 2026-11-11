@@ -4,27 +4,27 @@
   <div class="grid-row margin-bottom-3">
     <div class="grid-col-12">
       <% if flash[:notice] || notice %>
-        <div class="usa-alert usa-alert--success">
-          <div class="usa-alert__body">
-            <p class="usa-alert__text"><%= flash[:notice] || notice %></p>
+        <div class="usa-alert usa-alert--success cods-in-page-alert cods-in-page-alert--success" role="status">
+          <div class="usa-alert__body cods-in-page-alert__body">
+            <p class="usa-alert__text cods-in-page-alert__text"><%= flash[:notice] || notice %></p>
           </div>
         </div>
       <% end %>
 
       <% if flash[:errors] || alert %>
-        <div class="usa-alert usa-alert--error" role="alert">
-          <div class="usa-alert__body">
+        <div class="usa-alert usa-alert--error cods-in-page-alert cods-in-page-alert--urgent" role="alert">
+          <div class="usa-alert__body cods-in-page-alert__body">
             <% if flash[:errors] %>
-              <h3 class="usa-alert__heading">
+              <h2 class="usa-alert__heading cods-in-page-alert__heading">
                 <%= t "flash.error_heading", count: flash[:errors].count %>
-              </h3>
+              </h2>
             <% end %>
-            <div class="usa-alert__text">
+            <div class="usa-alert__text cods-in-page-alert__text">
               <% if alert %>
                 <%= alert %>
               <% elsif flash[:errors].count == 0 %>
                 <p><%= t('flash.error_fallback') %></p>
-                <button class="usa-button usa-button--outline" onclick="location.reload();">
+                <button class="usa-button usa-button--outline cods-button cods-button--secondary" onclick="location.reload();">
                   <%= t('flash.reload_page') %>
                 </button>
               <% elsif flash[:errors].count == 1 %>

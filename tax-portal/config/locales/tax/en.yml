@@ -313,6 +313,11 @@ en:
       even_heading: "You don't owe anything and aren't due a refund"
       filing_status_heading: "Your filing status: %{status}"
       credits_heading: "Credits and refunds you qualify for"
+      glance_label: "How we got to this amount"
+      glance:
+        tax: "Your Colorado tax"
+        credits: "Credits and refunds"
+        withheld: "Tax you already paid"
       credits_none_heading: "Credits we checked that you don't qualify for"
       not_qualified: "Doesn't apply"
       adjusted_note: "The Department changed some amounts on your return. This is the calculation after those changes."
@@ -413,6 +418,8 @@ en:
         reason_heading: "Why we couldn't accept it"
     status:
       title: "Your %{tax_year} Colorado return"
+      details_heading: "Your filing details"
+      stage_label: "Status"
       confirmation: "Confirmation number"
       submitted_on: "Submitted"
       timeline_heading: "What's happened"

@@ -457,3 +457,29 @@
     padding-inline: 2rem;
   }
 }
+
+// --- Site chrome (home page, title band, header) -----------------------
+// Plain paragraphs inherit the 1.15 line height USWDS puts on <body>, so
+// they looked cramped beside lists and card text (1.5 to 1.6). :where()
+// keeps specificity at zero, so any component's own rule still wins.
+:where(.co-site main p) {
+  line-height: 1.5;
+}
+
+// The CoDS hero puts no space between the title and the intro under it.
+.co-site .cods-hero__heading + .cods-hero__intro {
+  margin-top: 0.5rem;
+}
+
+// CoDS has no summary box. Give the USWDS one CoDS colors, and keep the
+// site's heading scale from enlarging its heading.
+.usa-summary-box {
+  background-color: var(--cods-color-co-blue-5, var(--cods-color-co-blue-10));
+  border-color: var(--cods-color-co-blue-20);
+  color: var(--cods-color-text-primary);
+}
+
+.co-site main .usa-summary-box .usa-summary-box__heading {
+  font-size: var(--cods-font-size-mobile-h5);
+  line-height: var(--cods-line-height-mobile-h5);
+}

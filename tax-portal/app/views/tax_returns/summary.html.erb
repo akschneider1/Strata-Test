@@ -1,29 +1,61 @@
 <% content_for :title, t(".title") %>
 <%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
 <% status = @calculation.filing_status %>
+<% credits = @calculation.credits_received %>
 
-<%= render partial: "strata/shared/exit_link", locals: { exit_path: tax_return_path(@tax_return), exit_text: t("shared.back") } %>
-
-<h1 class="font-heading-xl"><%= t(".title") %></h1>
-<p class="usa-intro"><%= t(".lead") %></p>
+<% hero t(".title"), intro: t(".lead"), crumbs: [ [ t("tax_returns.show.title", tax_year: @tax_return.tax_year), tax_return_path(@tax_return) ] ] %>
 
 <% if @filed_calculation && @tax_return.tax_return_case.return_adjustments.any? %>
   <%= cods_alert(:info) { t(".adjusted_note") } %>
 <% end %>
 
-<%= render "result", calculation: @calculation %>
+<%= render "result", calculation: @calculation, breakdown: true %>
 
-<section class="margin-top-3">
-  <h2 class="font-heading-md margin-bottom-1"><%= t(".filing_status_heading", status: t("filing_statuses.#{status}")) %></h2>
-  <% unless @tax_return.submitted? && @tax_return.filing_status.code != status %>
-    <p class="margin-top-0"><%= t("filing_statuses.reasons.#{@tax_return.filing_status.reason}") %></p>
+<%# At a glance: the two things nobody had to work out for themselves. %>
+<div class="usa-card-group cods-card-group margin-top-3">
+  <section class="usa-card cods-card maxw-none" aria-labelledby="filing-status-heading">
+    <div class="usa-card__container cods-card__container">
+      <div class="usa-card__header cods-card__header">
+        <h2 id="filing-status-heading" class="usa-card__heading cods-card__heading"><%= t(".filing_status_heading", status: t("filing_statuses.#{status}")) %></h2>
+      </div>
+      <div class="usa-card__body cods-card__body">
+        <% unless @tax_return.submitted? && @tax_return.filing_status.code != status %>
+          <p><%= t("filing_statuses.reasons.#{@tax_return.filing_status.reason}") %></p>
+        <% end %>
+      </div>
+    </div>
+  </section>
+  <% if credits.any? %>
+    <section class="usa-card cods-card maxw-none" aria-labelledby="credits-glance-heading">
+      <div class="usa-card__container cods-card__container">
+        <div class="usa-card__header cods-card__header">
+          <h2 id="credits-glance-heading" class="usa-card__heading cods-card__heading"><%= t(".credits_heading") %></h2>
+        </div>
+        <div class="usa-card__body cods-card__body">
+          <ul class="usa-list usa-list--unstyled" data-testid="credits-glance">
+            <% credits.each do |line| %>
+              <li class="display-flex flex-justify gap-2 padding-y-05 border-bottom-1px border-base-lighter">
+                <span><%= calculation_line_label(line) %></span>
+                <span class="text-bold text-no-wrap"><%= money(line.amount) %></span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </section>
   <% end %>
-</section>
+</div>
 
 <%= render "calculation", calculation: @calculation, tax_year: @tax_return.tax_year %>
 
-<section class="margin-top-4 border-top-1px border-base-light padding-top-2">
-  <h2 class="font-heading-md margin-bottom-1"><%= t(".new_rates_heading") %></h2>
-  <p class="margin-top-0"><%= t(".new_rates_lead") %></p>
-  <p><%= link_to t(".new_rates_link"), new_rates_tax_return_path(@tax_return), class: "usa-link display-inline-block padding-y-105" %></p>
+<section class="usa-summary-box margin-top-5" aria-labelledby="new-rates-heading">
+  <div class="usa-summary-box__body">
+    <h2 id="new-rates-heading" class="usa-summary-box__heading"><%= t(".new_rates_heading") %></h2>
+    <div class="usa-summary-box__text">
+      <p><%= t(".new_rates_lead") %></p>
+      <p class="margin-bottom-0"><%= link_to t(".new_rates_link"), new_rates_tax_return_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary" %></p>
+    </div>
+  </div>
 </section>
+
+<p class="margin-top-4"><%= render partial: "strata/shared/exit_link", locals: { exit_path: tax_return_path(@tax_return), exit_text: t("shared.back") } %></p>

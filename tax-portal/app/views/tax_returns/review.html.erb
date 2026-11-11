@@ -1,12 +1,9 @@
 <% year = @tax_return.tax_year %>
 <% content_for :title, t("tax_returns.review.title") %>
 <%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
-<% row = ->(label, value) { content_tag(:div, content_tag(:dt, label, class: "text-base-dark") + content_tag(:dd, value, class: "margin-0 text-bold"), class: "padding-y-1 border-bottom-1px border-base-lighter") } %>
+<% row = ->(label, value) { content_tag(:div, content_tag(:dt, label, class: "tablet:grid-col-4 tablet:padding-right-2 text-base-dark") + content_tag(:dd, value, class: "tablet:grid-col-8 margin-0 text-bold"), class: "grid-row padding-y-1 border-bottom-1px border-base-lighter") } %>
 
-<%= render partial: "strata/shared/exit_link", locals: { exit_path: tax_return_path(@tax_return), exit_text: t("shared.back_to_checklist") } %>
-
-<h1 class="font-heading-xl"><%= t("tax_returns.review.title") %></h1>
-<p class="usa-intro"><%= t("tax_returns.review.lead") %></p>
+<% hero t("tax_returns.review.title"), intro: t("tax_returns.review.lead"), crumbs: [ [ t("tax_returns.show.title", tax_year: year), tax_return_path(@tax_return) ] ] %>
 
 <%= render layout: "review_section", locals: { key: :about_you, path: edit_filer_name_tax_return_path(@tax_return) } do %>
   <%= row.call(t("tax_returns.review.name"), @tax_return.filer_full_name) %>
@@ -16,7 +13,7 @@
 <% end %>
 
 <%= render layout: "review_section", locals: { key: :family, path: edit_marital_status_tax_return_path(@tax_return) } do %>
-  <%= row.call(t("tax_returns.review.filing_status"), safe_join([ t("filing_statuses.#{@tax_return.filing_status.code}"), content_tag(:span, t("filing_statuses.reasons.#{@tax_return.filing_status.reason}"), class: "display-block text-normal font-body-xs text-base-darker") ])) %>
+  <%= row.call(t("tax_returns.review.filing_status"), safe_join([ t("filing_statuses.#{@tax_return.filing_status.code}"), content_tag(:span, t("filing_statuses.reasons.#{@tax_return.filing_status.reason}"), class: "display-block margin-top-05 text-normal font-body-xs line-height-sans-4 text-base-darker") ])) %>
   <% if @tax_return.joint? %>
     <%= row.call(t("tax_returns.review.spouse"), "#{@tax_return.spouse_full_name} · #{masked(@tax_return.spouse_ssn)}") %>
   <% end %>

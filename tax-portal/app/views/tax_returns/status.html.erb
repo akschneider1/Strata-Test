@@ -21,7 +21,6 @@
 } %>
 
 <% hero t(".title", tax_year: year) %>
-<p class="margin-top-0"><%= stage_tag(stage) %></p>
 
 <% alert_type = { accepted: :success, needs_information: :warning, not_accepted: :error }.fetch(stage, :info) %>
 <%= cods_alert alert_type, heading: t("tax_returns.stages.#{stage}.heading"), data: { testid: "stage", stage: stage } do %>
@@ -58,23 +57,30 @@
   </section>
 <% end %>
 
-<dl class="margin-top-4">
-  <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
-    <dt><%= t(".confirmation") %></dt>
-    <dd class="margin-0 text-bold text-right" data-testid="confirmation-number"><%= @tax_return.confirmation_number %></dd>
-  </div>
-  <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
-    <dt><%= t(".submitted_on") %></dt>
-    <dd class="margin-0 text-bold text-right"><%= plain_time(@tax_return.submitted_at) %></dd>
-  </div>
-  <% unless stage == :not_accepted %>
-  <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
-    <dt><%= @calculation.owes? ? t("tax_calculation.lines.amount_owed.label") : t("tax_calculation.lines.refund.label") %></dt>
-    <dd class="margin-0 text-bold text-right" data-testid="result-amount"><%= money(@calculation.owes? ? @calculation.amount_owed : @calculation.refund) %></dd>
-  </div>
-  <% end %>
-</dl>
-<p><%= link_to t(".see_calculation"), summary_tax_return_path(@tax_return), class: "usa-link display-inline-block padding-y-105" %></p>
+<section class="margin-top-4" aria-labelledby="details-heading">
+  <h2 id="details-heading" class="font-heading-lg"><%= t(".details_heading") %></h2>
+  <dl class="margin-0 border-top-1px border-base-lighter">
+    <div class="display-flex flex-justify flex-align-center gap-2 border-bottom-1px border-base-lighter padding-y-1">
+      <dt><%= t(".stage_label") %></dt>
+      <dd class="margin-0 text-right"><%= stage_tag(stage) %></dd>
+    </div>
+    <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
+      <dt><%= t(".confirmation") %></dt>
+      <dd class="margin-0 text-bold text-right" data-testid="confirmation-number"><%= @tax_return.confirmation_number %></dd>
+    </div>
+    <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
+      <dt><%= t(".submitted_on") %></dt>
+      <dd class="margin-0 text-bold text-right"><%= plain_time(@tax_return.submitted_at) %></dd>
+    </div>
+    <% unless stage == :not_accepted %>
+    <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
+      <dt><%= @calculation.owes? ? t("tax_calculation.lines.amount_owed.label") : t("tax_calculation.lines.refund.label") %></dt>
+      <dd class="margin-0 text-bold text-right" data-testid="result-amount"><%= money(@calculation.owes? ? @calculation.amount_owed : @calculation.refund) %></dd>
+    </div>
+    <% end %>
+  </dl>
+  <p class="margin-top-2"><%= link_to t(".see_calculation"), summary_tax_return_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary" %></p>
+</section>
 
 <% if @case.return_adjustments.any? %>
   <section class="margin-top-4" aria-labelledby="adjustments-heading">
@@ -105,12 +111,18 @@
 
 <section class="margin-top-4" aria-labelledby="timeline-heading">
   <h2 id="timeline-heading" class="font-heading-lg"><%= t(".timeline_heading") %></h2>
-  <ol class="usa-list">
-    <li><%= t(".timeline.submitted") %> <span class="text-base-dark">· <%= short_time(@tax_return.submitted_at) %></span></li>
+  <ol class="usa-list usa-list--unstyled border-top-1px border-base-lighter" data-testid="timeline">
+    <li class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
+      <span><%= t(".timeline.submitted") %></span>
+      <span class="text-base-dark text-right text-no-wrap"><%= short_time(@tax_return.submitted_at) %></span>
+    </li>
     <% @case.audit_lines.order(:created_at).each do |line| %>
       <% key = line.action == "return.screened" ? (line.data["flags"].present? ? "screened_flagged" : "screened_clear") : timeline_keys[line.action] %>
       <% next unless key %>
-      <li><%= t(".timeline.#{key}") %> <span class="text-base-dark">· <%= short_time(line.created_at) %></span></li>
+      <li class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1 margin-0 maxw-none">
+        <span><%= t(".timeline.#{key}") %></span>
+        <span class="text-base-dark text-right text-no-wrap"><%= short_time(line.created_at) %></span>
+      </li>
     <% end %>
   </ol>
 </section>

@@ -8,10 +8,19 @@
 <% if m.filed.zero? %>
   <p class="text-base-darker" data-testid="no-returns"><%= t(".none") %></p>
 <% else %>
-  <div class="grid-row grid-gap-4">
+  <% share_note = ->(count) { m.share(count) ? t(".headline.share", share: m.share(count)) : nil } %>
+  <h2 class="usa-sr-only"><%= t(".headline.heading") %></h2>
+  <ul class="usa-card-group cods-card-group margin-top-3" data-testid="headline">
+    <%= stat_card(t(".headline.filed"), m.filed) %>
+    <%= stat_card(t(".headline.accepted_automatically"), m.accepted_automatically, note: share_note.call(m.accepted_automatically)) %>
+    <%= stat_card(t(".headline.flagged"), m.flagged, note: share_note.call(m.flagged)) %>
+    <%= stat_card(t(".headline.time"), measure_duration(m.median_time_to_decision_automatic), note: t(".headline.time_note")) %>
+  </ul>
+
+  <div class="grid-row grid-gap-6 margin-top-3">
     <div class="desktop:grid-col-6">
       <h2 class="font-heading-lg"><%= t(".outcomes.heading") %></h2>
-      <table class="usa-table width-full" data-testid="outcomes">
+      <table class="usa-table usa-table--borderless width-full margin-top-0" data-testid="outcomes">
         <caption class="usa-sr-only"><%= t(".outcomes.heading") %></caption>
         <thead>
           <tr>
@@ -34,7 +43,7 @@
       </table>
 
       <h2 class="font-heading-lg margin-top-4"><%= t(".time.heading") %></h2>
-      <table class="usa-table width-full" data-testid="times">
+      <table class="usa-table usa-table--borderless width-full margin-top-0" data-testid="times">
         <caption class="usa-sr-only"><%= t(".time.heading") %></caption>
         <thead>
           <tr>
@@ -54,7 +63,7 @@
     <div class="desktop:grid-col-6">
       <h2 class="font-heading-lg"><%= t(".flags.heading") %></h2>
       <% if m.flags_by_code.any? %>
-        <table class="usa-table width-full" data-testid="flags">
+        <table class="usa-table usa-table--borderless width-full margin-top-0" data-testid="flags">
           <caption class="usa-sr-only"><%= t(".flags.heading") %></caption>
           <thead>
             <tr>
@@ -73,7 +82,7 @@
       <% end %>
 
       <h2 class="font-heading-lg margin-top-4"><%= t(".adjustments.heading") %></h2>
-      <table class="usa-table width-full" data-testid="adjustments">
+      <table class="usa-table usa-table--borderless width-full margin-top-0" data-testid="adjustments">
         <caption class="usa-sr-only"><%= t(".adjustments.heading") %></caption>
         <thead>
           <tr>
@@ -96,5 +105,9 @@
   </div>
 <% end %>
 
-<h2 class="font-heading-lg margin-top-4"><%= t(".missing.heading") %></h2>
-<p class="measure-6"><%= t(".missing.body") %></p>
+<div class="usa-summary-box margin-top-5 maxw-tablet-lg" role="region" aria-labelledby="missing-heading">
+  <div class="usa-summary-box__body">
+    <h2 id="missing-heading" class="usa-summary-box__heading font-heading-md margin-top-0"><%= t(".missing.heading") %></h2>
+    <div class="usa-summary-box__text"><%= t(".missing.body") %></div>
+  </div>
+</div>

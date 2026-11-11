@@ -17,7 +17,9 @@ class StaffController < Strata::StaffController
     @my_tasks = @open_tasks.where(assignee_id: current_user.id)
     @cases_by_step = cases.submitted.group(:business_process_current_step).count
     @accepted_automatically = cases.where(outcome: "accepted").where.missing(:review_flags).count
-    @recent_activity = Strata::AuditLine.where(subject_type: "TaxReturnCase", subject_id: cases.select(:id)).order(created_at: :desc).limit(8)
+    @recent_activity = Strata::AuditLine.where(subject_type: "TaxReturnCase", subject_id: cases.select(:id)).order(created_at: :desc).limit(6)
+    # Whose return each line of recent activity is about.
+    @recent_cases = cases.where(id: @recent_activity.map(&:subject_id)).includes(:tax_return).index_by(&:id)
   end
 
   def measures

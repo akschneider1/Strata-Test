@@ -47,7 +47,10 @@ module TaxHelper
   # Puts the page title in the dark band across the top of the page, as on
   # tax.colorado.gov. `crumbs` are the pages above this one, after Home:
   # [[name, path], ...]. Pass `home: false` on the home page itself.
+  # Someone who is signed in is sent from Home to their own return, so on
+  # those pages a Home link would lead back to the page they are on.
   def hero(title, intro: nil, crumbs: [], home: true)
+    home = false if user_signed_in? && controller_name == "tax_returns"
     @hero = { title: title, intro: intro, crumbs: (home ? [ [ t("breadcrumbs.home"), root_path ] ] : []) + crumbs }
     nil
   end

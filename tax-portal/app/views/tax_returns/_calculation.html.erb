@@ -3,6 +3,8 @@
 <% TaxCalculation::SECTIONS.each do |section| %>
   <% lines = calculation.section(section).reject { |line| TaxCalculation::CREDIT_IDS.include?(line.id) || line.id.in?(%w[refund amount_owed]) && line.amount.zero? } %>
   <% lines = lines.reject { |line| line.amount.zero? && line.id.in?(%w[taxable_social_security additions pension_subtraction other_subtractions subtractions alternative_minimum_tax nonrefundable_credits]) } %>
+  <%# With no credits that reduce the tax, "tax after those credits" would repeat the line above it. %>
+  <% lines = lines.reject { |line| line.id == "net_tax" && line.amount == calculation.amount(:tax) } %>
   <% credit_lines = section == "credits" ? calculation.credits : [] %>
   <% next if lines.empty? && credit_lines.empty? %>
   <section class="margin-top-4" aria-labelledby="section-<%= section %>">

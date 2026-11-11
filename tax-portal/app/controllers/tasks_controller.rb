@@ -25,7 +25,7 @@ class TasksController < Strata::TasksController
   protected
 
   def tasks_index_locals
-    super.merge(unassigned_tasks: visible_tasks.incomplete.unassigned)
+    super.merge(unassigned_tasks: visible_tasks.incomplete.unassigned, task_row_component_class: TaxReturnTaskRowComponent)
   end
 
   # The Strata list, limited to what this examiner can see, one page at a time.
