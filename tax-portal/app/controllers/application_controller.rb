@@ -14,7 +14,8 @@ class ApplicationController < ActionController::Base
   # Set the active locale based on the URL
   # For example, if the URL starts with /es-US, the locale will be set to :es-US
   def switch_locale(&action)
-    locale = params[:locale] || I18n.default_locale
+    # An unknown locale in the URL falls back to the default instead of an error page.
+    locale = I18n.available_locales.map(&:to_s).include?(params[:locale].to_s) ? params[:locale] : I18n.default_locale
     I18n.with_locale(locale, &action)
   end
 

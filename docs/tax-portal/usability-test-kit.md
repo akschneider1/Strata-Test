@@ -78,6 +78,7 @@ Watch for:
 | The income page | Do they notice the W-2 was filled in for them? Do they trust it? Do they check it against anything? Do they understand "confirm"? |
 | The estimate | Do they see it? Do they believe it? |
 | "How we calculated this" | Do they open it? Can they say in their own words why the refund is what it is? |
+| The totals at the top of that page | Do the three figures under the refund (tax, credits, tax already paid) explain it, or do they scroll for more? |
 | Bank details | Any hesitation about typing them? |
 | Review and sign | Do they read it or scroll past? Do they understand what typing their name means? |
 | The status page | Do they know the return was accepted? Do they know when the money arrives? |
@@ -134,6 +135,7 @@ Watch for:
 | The dashboard | Do they know what needs doing? What is missing that they would look for first? |
 | The return page | Can they say why the return was flagged, without help? |
 | Reported and on-file amounts | Is the comparison the one they need? What else would they check, and where? |
+| The "Next step" box | Do they see that asking the taxpayer and changing an amount are under "Other actions"? Is "Accept as filed" the action they expected to be offered first? |
 | Asking the taxpayer | Would they write to the taxpayer at this point? In these words? |
 | Changing an amount | Do they trust the recalculation? Do they want to see the arithmetic? |
 | Accepting | Is anything missing before they would sign off (a second reviewer, a letter, a code)? |

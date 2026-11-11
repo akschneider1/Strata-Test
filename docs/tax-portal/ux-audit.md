@@ -3,7 +3,8 @@
 November 2026. Covers everything a taxpayer sees: the home page, the
 interview, "How we calculated this", the 2027 rates page, review and sign,
 and the status page, in English and Spanish. The examiner portal was not
-audited.
+part of this audit; a later pass covered it (see
+[Follow-up review](#follow-up-review-11-november-2026)).
 
 This is an expert review plus automated checks. **Nobody outside the project
 has used the portal yet.** The findings below are what a reviewer and a
@@ -105,6 +106,27 @@ Every English change has a matching Spanish change.
 | "Allow 7 to 10 days" and "3 to 4 weeks" for refunds. | These are placeholders in a prototype; a real service would use the Department's own figures. They should not be read as commitments. |
 | The legal declaration reads at grade 13. | It is legal text. It now has a plain sentence before it. |
 | A return that isn't accepted is a dead end. | The message now says so plainly. Reopening a return is a feature, not a wording fix. |
+
+## Follow-up review, 11 November 2026
+
+A second pass walked the demo as an executive would, including the examiner
+portal, which the audit above did not cover. What changed is described in
+[design-comparison.md](design-comparison.md) and the
+[demo guide](demo-guide.md). Checks after that pass:
+
+| Check | Result |
+| --- | --- |
+| Accessibility rules (axe, WCAG 2.1 A and AA plus best practices) on 28 page states: home, about, the interview with its error states, calculation, 2027 rates, review, three status pages, and six examiner pages | 0 violations |
+| Headings out of order, or more than one page title | 0 |
+| Sideways scrolling at 640 px (the same as 200% zoom on a laptop) | Only the examiner work queue, by 139 px. Its table comes from the Strata SDK. |
+| Links and buttons under 24 px tall | Breadcrumb links in the title band, "Back to checklist", and text links in examiner lists. WCAG 2.1 AA sets no minimum; 2.2 AA asks for 24 px. |
+| Spanish pages with English words | None on the pages checked. The step indicator and date fields are now translated. |
+
+Still open from that pass: the examiner work queue's width and table style,
+the step indicator repeating the section name on desktop, and a blank
+Social Security number showing its error only after the birth date is
+fixed. All three come from the Strata SDK; see
+[decisions/2026-11-11-overriding-strata-sdk-views.md](decisions/2026-11-11-overriding-strata-sdk-views.md).
 
 ## What this audit can't tell you
 
