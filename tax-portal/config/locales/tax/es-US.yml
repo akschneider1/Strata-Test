@@ -252,7 +252,8 @@ es-US:
       hint: "Un dependiente suele ser un hijo o familiar que vivió con usted. Usted pagó la mayor parte de sus gastos."
       who_counts_summary: "¿Quién cuenta como dependiente?"
       who_counts: "Por lo general, su hijo, hijastro, hijo de crianza, nieto, hermano, hermana o padre que vivió con usted más de la mitad del año y que no pagó la mayor parte de su propia manutención. Responderá algunas preguntas sobre cada persona."
-      list_heading: "Personas que agregó"
+      list_title: "Personas que dependieron de usted en %{tax_year}"
+      list_lead: "Revisamos a cada persona según las reglas y le decimos si cuenta."
       age: "%{age} años al final de %{tax_year}"
       add: "Agregar un dependiente"
       add_another: "Agregar otro dependiente"
@@ -289,6 +290,7 @@ es-US:
       corrected_note: "Sus números son diferentes de los que informó el pagador. Una persona del Departamento puede revisar su declaración antes de aceptarla."
       disputed_note: "No lo incluiremos en su declaración. Alguien del Departamento se comunicará con el pagador."
       add_heading: "¿Falta un formulario?"
+      add_hint: "Agregue cualquier W-2 o 1099 que recibió para %{tax_year} y que no aparece arriba."
       add: "Agregar un formulario de ingresos"
       confirm_label: "Revisé todos los formularios de ingresos que recibí para %{tax_year}"
     edit_interest:
@@ -321,7 +323,6 @@ es-US:
       even_heading: "No debe nada y no le corresponde un reembolso"
       filing_status_heading: "Su estado civil para efectos de la declaración: %{status}"
       credits_heading: "Créditos y reembolsos a los que tiene derecho"
-      glance_label: "Cómo llegamos a esta cantidad"
       glance:
         tax: "Su impuesto de Colorado"
         credits: "Créditos y reembolsos"
@@ -507,12 +508,13 @@ es-US:
     qualification:
       counts: "Cuenta como su dependiente"
       does_not_count: "No cuenta como su dependiente"
+      not_decided: "Necesitamos dos respuestas más"
       answer: "Responda dos preguntas más"
       reasons:
         qualifying_child: "Por su edad y porque vivió con usted."
         qualifying_relative: "Porque tuvo pocos ingresos y usted pagó la mayor parte de sus gastos de manutención."
         did_not_live_with_you: "Porque no vivió con usted más de la mitad del año."
-        needs_answers: "Primero necesitamos saber más."
+        needs_answers: "Todavía no podemos saber si esta persona cuenta."
         income_too_high: "Porque sus ingresos fueron demasiado altos."
         not_supported_by_you: "Porque usted no pagó más de la mitad de sus gastos de manutención."
   income_documents:
@@ -630,18 +632,46 @@ es-US:
       amount_owed:
         label: "Cantidad que debe"
         explanation: "Su impuesto es mayor que sus créditos más el impuesto ya retenido. Usted debe la diferencia."
+  # Texto propio del generador de formularios del SDK de Strata.
+  strata:
+    form_builder:
+      select_month: "Elija una opción"
   activerecord:
     attributes:
       tax_return:
         filer_name_first: "Nombre"
         filer_name_last: "Apellido"
+        filer_date_of_birth: "Fecha de nacimiento"
+        filer_ssn: "Número de Seguro Social"
+        mailing_address_street_line_1: "Dirección"
+        mailing_address_city: "Ciudad"
+        mailing_address_state: "Estado"
+        mailing_address_zip_code: "Código postal"
+        spouse_name_first: "Nombre de su cónyuge"
+        spouse_name_last: "Apellido de su cónyuge"
+        spouse_date_of_birth: "Fecha de nacimiento de su cónyuge"
+        spouse_ssn: "Número de Seguro Social de su cónyuge"
+        childcare_expenses: "Cantidad que pagó por cuidado de niños"
+        taxable_interest: "Intereses tributables"
+        bank_routing_number: "Número de ruta"
+        bank_account_number: "Número de cuenta"
         signature_name: "Su firma"
+      dependent:
+        name_first: "Nombre"
+        name_last: "Apellido"
+        date_of_birth: "Fecha de nacimiento"
+        ssn: "Número de Seguro Social"
+      income_document:
+        payer_name: "Nombre del empleador o pagador"
+        amount: "Cantidad"
+        colorado_withholding: "Impuesto de Colorado retenido"
       information_request:
         response: "Su respuesta"
     errors:
       messages:
         blank: "Escriba una respuesta para continuar"
         choose_one: "Elija una respuesta"
+        invalid_date: "Escriba el mes, el día y el año con 4 dígitos"
         invalid_ssn: "Escriba los 9 dígitos del número de Seguro Social"
         invalid_zip: "Escriba un código postal de 5 dígitos"
         not_a_number: "Escriba un número, sin centavos"
@@ -692,13 +722,13 @@ es-US:
         dependent:
           format: "%{message}"
           attributes:
-            name_first: { blank: "Escriba su nombre" }
-            name_last: { blank: "Escriba su apellido" }
+            name_first: { blank: "Escriba el nombre de esta persona" }
+            name_last: { blank: "Escriba el apellido de esta persona" }
             date_of_birth:
-              blank: "Escriba su fecha de nacimiento"
+              blank: "Escriba la fecha de nacimiento de esta persona"
               in_future: "Escriba una fecha de nacimiento anterior al final del año tributario"
             ssn:
-              blank: "Escriba su número de Seguro Social"
+              blank: "Escriba el número de Seguro Social de esta persona"
               already_listed: "Ya agregó a alguien con este número"
               same_as_filer: "Escriba el número de esta persona. Este es el suyo."
               same_as_spouse: "Escriba el número de esta persona. Este es el de su cónyuge."

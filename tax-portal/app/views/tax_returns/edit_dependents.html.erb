@@ -1,38 +1,48 @@
 <% year = @tax_return.tax_year %>
 <% title = page_t("title", tax_year: year) %>
 <% dependents = @tax_return.dependents.order(:date_of_birth) %>
+<% title = page_t("list_title", tax_year: year) if dependents.any? %>
 <% content_for :title, title %>
 
 <% if dependents.any? %>
-  <h1 class="font-heading-xl"><%= title %></h1>
-  <h2 class="font-heading-md"><%= page_t("list_heading") %></h2>
-  <ul class="usa-card-group cods-card-group">
+  <h1 class="usa-form-heading font-heading-xl"><%= title %></h1>
+  <p class="usa-intro font-body-md"><%= page_t("list_lead") %></p>
+  <ul class="usa-card-group cods-card-group margin-top-3">
     <% dependents.each do |dependent| %>
       <li class="usa-card cods-card tablet:grid-col-12">
         <div class="usa-card__container cods-card__container">
           <div class="usa-card__header cods-card__header">
-            <h3 class="usa-card__heading cods-card__heading"><%= dependent.full_name %></h3>
+            <h2 class="usa-card__heading cods-card__heading font-heading-md"><%= dependent.full_name %></h2>
+            <p class="margin-0 text-base-dark"><%= t("dependents.relationships.#{dependent.relationship}") %> · <%= page_t("age", age: dependent.age_at_year_end, tax_year: year) %></p>
           </div>
           <div class="usa-card__body cods-card__body">
-            <p class="margin-0"><%= t("dependents.relationships.#{dependent.relationship}") %> · <%= page_t("age", age: dependent.age_at_year_end, tax_year: year) %></p>
             <% counts = dependent.qualifies? %>
-            <p class="margin-top-1 margin-bottom-0" data-testid="dependent-qualification" data-qualifies="<%= counts %>">
-              <%= cods_tag(t("dependents.qualification.#{counts ? 'counts' : 'does_not_count'}"), counts ? "green" : nil) %>
-              <%= t("dependents.qualification.reasons.#{dependent.qualification}", name: dependent.name_first) %>
-              <% if dependent.qualification == :needs_answers %>
-                <%= link_to t("dependents.qualification.answer"), support_tax_return_dependent_path(@tax_return, dependent), class: "usa-link" %>
-              <% end %>
-            </p>
+            <div data-testid="dependent-qualification" data-qualifies="<%= counts %>">
+              <% tag_key, tag_color = if counts then [ "counts", "green" ] elsif dependent.qualification == :needs_answers then [ "not_decided", "yellow" ] else [ "does_not_count", nil ] end %>
+              <p class="margin-0"><%= cods_tag(t("dependents.qualification.#{tag_key}"), tag_color) %></p>
+              <p class="margin-top-1 margin-bottom-0">
+                <%= t("dependents.qualification.reasons.#{dependent.qualification}", name: dependent.name_first) %>
+                <% if dependent.qualification == :needs_answers %>
+                  <%= link_to t("dependents.qualification.answer"), support_tax_return_dependent_path(@tax_return, dependent), class: "usa-link" %>
+                <% end %>
+              </p>
+            </div>
           </div>
-          <div class="usa-card__footer cods-card__footer display-flex flex-align-center gap-2">
-            <%= link_to t("shared.edit"), edit_tax_return_dependent_path(@tax_return, dependent), class: "usa-button usa-button--outline cods-button cods-button--secondary", "aria-label": "#{t('shared.edit')} #{dependent.name_first}" %>
-            <%= button_to t("shared.remove"), tax_return_dependent_path(@tax_return, dependent), method: :delete, class: "usa-button usa-button--unstyled padding-y-105", "aria-label": "#{t('shared.remove')} #{dependent.name_first}" %>
+          <div class="usa-card__footer cods-card__footer">
+            <ul class="usa-button-group">
+              <li class="usa-button-group__item">
+                <%= link_to t("shared.edit"), edit_tax_return_dependent_path(@tax_return, dependent), class: "usa-button usa-button--outline cods-button cods-button--secondary", "aria-label": "#{t('shared.edit')} #{dependent.name_first}" %>
+              </li>
+              <li class="usa-button-group__item">
+                <%= button_to t("shared.remove"), tax_return_dependent_path(@tax_return, dependent), method: :delete, class: "usa-button usa-button--unstyled padding-y-105", "aria-label": "#{t('shared.remove')} #{dependent.name_first}" %>
+              </li>
+            </ul>
           </div>
         </div>
       </li>
     <% end %>
   </ul>
-  <p><%= link_to page_t("add_another"), new_tax_return_dependent_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary" %></p>
+  <p class="margin-top-3"><%= link_to page_t("add_another"), new_tax_return_dependent_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary" %></p>
 
   <%= strata_form_with model: @tax_return, url: @flow_task.update_path, method: :patch do |f| %>
     <%= f.hidden_field :has_dependents, value: true %>

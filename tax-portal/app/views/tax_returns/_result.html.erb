@@ -12,7 +12,7 @@
   <% end %>
   <% if breakdown %>
     <div class="margin-top-2 padding-top-1 border-top-1px border-primary-light">
-      <dl class="grid-row grid-gap margin-0" aria-label="<%= t("tax_returns.summary.glance_label") %>" data-testid="glance">
+      <dl class="grid-row grid-gap margin-0" data-testid="glance">
         <% { tax: :net_tax, credits: :refundable_credits, withheld: :colorado_tax_withheld }.each do |key, line_id| %>
           <div class="grid-col-12 mobile-lg:grid-col-4 padding-top-1">
             <dt class="font-body-xs"><%= t("tax_returns.summary.glance.#{key}") %></dt>

@@ -183,7 +183,7 @@
 
   <aside class="desktop:grid-col-4" aria-labelledby="actions-heading">
     <div class="usa-summary-box margin-top-2 position-sticky top-2" data-testid="actions">
-      <h2 id="actions-heading" class="usa-summary-box__heading font-heading-lg margin-top-0"><%= t(".actions_heading") %></h2>
+      <h2 id="actions-heading" class="usa-summary-box__heading font-heading-lg margin-top-0"><%= t(under_review || (@case.step == "second_review" && @case.proposed_by != current_user) ? ".actions_heading" : ".status_heading") %></h2>
       <% mine = @task && @task.assignee_id == current_user.id %>
       <% if under_review && !mine %>
         <p data-testid="not-assigned">
@@ -207,7 +207,8 @@
         <%= button_to t(@case.return_adjustments.any? ? ".approve_adjusted" : ".approve_as_filed"), approve_tax_return_case_path(@case), method: :patch, class: "usa-button cods-button" %>
 
         <h3 class="font-heading-md margin-top-4 margin-bottom-1"><%= t(".other_actions") %></h3>
-        <div class="usa-accordion usa-accordion--bordered cods-accordion bg-white" data-testid="other-actions">
+        <%# uswds.min.js opens and closes the sections. CoDS draws its open/close arrow only on an accordion marked as enhanced, which its own script (not loaded here) would do. %>
+        <div class="usa-accordion usa-accordion--bordered cods-accordion bg-white" data-cods-accordion-enhanced data-testid="other-actions">
           <%= panel.call("action-ask", t(".request_heading"), open: @information_request.errors.any?) do %>
             <%= strata_form_with model: @information_request, url: request_information_tax_return_case_path(@case), method: :post do |f| %>
               <%= f.text_area :question, label: t(".request_question"), hint: t(".request_hint"), rows: 4 %>

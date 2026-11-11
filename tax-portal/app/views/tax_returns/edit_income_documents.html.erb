@@ -2,7 +2,7 @@
 <% documents = @tax_return.income_documents.includes(:wage_record).in_display_order %>
 <% content_for :title, page_t("title") %>
 
-<h1 class="font-heading-xl"><%= page_t("title") %></h1>
+<h1 class="usa-form-heading font-heading-xl"><%= page_t("title") %></h1>
 <p class="usa-intro font-body-md"><%= page_t("lead") %></p>
 
 <% if documents.none? %>
@@ -11,7 +11,7 @@
   <% end %>
 <% end %>
 
-<ul class="usa-card-group cods-card-group margin-top-3">
+<ul class="usa-card-group margin-top-3">
   <% documents.each do |document| %>
     <% kind = "income_documents.kinds.#{document.kind}" %>
     <li class="usa-card cods-card tablet:grid-col-12" id="income_document_<%= document.id %>">
@@ -91,7 +91,8 @@
   <% end %>
 </ul>
 
-<h2 class="font-heading-md"><%= page_t("add_heading") %></h2>
+<h2 class="font-body-lg text-bold margin-top-4 margin-bottom-1"><%= page_t("add_heading") %></h2>
+<p class="margin-top-0"><%= page_t("add_hint", tax_year: year) %></p>
 <p><%= link_to page_t("add"), new_tax_return_income_document_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary" %></p>
 
 <%= strata_form_with model: @tax_return, url: @flow_task.update_path, method: :patch do |f| %>

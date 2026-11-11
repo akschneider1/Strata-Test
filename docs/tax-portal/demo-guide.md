@@ -191,7 +191,10 @@ long it takes a real person has not been measured.
 ### 2. See what the system works out, as Daniela
 
 1. **Continue as Daniela** and open **See how we calculated this**.
-2. She was never asked for a filing status: the page says **Head of
+2. The top of the page has it all at a glance: the refund, the three
+   totals behind it, her filing status and her credits. The steps below
+   give the reason for each line.
+   She was never asked for a filing status: the page says **Head of
    household** and why. Under credits she gets the Colorado Earned Income
    Tax Credit, Child Tax Credit, Family Affordability Tax Credit and Child
    Care Expenses Tax Credit, each with the reason. Refund **$7,162**.

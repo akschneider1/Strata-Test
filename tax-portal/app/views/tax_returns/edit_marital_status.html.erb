@@ -1,6 +1,8 @@
 <% year = @tax_return.tax_year %>
 <% title = page_t("title", tax_year: year) %>
 <%= render layout: "question", locals: { title: title } do |f| %>
+  <%# Sent when no option is chosen, so the error message can show (as yes_no does). %>
+  <%= f.hidden_field :marital_status, value: "", id: nil %>
   <%= f.fieldset content_tag(:h1, title, class: "font-heading-xl margin-0"), attribute: :marital_status, large_legend: true do %>
     <%= f.radio_button :marital_status, "unmarried", label: page_t("options.unmarried"), hint: page_t("options.unmarried_hint") %>
     <%= f.radio_button :marital_status, "married", label: page_t("options.married"), hint: page_t("options.married_hint", tax_year: year) %>

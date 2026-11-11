@@ -242,6 +242,32 @@
   }
 
   // ---------------------------------------------------------------------
+  // Question pages (one question per page, Back / Save and continue)
+  // ---------------------------------------------------------------------
+  // USWDS gives every button in a form a top margin, and stretches buttons
+  // in a button group to the height of their row. Together they made Back
+  // and Save and continue 64px tall, beside 40px buttons elsewhere. Put the
+  // space on the group instead.
+  .usa-form .usa-button-group {
+    margin-top: 1.5rem;
+  }
+
+  .usa-form .usa-button-group .usa-button {
+    margin-top: 0;
+  }
+
+  // When the question is the page title (an <h1> in a large legend), the
+  // hint and the answers sat directly against it. Give them room.
+  .usa-legend--large {
+    margin-bottom: 0.75rem;
+  }
+
+  .usa-legend--large ~ .usa-hint {
+    margin-bottom: 1rem;
+    max-width: 30rem;
+  }
+
+  // ---------------------------------------------------------------------
   // State site look (matches tax.colorado.gov)
   // ---------------------------------------------------------------------
   // tax.colorado.gov is built on USWDS with the same fonts and colors as

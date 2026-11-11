@@ -8,13 +8,13 @@
 <% if m.filed.zero? %>
   <p class="text-base-darker" data-testid="no-returns"><%= t(".none") %></p>
 <% else %>
-  <% share_note = ->(count) { m.share(count) ? t(".headline.share", share: m.share(count)) : nil } %>
+  <% of_filed = ->(count) { t(".headline.of_filed", count: count, filed: m.filed) } %>
   <h2 class="usa-sr-only"><%= t(".headline.heading") %></h2>
   <ul class="usa-card-group cods-card-group margin-top-3" data-testid="headline">
-    <%= stat_card(t(".headline.filed"), m.filed) %>
-    <%= stat_card(t(".headline.accepted_automatically"), m.accepted_automatically, note: share_note.call(m.accepted_automatically)) %>
-    <%= stat_card(t(".headline.flagged"), m.flagged, note: share_note.call(m.flagged)) %>
-    <%= stat_card(t(".headline.time"), measure_duration(m.median_time_to_decision_automatic), note: t(".headline.time_note")) %>
+    <%= stat_card(t(".headline.filed"), m.filed, heading: :h3) %>
+    <%= stat_card(t(".headline.accepted_automatically"), number_to_percentage(m.share(m.accepted_automatically), precision: 0), note: of_filed.call(m.accepted_automatically), heading: :h3) %>
+    <%= stat_card(t(".headline.flagged"), number_to_percentage(m.share(m.flagged), precision: 0), note: of_filed.call(m.flagged), heading: :h3) %>
+    <%= stat_card(t(".headline.time"), measure_duration_short(m.median_time_to_decision_automatic), note: t(".headline.time_note"), heading: :h3) %>
   </ul>
 
   <div class="grid-row grid-gap-6 margin-top-3">

@@ -244,7 +244,8 @@ en:
       hint: "A dependent is usually a child or relative who lived with you. You paid most of their living costs."
       who_counts_summary: "Who counts as a dependent?"
       who_counts: "Usually your child, stepchild, foster child, grandchild, brother, sister or parent who lived with you for more than half the year and didn't pay for most of their own support. You'll answer a few questions about each person."
-      list_heading: "People you've added"
+      list_title: "People who depended on you in %{tax_year}"
+      list_lead: "We check each person against the rules and tell you whether they count."
       age: "Age %{age} at the end of %{tax_year}"
       add: "Add a dependent"
       add_another: "Add another dependent"
@@ -281,6 +282,7 @@ en:
       corrected_note: "Your numbers are different from what the payer reported. A person at the Department may check your return before it is accepted."
       disputed_note: "We'll leave this off your return. Someone at the Department will follow up with the payer."
       add_heading: "Missing a form?"
+      add_hint: "Add any W-2 or 1099 you received for %{tax_year} that isn't shown above."
       add: "Add an income form"
       confirm_label: "I've checked every income form I received for %{tax_year}"
     edit_interest:
@@ -313,7 +315,6 @@ en:
       even_heading: "You don't owe anything and aren't due a refund"
       filing_status_heading: "Your filing status: %{status}"
       credits_heading: "Credits and refunds you qualify for"
-      glance_label: "How we got to this amount"
       glance:
         tax: "Your Colorado tax"
         credits: "Credits and refunds"
@@ -499,12 +500,13 @@ en:
     qualification:
       counts: "Counts as your dependent"
       does_not_count: "Doesn't count as your dependent"
+      not_decided: "We need two more answers"
       answer: "Answer two more questions"
       reasons:
         qualifying_child: "Because of their age and because they lived with you."
         qualifying_relative: "Because they had little income and you paid most of their living costs."
         did_not_live_with_you: "Because they didn't live with you for more than half the year."
-        needs_answers: "We need to know more first."
+        needs_answers: "We can't tell yet whether this person counts."
         income_too_high: "Because their income was too high."
         not_supported_by_you: "Because you didn't pay more than half of their living costs."
   income_documents:
@@ -622,6 +624,10 @@ en:
       amount_owed:
         label: "Amount you owe"
         explanation: "Your tax is more than your credits plus the tax already withheld. You owe the difference."
+  # Wording for the Strata SDK form builder's own text.
+  strata:
+    form_builder:
+      select_month: "Choose one"
   activerecord:
     attributes:
       tax_return:
@@ -663,6 +669,7 @@ en:
       messages:
         blank: "Enter an answer to continue"
         choose_one: "Choose an answer"
+        invalid_date: "Enter the month, day and 4-digit year"
         invalid_ssn: "Enter all 9 digits of the Social Security number"
         invalid_zip: "Enter a 5-digit ZIP code"
         not_a_number: "Enter a number, without cents"

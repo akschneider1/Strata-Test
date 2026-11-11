@@ -41,15 +41,17 @@ module StaffHelper
     time.in_time_zone("America/Denver").strftime("%b %-d, %-l:%M %p")
   end
 
-  # A headline number in a card. Cards in one `usa-card-group` share a height.
-  def stat_card(label, value, note: nil, testid: nil)
-    content_tag(:li, class: "usa-card cods-card tablet:grid-col-6 desktop:grid-col-3") do
+  # A headline number in a CoDS card: the label is the card's heading, the
+  # number its body. Cards in one `usa-card-group` share a height.
+  def stat_card(label, value, note: nil, testid: nil, heading: :h2)
+    content_tag(:li, class: "usa-card cods-card") do
       content_tag(:div, class: "usa-card__container cods-card__container", data: { testid: testid }) do
-        content_tag(:div, class: "usa-card__body cods-card__body padding-y-2") do
+        content_tag(:div, class: "usa-card__header cods-card__header") do
+          content_tag(heading, label, class: "usa-card__heading cods-card__heading font-body-md")
+        end + content_tag(:div, class: "usa-card__body cods-card__body") do
           safe_join([
-            content_tag(:p, label, class: "margin-0 text-bold"),
-            content_tag(:p, value, class: "margin-0 margin-top-05 font-heading-2xl text-bold line-height-heading-1"),
-            (content_tag(:p, note, class: "margin-0 margin-top-05 font-body-2xs text-base-dark") if note)
+            content_tag(:p, value, class: "margin-0 font-heading-2xl text-bold line-height-heading-1"),
+            (content_tag(:p, note, class: "margin-0 margin-top-1 font-body-2xs text-base-dark") if note)
           ].compact)
         end
       end
@@ -88,6 +90,16 @@ module StaffHelper
     return t("staff.measures.under_a_minute") if seconds < 60
 
     distance_of_time_in_words(seconds)
+  end
+
+  # The same, short enough for a headline card: "Under 1 min", "3 min", "2 hr".
+  def measure_duration_short(seconds)
+    return t("staff.measures.not_yet") if seconds.nil?
+    return t("staff.measures.headline.under_a_minute") if seconds < 60
+    return t("staff.measures.headline.minutes", count: (seconds / 60.0).round) if seconds < 3600
+    return t("staff.measures.headline.hours", count: (seconds / 3600.0).round) if seconds < 86_400
+
+    t("staff.measures.headline.days", count: (seconds / 86_400.0).round)
   end
 
   # Total effect of examiner adjustments on what taxpayers receive.

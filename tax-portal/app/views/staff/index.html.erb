@@ -11,7 +11,7 @@
   <%= stat_card(t(".accepted_automatically"), @accepted_automatically, note: t(".of_total", total: submitted), testid: "auto-accepted") %>
 </ul>
 
-<ul class="usa-button-group flex-align-center">
+<ul class="usa-button-group flex-align-center margin-top-3">
   <li class="usa-button-group__item">
     <%= button_to t(".pick_up_next"), pick_up_next_task_tasks_path, class: "usa-button cods-button", disabled: nothing_to_pick_up %>
   </li>

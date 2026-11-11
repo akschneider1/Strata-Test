@@ -16,7 +16,7 @@
     <% end %>
     <%= f.text_field :payer_name, label: t("income_documents.form.payer_name"), autocomplete: "off" %>
   <% end %>
-  <%= f.text_field :amount, label: on_file ? "#{t("#{kind}.amount")} (#{t('income_documents.form.amount')})" : t("income_documents.form.amount"), hint: t("shared.dollars_hint"), prefix: "$", width: "md", inputmode: "numeric" %>
+  <%= f.text_field :amount, label: on_file ? t("#{kind}.amount") : t("income_documents.form.amount"), hint: t("shared.dollars_hint"), prefix: "$", width: "md", inputmode: "numeric" %>
   <%= f.text_field :colorado_withholding, label: on_file ? t("#{kind}.withholding") : t("income_documents.form.colorado_withholding"), hint: t("income_documents.form.colorado_withholding_hint"), prefix: "$", width: "md", inputmode: "numeric" %>
 
   <hr class="border-base-lightest margin-top-4">
