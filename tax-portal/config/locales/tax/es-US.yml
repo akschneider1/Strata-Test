@@ -653,6 +653,7 @@ es-US:
   strata:
     form_builder:
       select_month: "Elija una opción"
+      memorable_date_hint: "Por ejemplo: enero 19 2000"
   activerecord:
     attributes:
       tax_return:
