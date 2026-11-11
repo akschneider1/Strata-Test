@@ -1,10 +1,12 @@
 <% year = @tax_return.tax_year %>
 <% content_for :title, t(".title", tax_year: year) %>
-<%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
 
 <% hero t(".title", tax_year: year), intro: t(".lead") %>
 
+<%# On a wide screen the estimate sits beside the sections. It comes first in the page so it stays on top on a phone. %>
+<div class="grid-row grid-gap-4">
 <% if @calculation %>
+  <div class="grid-col-12 desktop:grid-col-4 desktop:order-2">
   <section aria-labelledby="estimate-heading" class="border-left-05 border-primary bg-primary-lighter padding-x-3 padding-y-2 margin-bottom-3">
     <h2 id="estimate-heading" class="margin-0 font-body-sm text-normal">
       <%= @calculation.owes? ? t(".estimate_owed_heading") : t(".estimate_refund_heading") %>
@@ -13,8 +15,10 @@
     <p class="margin-top-1 margin-bottom-0 font-body-xs"><%= t(".estimate_body") %></p>
     <p class="margin-top-2 margin-bottom-0"><%= link_to t(".see_calculation"), summary_tax_return_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary bg-white" %></p>
   </section>
+  </div>
 <% end %>
 
+<div class="grid-col-12 desktop:grid-col-8 desktop:order-1">
 <h2 class="usa-sr-only"><%= t(".sections_heading") %></h2>
 <ol class="usa-list usa-list--unstyled display-flex flex-column gap-2">
   <% @flow.tasks.each_with_index do |task, index| %>
@@ -49,3 +53,5 @@
 <% else %>
   <p class="margin-top-3 text-base-dark"><%= t(".finish_sections_first") %></p>
 <% end %>
+</div>
+</div>
