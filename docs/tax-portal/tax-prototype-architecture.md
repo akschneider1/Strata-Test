@@ -158,6 +158,28 @@ else belongs to a copy through its user.
   the next visitor starts). `bin/rails tax:demo_reset` discards them all.
 - Demo people stay signed in for as long as their copy lasts.
 
+## Keeping a hosted demo fast
+
+Measured with `bin/serve` on a 4-core test machine:
+
+| Step | Cold | Warmed up | With a database 15 ms away |
+| --- | --- | --- | --- |
+| Most pages | 0.06 to 0.1 s | the same | 0.2 to 0.35 s |
+| First "Continue as …" after a start | 8 s | 1.1 s | |
+| "Continue as …" after that | 0.3 to 0.9 s | 0.3 s | about 4 s |
+| "New rates" page, first time | 10 s | 0.1 s | |
+
+- The tax engine's first calculations after a start are slow, and it
+  remembers each household. `bin/rails tax:demo_warm` (`DemoWarmup`) runs
+  the demo households through it once, in a copy that is then discarded.
+  `bin/serve`, `docker-compose.yml` and `render.yaml` run it at start.
+- Creating a visitor's copy makes about 245 database calls, most of them
+  the normal filing and processing of three returns. With the database on
+  the same machine that costs a quarter of a second. `bin/serve` can run
+  its own Postgres (`SERVE_DATABASE=local`, the default on Replit).
+- `/demo/diagnostics` (`DemoDiagnostics`) times the database, the engine
+  and a new calculation on a running demo.
+
 ## Tests
 
 | Command | Covers |

@@ -90,6 +90,10 @@ CoDS/USWDS output.
 - Hosting outside AWS is a demo deployment only (`bin/serve`,
   `docker-compose.yml`, `render.yaml`; see docs/hosting.md). It uses the
   `mock-production` environment and demo sign-in, never real data.
+- If a hosted demo is slow, open `/demo/diagnostics` first. `bin/serve` warms
+  the demo up at start (`tax:demo_warm`) and, on Replit, runs its own Postgres
+  (`SERVE_DATABASE=local`). See "Keeping a hosted demo fast" in the
+  architecture doc.
 - Tax year 2027 and the graduated rates (Amendment 87) exist in the engine
   for the "new rates" preview only. The portal still files 2025 returns.
 

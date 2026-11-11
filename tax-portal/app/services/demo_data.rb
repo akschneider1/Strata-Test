@@ -70,6 +70,12 @@ class DemoData
 
   # Builders are public so tests can reuse the same households.
 
+  # Maya as she will be once she has answered everything. The demo starts
+  # her with nothing; this is used to warm up the tax engine for her return.
+  def maya(user)
+    finish_income(start(user, :maya, marital_status: "unmarried", has_dependents: false))
+  end
+
   def daniela(user)
     tax_return = start(user, :daniela, marital_status: "unmarried", has_dependents: true)
     tax_return.dependents.create!(name_first: "Mateo", name_last: "Ruiz", date_of_birth: Date.new(2021, 6, 12), relationship: "child", ssn: "000002001")

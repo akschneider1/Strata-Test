@@ -84,6 +84,8 @@ Rails.application.routes.draw do
   post "demo/sign_in" => "demo_sessions#create", as: :demo_sign_in
   delete "demo/sign_out" => "demo_sessions#destroy", as: :demo_sign_out
   post "demo/reset" => "demo_sessions#reset", as: :demo_reset
+  # Timings for whoever runs a hosted demo (demo mode only)
+  get "demo/diagnostics" => "demo_diagnostics#show", as: :demo_diagnostics
 
   # Examiner portal
   get "staff", to: "staff#index"
