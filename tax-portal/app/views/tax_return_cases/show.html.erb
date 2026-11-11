@@ -40,7 +40,7 @@
       </h2>
       <% if @flags.any? %>
         <% @flags.each do |flag| %>
-          <%= cods_alert(flag.resolved? ? :success : :warning, heading: t("staff.flags.#{flag.code}.title"), class: "margin-bottom-2", data: { flag: flag.code }) do %>
+          <%= cods_alert(flag.resolved? ? :success : :warning, heading: t("staff.flags.#{flag.code}.title"), heading_level: 3, class: "margin-bottom-2", data: { flag: flag.code }) do %>
             <%= flag_description(flag) %>
             <% if flag_difference(flag) %><strong><%= flag_difference(flag) %></strong><% end %>
             <% if flag.resolved? %><strong><%= t(".resolved") %>.</strong><% end %>
@@ -66,8 +66,8 @@
             </tr>
             <tr>
               <% 2.times do %>
-                <th scope="col" class="text-right"><%= t(".income_columns.reported") %></th>
-                <th scope="col" class="text-right"><%= t(".income_columns.on_file") %></th>
+                <th scope="col" class="text-right text-no-wrap"><%= t(".income_columns.reported") %></th>
+                <th scope="col" class="text-right text-no-wrap"><%= t(".income_columns.on_file") %></th>
               <% end %>
             </tr>
           </thead>
@@ -252,7 +252,7 @@
           <h3 class="font-heading-md margin-top-4 margin-bottom-0"><%= t(".send_back_heading") %></h3>
           <%= form_with url: send_back_tax_return_case_path(@case), method: :post, scope: :send_back, class: "usa-form maxw-none" do |f| %>
             <%= f.label :note, t(".send_back_note"), class: "usa-label" %>
-            <span class="usa-hint" id="send-back-hint"><%= t(".send_back_hint") %></span>
+            <span class="usa-hint text-base-darker" id="send-back-hint"><%= t(".send_back_hint") %></span>
             <%= f.text_area :note, rows: 3, required: true, class: "usa-textarea bg-white", "aria-describedby": "send-back-hint" %>
             <%= f.button t(".send_back"), type: :submit, class: "usa-button usa-button--outline cods-button cods-button--secondary margin-top-2" %>
           <% end %>

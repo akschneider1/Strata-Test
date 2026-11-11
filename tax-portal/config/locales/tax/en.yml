@@ -36,6 +36,18 @@ en:
     source: "Where this rule comes from"
     filer: "You"
     spouse: "Your spouse"
+    # The Strata SDK writes these in English only (step indicator partial and
+    # memorable date fields). Kept here so both languages have them.
+    step_indicator:
+      label: "Progress"
+      step: "Step"
+      of: "of %{total}"
+      completed: "completed"
+      not_completed: "not completed"
+    date_fields:
+      month: "Month"
+      day: "Day"
+      year: "Year"
   home:
     index:
       title: "File your 2025 Colorado income tax return"
@@ -119,8 +131,8 @@ en:
       engine: "One trip to the tax engine"
       engine_good: "Under 20 milliseconds"
       engine_ready: "Tax engine has loaded its rules"
-      yes: "Yes"
-      no: "No"
+      "yes": "Yes"
+      "no": "No"
       calculation: "One new tax calculation"
       calculation_good: "Under 1,000 milliseconds"
       processors: "Processors"
@@ -163,6 +175,7 @@ en:
     errors:
       tax_engine_unavailable: "We couldn't calculate your return just now. Nothing was lost. Please try again in a minute."
       estimate_unavailable: "We can't show your estimate right now. You can keep working on your return, and nothing was lost."
+      fix_to_continue: "There is a problem on this page. Each message is next to the answer it is about."
     index:
       title: "Your %{tax_year} Colorado income tax return"
       lead: "You can stop at any time and pick up where you left off."
@@ -280,6 +293,7 @@ en:
       change: "Something is different"
       not_mine: "This isn't mine"
       undo: "Review again"
+      use_on_file: "Use the amounts on file"
       corrected_note: "Your numbers are different from what the payer reported. A person at the Department may check your return before it is accepted."
       disputed_note: "We'll leave this off your return. Someone at the Department will follow up with the payer."
       add_heading: "Missing a form?"

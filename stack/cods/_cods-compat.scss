@@ -509,3 +509,34 @@
   font-size: var(--cods-font-size-mobile-h5);
   line-height: var(--cods-line-height-mobile-h5);
 }
+
+// --- Narrow screens and keyboard focus ----------------------------------
+// USWDS `grid-gap-6` pulls a row 1.5rem past each side of its container,
+// but `.grid-container` only has 1rem of padding below desktop width. The
+// page then scrolled sideways by 8px on phones and tablets (home page,
+// examiner pages). Below desktop the columns stack, so use the 1rem gutter.
+@media (max-width: 63.99em) {
+  .grid-row.grid-gap-6 {
+    margin-inline: -0.5rem;
+  }
+
+  .grid-row.grid-gap-6 > * {
+    padding-inline: 0.5rem;
+  }
+}
+
+// USWDS table cells have 1rem of side padding. On a phone that pushes the
+// last column of a four-column table off screen (worse in Spanish, where
+// the words are longer). Halve it on small screens.
+@media (max-width: 29.99em) {
+  .usa-table th,
+  .usa-table td {
+    padding-inline: 0.5rem;
+  }
+}
+
+// The CoDS focus ring is dark blue, which disappears on the dark title
+// band. Links there get a white ring.
+.cods-hero a:focus-visible {
+  outline-color: var(--cods-color-white, #fff);
+}

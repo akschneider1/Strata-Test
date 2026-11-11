@@ -24,6 +24,11 @@
         <li class="usa-nav__primary-item">
           <span class="display-block padding-2 font-sans-xs line-height-sans-1 text-base-dark" data-testid="signed-in-as"><%= current_user.display_name %> · <%= t("staff.header.role") %></span>
         </li>
+        <% if current_user.provider == "demo" %>
+          <li class="usa-nav__primary-item">
+            <%= button_to t("header.switch_person"), main_app.demo_sign_out_path, method: :delete, class: "usa-nav-link", data: { testid: "switch-person" } %>
+          </li>
+        <% end %>
         <li class="usa-nav__primary-item">
           <%= button_to t("header.logout"), current_user.provider == "demo" ? main_app.demo_sign_out_path : main_app.destroy_user_session_path, method: :delete, class: "usa-nav-link" %>
         </li>

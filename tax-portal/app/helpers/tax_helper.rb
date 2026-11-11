@@ -31,13 +31,13 @@ module TaxHelper
 
   # Colorado Design System in-page alert. Initial-render alerts carry no
   # live-region role (see the CoDS in-page-alert fixture).
-  def cods_alert(type, heading: nil, **options, &block)
+  def cods_alert(type, heading: nil, heading_level: 2, **options, &block)
     cods_type = { error: "urgent" }.fetch(type, type.to_s)
     classes = class_names("usa-alert", "usa-alert--#{type}", "cods-in-page-alert", "cods-in-page-alert--#{cods_type}", options.delete(:class))
     content_tag(:div, class: classes, **options) do
       content_tag(:div, class: "usa-alert__body cods-in-page-alert__body") do
         safe_join([
-          (content_tag(:h2, heading, class: "usa-alert__heading cods-in-page-alert__heading") if heading),
+          (content_tag(:"h#{heading_level}", heading, class: "usa-alert__heading cods-in-page-alert__heading") if heading),
           content_tag(:div, capture(&block), class: "usa-alert__text cods-in-page-alert__text")
         ].compact)
       end

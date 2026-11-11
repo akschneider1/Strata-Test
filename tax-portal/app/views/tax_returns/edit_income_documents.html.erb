@@ -74,7 +74,7 @@
               </li>
               <% unless document.review_status == "confirmed" %>
                 <li class="usa-button-group__item">
-                  <%= button_to page_t("correct"), confirm_tax_return_income_document_path(@tax_return, document), method: :patch, class: "usa-button usa-button--unstyled padding-y-105", "aria-label": "#{t('.correct')}: #{document.payer_name}" %>
+                  <%= button_to page_t("use_on_file"), confirm_tax_return_income_document_path(@tax_return, document), method: :patch, class: "usa-button usa-button--unstyled padding-y-105", "aria-label": "#{t('.use_on_file')}: #{document.payer_name}" %>
                 </li>
               <% end %>
             <% else %>
