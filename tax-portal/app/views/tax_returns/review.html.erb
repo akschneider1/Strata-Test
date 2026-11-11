@@ -1,7 +1,7 @@
 <% year = @tax_return.tax_year %>
 <% content_for :title, t("tax_returns.review.title") %>
 <%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
-<% row = ->(label, value) { content_tag(:div, content_tag(:dt, label, class: "tablet:grid-col-4 tablet:padding-right-2 text-base-dark") + content_tag(:dd, value, class: "tablet:grid-col-8 margin-0 text-bold"), class: "grid-row padding-y-1 border-bottom-1px border-base-lighter") } %>
+<% row = ->(label, value) { content_tag(:div, content_tag(:dt, label, class: "tablet:grid-col-4 tablet:padding-right-2 line-height-sans-3 text-base-dark") + content_tag(:dd, value, class: "tablet:grid-col-8 margin-0 text-bold"), class: "grid-row padding-y-1 border-bottom-1px border-base-lighter") } %>
 
 <% hero t("tax_returns.review.title"), intro: t("tax_returns.review.lead"), crumbs: [ [ t("tax_returns.show.title", tax_year: year), tax_return_path(@tax_return) ] ] %>
 

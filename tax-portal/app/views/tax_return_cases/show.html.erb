@@ -59,8 +59,15 @@
           <caption class="usa-sr-only"><%= t(".income_heading") %></caption>
           <thead>
             <tr>
-              <% %w[form reported_amount on_file_amount reported_withholding on_file_withholding status].each do |column| %>
-                <th scope="col"<%= ' class="text-right"'.html_safe if column.match?(/amount|withholding/) %>><%= t(".income_columns.#{column}") %></th>
+              <th scope="col" rowspan="2"><%= t(".income_columns.form") %></th>
+              <th scope="colgroup" colspan="2" class="text-center"><%= t(".income_columns.income") %></th>
+              <th scope="colgroup" colspan="2" class="text-center"><%= t(".income_columns.withholding") %></th>
+              <th scope="col" rowspan="2"><%= t(".income_columns.status") %></th>
+            </tr>
+            <tr>
+              <% 2.times do %>
+                <th scope="col" class="text-right"><%= t(".income_columns.reported") %></th>
+                <th scope="col" class="text-right"><%= t(".income_columns.on_file") %></th>
               <% end %>
             </tr>
           </thead>

@@ -78,6 +78,15 @@ page no longer shows a one-step progress bar.
 **Names on cards looked like links.** CoDS colors every card heading as a
 link. Cards that are not links now have plain headings.
 
+**The start page was one long column.** Seven people, then how the demo
+works, then what is different, with a third of the screen empty. At desktop
+width the people are now on the left and "How the demo works" sits beside
+them in a USWDS summary box (CoDS has none). The first person in each group
+has the filled button; the rest are outlined and the same width. Plain
+paragraphs had the browser's tight line spacing and now match lists. A
+signed-in person's own return no longer shows a "Home" breadcrumb, because
+Home sends them back to that same page.
+
 All of these are in `stack/cods/_cods-compat.scss`, so every app in this
 repository gets them. They are gaps to raise with the CoDS team: plain
 USWDS field markup, a step indicator, a header and a footer.
