@@ -66,6 +66,23 @@ RSpec.describe "Taxpayer portal" do
       expect(response.body).to include('<span class="usa-error-message">Enter your first name</span>')
     end
 
+    it "asks for an answer when a choice page is sent with nothing chosen" do
+      tax_return = create(:tax_return, :complete, user: taxpayer)
+
+      # The pages send an empty value when no option is chosen.
+      patch update_marital_status_tax_return_path(tax_return), params: { tax_return: { marital_status: "" } }
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("Choose an answer")
+
+      patch update_refund_method_tax_return_path(tax_return), params: { tax_return: { refund_method: "" } }
+      expect(response).to have_http_status(:unprocessable_content)
+
+      [ edit_marital_status_tax_return_path(tax_return), edit_refund_method_tax_return_path(tax_return) ].each do |path|
+        get path
+        expect(response.body).to match(/<input[^>]*type="hidden"[^>]*name="tax_return\[(marital_status|refund_method)\]"/)
+      end
+    end
+
     it "blocks later sections until the earlier ones are done" do
       tax_return = create(:tax_return, user: taxpayer)
 

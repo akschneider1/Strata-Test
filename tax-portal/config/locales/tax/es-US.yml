@@ -75,7 +75,7 @@ es-US:
       demo_how_heading: "Cómo funciona la demostración"
       demo_how:
         - "Elija a una persona. No necesita contraseña."
-        - "Para cambiar de persona, elija Cerrar sesión. Luego elija a otra persona."
+        - "Para cambiar de persona, elija Cambiar de persona en la parte de arriba de la página. Luego elija a otra persona."
         - "Nada de lo que escriba se envía al Departamento de Hacienda."
         - "Usted recibe su propia copia de la demostración. Lo que haga no cambia lo que ven otras personas."
         - "Su copia se borra después de dos horas sin uso. Luego empieza de nuevo."
@@ -653,7 +653,6 @@ es-US:
   strata:
     form_builder:
       select_month: "Elija una opción"
-      memorable_date_hint: "Por ejemplo: enero 19 2000"
   activerecord:
     attributes:
       tax_return:

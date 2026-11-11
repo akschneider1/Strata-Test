@@ -67,7 +67,7 @@ en:
       demo_how_heading: "How the demo works"
       demo_how:
         - "Choose a person. You don't need a password."
-        - "To switch to someone else, choose Log out. Then choose another person."
+        - "To switch to someone else, choose Switch person at the top of the page. Then choose another person."
         - "Nothing you enter is sent to the Department of Revenue."
         - "You get your own copy of the demo. What you do doesn't change what anyone else sees."
         - "Your copy is erased after two hours without use. Then you start fresh."
