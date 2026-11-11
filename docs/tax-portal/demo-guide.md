@@ -100,10 +100,10 @@ would take to find out more.
    income** (the two sections before it are short). Stop on the income
    page: her W-2 is already there. *"She didn't type
    that. Her employer already sent it to the State."*
-2. Log out, **Continue as Daniela**, open **See how we calculated this**.
+2. **Switch person**, **Continue as Daniela**, open **See how we calculated this**.
    *"Nobody asked her for a filing status or which credits to claim. It
    worked them out and says why."* Scroll once.
-3. Log out, **Continue as Priya**, **Pick up next return**. *"This one was
+3. **Switch person**, **Continue as Priya**, **Pick up next return**. *"This one was
    stopped because his numbers don't match his employer's. It says exactly
    why. The rest never reach a person."* Open **Service measures**.
 
@@ -145,13 +145,13 @@ what is not built.
 
 1. **Continue as Maya** on a phone, through to **Your income**. *"The State
    already had her W-2. She checks it. She doesn't type it."*
-2. Log out, **Continue as Daniela**, **See how we calculated this**. *"A
+2. **Switch person**, **Continue as Daniela**, **See how we calculated this**. *"A
    single parent with two children. It found four credits for her and says
    why. She did not have to know they existed."*
 3. On the same page, **See what the new rates would mean for you**.
    *"Voters approved new rates for 2027. They are already in here. A change
    in the law was a change to the rules, not a new system."*
-4. Log out, **Continue as Elena**. *"She owes $950. It tells her what and
+4. **Switch person**, **Continue as Elena**. *"She owes $950. It tells her what and
    when. It can't take her payment. That is not built."*
 5. Open **About this prototype** from the home page and read the "made up
    or left out" list aloud. Then hand over the
@@ -191,7 +191,10 @@ long it takes a real person has not been measured.
 ### 2. See what the system works out, as Daniela
 
 1. **Continue as Daniela** and open **See how we calculated this**.
-2. She was never asked for a filing status: the page says **Head of
+2. The top of the page has it all at a glance: the refund, the three
+   totals behind it, her filing status and her credits. The steps below
+   give the reason for each line.
+   She was never asked for a filing status: the page says **Head of
    household** and why. Under credits she gets the Colorado Earned Income
    Tax Credit, Child Tax Credit, Family Affordability Tax Credit and Child
    Care Expenses Tax Credit, each with the reason. Refund **$7,162**.
@@ -205,21 +208,22 @@ long it takes a real person has not been measured.
 
 ### 3. Work a flagged return as Priya (wide window)
 
-1. Log out, **Continue as Priya**. The dashboard shows what's waiting, what
+1. **Switch person**, **Continue as Priya**. The dashboard shows what's waiting, what
    was accepted with no review, and the process every return follows.
 2. **Pick up next return** opens Jordan Lee's. The page says why it was
    flagged (he claimed $3,900 of withholding; his employer reported $2,900)
    and shows reported and on-file amounts side by side.
-3. Under **Ask the taxpayer**, send a question about the difference.
-4. Log out, **Continue as Jordan**. His status page shows the question.
+3. Under **Other actions**, open **Ask the taxpayer** and send a question
+   about the difference.
+4. **Switch person**, **Continue as Jordan**. His status page shows the question.
    Answer it.
-5. Back as Priya, open the return from **My returns**. Under **Change an
-   amount**, set Colorado tax withheld to `2900` with a reason. The return
+5. Back as Priya, open the return from **My returns**. Open **Change an
+   amount** and set Colorado tax withheld to `2900` with a reason. The return
    is recalculated: refund $1,705 becomes **$705**. The filed return is not
    edited; the change is recorded on top of it.
 6. **Accept with adjustments.** Because the change moves the refund by $500
    or more, the return goes to a second examiner instead of closing.
-7. Log out, **Continue as Marcus**, **Pick up next return**. He sees what
+7. **Switch person**, **Continue as Marcus**, **Pick up next return**. He sees what
    Priya proposed and clicks **Confirm**. (He could send it back with a note
    instead. Priya can't confirm her own proposal.) The History section lists
    every step and who did it. Then open **Service measures**: how many

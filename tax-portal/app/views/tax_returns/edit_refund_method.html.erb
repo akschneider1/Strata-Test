@@ -1,5 +1,7 @@
 <% title = page_t("title") %>
 <%= render layout: "question", locals: { title: title } do |f| %>
+  <%# Sent when no option is chosen, so the error message can show (as yes_no does). %>
+  <%= f.hidden_field :refund_method, value: "", id: nil %>
   <%= f.fieldset content_tag(:h1, title, class: "font-heading-xl margin-0"), attribute: :refund_method, hint: page_t("lead"), large_legend: true do %>
     <%= f.radio_button :refund_method, "direct_deposit", label: page_t("options.direct_deposit"), hint: page_t("options.direct_deposit_hint") %>
     <%= f.radio_button :refund_method, "check", label: page_t("options.check"), hint: page_t("options.check_hint") %>

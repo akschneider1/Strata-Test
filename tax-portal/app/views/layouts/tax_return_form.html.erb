@@ -16,6 +16,10 @@
       } %>
     </div>
   <% end %>
+  <%# Field errors show next to each field. This tells screen reader users the page came back with errors. %>
+  <% if @tax_return&.errors&.any? %>
+    <p class="usa-sr-only" role="alert"><%= t("tax_returns.errors.fix_to_continue") %></p>
+  <% end %>
   <%= yield %>
 <% end %>
 

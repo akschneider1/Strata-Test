@@ -1,20 +1,28 @@
 <% content_for :title, t(".title") %>
-<%= content_for :content_col_class, "desktop:grid-col-10" %>
 
 <% hero t(".title"), intro: t(".lead") %>
 
-<% %w[can real simulated not_covered].each do |section| %>
-  <section class="<%= "margin-top-4" unless section == "can" %>" aria-labelledby="<%= section %>-heading">
-    <h2 id="<%= section %>-heading" class="font-heading-lg"><%= t(".#{section}_heading") %></h2>
-    <ul class="usa-list measure-5">
-      <% t(".#{section}").each do |item| %><li><%= item %></li><% end %>
-    </ul>
-  </section>
-<% end %>
+<%# Two columns at desktop width, so "what is real" sits next to "what is made up". %>
+<div class="grid-row grid-gap desktop:grid-gap-6">
+  <% %w[can real simulated not_covered].each_slice(2).with_index do |sections, column| %>
+    <div class="desktop:grid-col-6">
+      <% sections.each_with_index do |section, index| %>
+        <section class="<%= class_names("margin-top-4": index.positive? || column.positive?, "desktop:margin-top-0": index.zero?) %>" aria-labelledby="<%= section %>-heading">
+          <h2 id="<%= section %>-heading" class="font-heading-lg"><%= t(".#{section}_heading") %></h2>
+          <ul class="usa-list">
+            <% t(".#{section}").each do |item| %><li><%= item %></li><% end %>
+          </ul>
+        </section>
+      <% end %>
+    </div>
+  <% end %>
+</div>
 
-<section class="margin-top-4" aria-labelledby="copy-heading">
-  <h2 id="copy-heading" class="font-heading-lg"><%= t(".copy_heading") %></h2>
-  <p class="measure-5"><%= t(".copy") %></p>
+<section class="usa-summary-box margin-top-5" aria-labelledby="copy-heading">
+  <div class="usa-summary-box__body">
+    <h2 id="copy-heading" class="usa-summary-box__heading"><%= t(".copy_heading") %></h2>
+    <p class="usa-summary-box__text margin-bottom-0"><%= t(".copy") %></p>
+  </div>
 </section>
 
 <p class="margin-top-4"><%= link_to t(".back"), root_path, class: "usa-link display-inline-block padding-y-105" %></p>

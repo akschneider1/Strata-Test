@@ -14,6 +14,13 @@ es-US:
     prototype_heading: "Este prototipo"
     about: "Acerca de este prototipo"
     notice: "Este es un prototipo. No es un sitio web del Estado de Colorado y no puede presentar una declaración de impuestos real."
+  flash:
+    error_heading:
+      zero: "Ocurrió un error inesperado"
+      one: "Ocurrió un error"
+      other: "Ocurrieron %{count} errores"
+    error_fallback: "Lo sentimos, ocurrió un error inesperado. Vuelva a cargar la página e intente de nuevo."
+    reload_page: "Volver a cargar la página"
   breadcrumbs:
     home: "Inicio"
     label: "Ruta de navegación"

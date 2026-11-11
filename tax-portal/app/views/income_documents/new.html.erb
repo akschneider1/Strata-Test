@@ -1,4 +1,4 @@
 <% content_for :title, t(".title") %>
 <%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
-<h1 class="font-heading-xl"><%= t(".title") %></h1>
+<h1 class="usa-form-heading font-heading-xl"><%= t(".title") %></h1>
 <%= render "form", income_document: @income_document, url: tax_return_income_documents_path(@tax_return), method: :post %>

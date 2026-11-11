@@ -2,7 +2,7 @@
 <% title = t(".title", name: @dependent.name_first) %>
 <% content_for :title, t(".page_title") %>
 <%= content_for :content_col_class, "tablet:grid-col-10 desktop:grid-col-8" %>
-<h1 class="font-heading-xl"><%= title %></h1>
+<h1 class="usa-form-heading font-heading-xl"><%= title %></h1>
 <p class="usa-intro"><%= t(".lead") %></p>
 <%= strata_form_with model: @dependent, url: update_support_tax_return_dependent_path(@tax_return, @dependent), method: :patch do |f| %>
   <%= f.yes_no :income_under_limit, legend: t(".income", amount: money(@income_limit), tax_year: year), hint: t(".income_hint") %>

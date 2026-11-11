@@ -1,46 +1,43 @@
 <% content_for :title, t(".title") %>
 <% submitted = @cases_by_step.values.sum %>
-<% stat = ->(label, value, note = nil, testid = nil) do
-     content_tag(:div, class: "tablet:grid-col-3 margin-bottom-2") do
-       content_tag(:div, class: "border-1px border-base-light radius-md padding-2 height-full", data: { testid: testid }) do
-         content_tag(:p, label, class: "margin-0 text-base-darker") +
-           content_tag(:p, value, class: "margin-0 font-heading-2xl text-bold") +
-           (note ? content_tag(:p, note, class: "margin-0 font-body-2xs text-base-dark") : "".html_safe)
-       end
-     end
-   end %>
+<% nothing_to_pick_up = @open_tasks.unassigned.none? %>
 
 <h1 class="font-heading-xl"><%= t(".title") %></h1>
 
-<div class="grid-row grid-gap">
-  <%= stat.call(t(".my_tasks"), @my_tasks.count, nil, "my-tasks") %>
-  <%= stat.call(t(".unassigned"), @open_tasks.unassigned.count, nil, "unassigned") %>
-  <%= stat.call(t(".waiting_on_taxpayer"), @cases_by_step["provide_information"].to_i) %>
-  <%= stat.call(t(".accepted_automatically"), @accepted_automatically, t(".of_total", total: submitted), "auto-accepted") %>
-</div>
+<ul class="usa-card-group cods-card-group margin-top-3">
+  <%= stat_card(t(".my_tasks"), @my_tasks.count, note: t(".my_tasks_note"), testid: "my-tasks") %>
+  <%= stat_card(t(".unassigned"), @open_tasks.unassigned.count, note: t(".unassigned_note"), testid: "unassigned") %>
+  <%= stat_card(t(".waiting_on_taxpayer"), @cases_by_step["provide_information"].to_i, note: t(".waiting_on_taxpayer_note")) %>
+  <%= stat_card(t(".accepted_automatically"), @accepted_automatically, note: t(".of_total", total: submitted), testid: "auto-accepted") %>
+</ul>
 
-<ul class="usa-button-group margin-top-1">
+<ul class="usa-button-group flex-align-center margin-top-3">
   <li class="usa-button-group__item">
-    <%= button_to t(".pick_up_next"), pick_up_next_task_tasks_path, class: "usa-button cods-button", disabled: @open_tasks.unassigned.none? %>
+    <%= button_to t(".pick_up_next"), pick_up_next_task_tasks_path, class: "usa-button cods-button", disabled: nothing_to_pick_up %>
   </li>
   <li class="usa-button-group__item">
     <%= link_to t(".see_queue"), tasks_path, class: "usa-button usa-button--outline cods-button cods-button--secondary" %>
   </li>
+  <% if nothing_to_pick_up %>
+    <li class="usa-button-group__item text-base-darker"><%= t(".nothing_to_pick_up") %></li>
+  <% end %>
 </ul>
 
-<div class="grid-row grid-gap-4 margin-top-4">
+<div class="grid-row grid-gap-6 margin-top-5">
   <div class="desktop:grid-col-7">
-    <h2 class="font-heading-lg"><%= t(".my_work_heading") %></h2>
+    <h2 class="font-heading-lg margin-top-0"><%= t(".my_work_heading") %></h2>
     <% if @my_tasks.any? %>
-      <ul class="usa-list usa-list--unstyled">
+      <ul class="usa-list usa-list--unstyled border-bottom-1px border-base-light">
         <% @my_tasks.each do |task| %>
           <% kase = task.case %>
           <li class="border-top-1px border-base-light padding-y-2 maxw-none display-flex flex-justify flex-align-center gap-2">
             <div>
-              <strong><%= kase.tax_return.filer_full_name %></strong> · <%= kase.tax_return.confirmation_number %><br>
-              <span class="text-base-darker"><%= kase.unresolved_flags.map { |flag| t("staff.flags.#{flag.code}.title") }.to_sentence %></span>
+              <strong><%= kase.tax_return.filer_full_name %></strong> · <%= kase.tax_return.confirmation_number %>
+              <span class="text-base-darker display-block margin-top-05"><%= kase.unresolved_flags.map { |flag| t("staff.flags.#{flag.code}.title") }.to_sentence %></span>
             </div>
-            <%= link_to t(".open"), tax_return_case_path(kase), class: "usa-button usa-button--outline cods-button cods-button--secondary", "aria-label": "#{t('.open')} #{kase.tax_return.confirmation_number}" %>
+            <%= link_to t(".open"), tax_return_case_path(kase),
+                  class: class_names("usa-button cods-button margin-right-0", "usa-button--outline cods-button--secondary": !nothing_to_pick_up),
+                  "aria-label": "#{t('.open')} #{kase.tax_return.confirmation_number}" %>
           </li>
         <% end %>
       </ul>
@@ -48,27 +45,34 @@
       <p class="text-base-darker"><%= t(".none_assigned") %></p>
     <% end %>
 
-    <h2 class="font-heading-lg margin-top-4"><%= t(".recent_heading") %></h2>
-    <ul class="usa-list usa-list--unstyled">
+    <h2 class="font-heading-lg margin-top-5"><%= t(".recent_heading") %></h2>
+    <ul class="usa-list usa-list--unstyled border-bottom-1px border-base-lighter">
       <% @recent_activity.each do |line| %>
-        <li class="border-top-1px border-base-lighter padding-y-1 maxw-none">
+        <li class="border-top-1px border-base-lighter padding-y-105 maxw-none">
+          <% if (kase = @recent_cases[line.subject_id]) %><strong><%= kase.tax_return.filer_full_name %>:</strong><% end %>
           <%= link_to audit_line_summary(line), tax_return_case_path(line.subject_id), class: "usa-link" %>
-          <span class="text-base-dark font-body-2xs display-block"><%= actor_name(line) %> · <%= l(line.created_at.in_time_zone("America/Denver"), format: :short) %></span>
+          <span class="text-base-dark font-body-2xs display-block margin-top-05"><%= actor_name(line) %> · <%= staff_time(line.created_at) %></span>
         </li>
       <% end %>
     </ul>
   </div>
 
   <div class="desktop:grid-col-5">
-    <h2 class="font-heading-lg"><%= t(".process_heading") %></h2>
-    <p class="text-base-darker"><%= t(".process_lead") %></p>
-    <ol class="usa-list">
-      <% TaxReturnBusinessProcess.steps.each_key do |step| %>
-        <li>
-          <%= t("tax_return_cases.process.#{step}") %>
-          <% if @cases_by_step[step].to_i.positive? %><%= cods_tag(@cases_by_step[step], "blue") %><% end %>
-        </li>
-      <% end %>
-    </ol>
+    <div class="usa-summary-box margin-top-0" role="region" aria-labelledby="process-heading">
+      <div class="usa-summary-box__body">
+        <h2 id="process-heading" class="usa-summary-box__heading font-heading-md margin-top-0"><%= t(".process_heading") %></h2>
+        <div class="usa-summary-box__text">
+          <p class="margin-top-0"><%= t(".process_lead") %></p>
+          <ol class="usa-list margin-bottom-0">
+            <% TaxReturnBusinessProcess.steps.each_key do |step| %>
+              <li>
+                <%= t("tax_return_cases.process.#{step}") %>
+                <% if @cases_by_step[step].to_i.positive? %><%= cods_tag(t(".at_step", count: @cases_by_step[step]), "blue") %><% end %>
+              </li>
+            <% end %>
+          </ol>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

@@ -1,5 +1,39 @@
 # Examiner portal text (English only).
 en:
+  # Wording for the Strata SDK's work queue (overrides the SDK's defaults)
+  strata:
+    staff:
+      header:
+        tasks: "Work queue"
+    tasks:
+      actions:
+        pick_next: "Pick up next return"
+      messages:
+        no_tasks_available: "No returns are waiting to be picked up."
+      index:
+        title: "Work queue"
+        actions_label: "Next return"
+        tabs:
+          assigned: "To do"
+          completed: "Done"
+        columns:
+          col_due_date: "Due"
+          col_type: "Task"
+          col_taxpayer: "Taxpayer"
+          col_confirmation: "Confirmation"
+          col_assignee: "Assigned to"
+          col_created_date: "Created"
+      partials:
+        due_date_filter:
+          label: "Due"
+          options:
+            all: "Any date"
+        type_filter:
+          label: "Task"
+          options:
+            all: "All tasks"
+        no_tasks_alert:
+          message: "Nothing here. Returns with no flags never reach the queue."
   # Keys the Strata SDK task views look up in the host app
   tasks:
     types:
@@ -13,6 +47,7 @@ en:
       task_marked_completed: "Task marked as done."
   staff:
     header:
+      dashboard: "Dashboard"
       returns: "Returns"
       measures: "Service measures"
       role: "Examiner"
@@ -23,6 +58,14 @@ en:
     result:
       refund: "refund %{amount}"
       owes: "owes %{amount}"
+    unassigned: "No one yet"
+    # What the taxpayer did with each income record, in the examiner's words
+    income_status:
+      unreviewed: "Not reviewed"
+      confirmed: "Confirmed"
+      corrected: "Changed the amounts"
+      disputed: "Says it isn't theirs"
+      entered: "Added by taxpayer"
     steps:
       file_return: "Not submitted"
       calculate_return: "Calculating"
@@ -55,8 +98,9 @@ en:
       large_refund_for_income:
         title: "Large refund for the income reported"
         description: "Refund of %{refund} on total income of %{total_income}."
+      difference: "Difference: %{amount}."
     history:
-      calculated: "Return calculated (%{engine} %{version}): %{result}"
+      calculated: "Return calculated: %{result} (%{engine} %{version})"
       cleared: "Automatic checks found nothing to review"
       flagged:
         one: "Automatic checks raised 1 flag"
@@ -82,10 +126,17 @@ en:
       waiting_on_taxpayer: "Waiting on taxpayer"
       accepted_automatically: "Accepted with no review"
       of_total: "of %{total} submitted"
+      my_tasks_note: "Returns you are working on"
+      unassigned_note: "Flagged by the automatic checks"
+      waiting_on_taxpayer_note: "An examiner asked a question"
+      nothing_to_pick_up: "Nothing is waiting to be picked up."
+      at_step:
+        one: "1 return here now"
+        other: "%{count} returns here now"
       pick_up_next: "Pick up next return"
       see_queue: "See the work queue"
       my_work_heading: "My returns"
-      none_assigned: "Nothing is assigned to you. Pick up the next return to start."
+      none_assigned: "Nothing is assigned to you."
       recent_heading: "Recent activity"
       open: "Open"
       process_heading: "How returns are processed"
@@ -106,6 +157,20 @@ en:
       not_yet: "None yet"
       under_a_minute: "Under a minute"
       count_with_share: "%{count} (%{share}%)"
+      headline:
+        heading: "At a glance"
+        filed: "Returns filed"
+        accepted_automatically: "Accepted with no review"
+        flagged: "Sent to an examiner"
+        of_filed: "%{count} of %{filed} returns filed"
+        time: "Typical time to a decision"
+        time_note: "For returns that needed no review"
+        under_a_minute: "Under 1 min"
+        minutes: "%{count} min"
+        hours: "%{count} hr"
+        days:
+          one: "1 day"
+          other: "%{count} days"
       columns:
         measure: "Measure"
         returns: "Returns"
@@ -147,7 +212,7 @@ en:
         ago: "%{time} ago"
       missing:
         heading: "What this page can't show yet"
-        body: "It doesn't show where taxpayers stop during the interview, how many needed help, or what they thought of the service. The prototype doesn't record those. See docs/tax-portal/direct-file-lessons.md."
+        body: "It doesn't show where taxpayers stop during the interview, how many needed help, or what they thought of the service. The prototype doesn't record those."
   tax_return_cases:
     errors:
       not_under_review: "This return isn't under review right now, so that action isn't available."
@@ -195,16 +260,19 @@ en:
       result_filed: "As filed"
       result_current: "After adjustments"
       flags_heading: "Why this return needs review"
+      flags_heading_closed: "Why this return was reviewed"
+      flags_heading_none: "Automatic checks"
       no_flags: "The automatic checks raised no flags. This return was accepted without review."
       resolved: "Resolved"
-      income_heading: "Income: taxpayer compared with records on file"
+      income_heading: "Return compared with records on file"
       income_columns:
         form: "Form and payer"
-        reported_amount: "Amount reported"
-        on_file_amount: "Amount on file"
-        reported_withholding: "CO tax withheld, reported"
-        on_file_withholding: "CO tax withheld, on file"
-        status: "Taxpayer said"
+        income: "Income"
+        withholding: "Colorado tax withheld"
+        reported: "On the return"
+        on_file: "On file"
+        status: "What the taxpayer did"
+      income_lead: "What the taxpayer put on the return, next to what payers sent the Department."
       no_record: "No record"
       left_off: "Left off return"
       matches: "Matches"
@@ -224,7 +292,9 @@ en:
       notes_heading: "Notes"
       no_notes: "No notes yet."
       history_heading: "History"
-      actions_heading: "Actions"
+      actions_heading: "Next step"
+      status_heading: "Where this return stands"
+      other_actions: "Other actions"
       assign_to_me: "Assign to me"
       not_assigned: "No one has picked up this return. Assign it to yourself to work on it."
       assigned_to_other: "%{name} is working on this return. Assign it to yourself to take it over."
@@ -235,12 +305,14 @@ en:
       reject_hint: "The taxpayer will see this. Say what is wrong and what they can do."
       reject_submit: "Propose not accepting"
       proposal_heading: "Waiting for a second examiner"
+      confirm_heading: "Confirm this decision"
       proposal:
         accepted_with_adjustments: "%{name} proposes accepting this return with adjustments. The taxpayer would get %{result}."
         not_accepted: "%{name} proposes not accepting this return."
       waiting_for_second: "You proposed this, so another examiner has to confirm it."
       confirm: "Confirm"
-      send_back_note: "Or send it back with a note"
+      send_back_heading: "Or send it back"
+      send_back_note: "Note for the first examiner"
       send_back_hint: "Only examiners see this."
       send_back: "Send back"
       waiting_on_taxpayer: "This return is waiting on the taxpayer. You'll get it back when they answer."
@@ -248,8 +320,8 @@ en:
       approve_heading: "Accept the return"
       approve_as_filed: "Accept as filed"
       approve_adjusted: "Accept with adjustments"
-      approve_hint_filed: "The taxpayer gets %{result}."
-      approve_hint_adjusted: "With your changes, the taxpayer gets %{result}."
+      approve_hint_filed: "Result for the taxpayer: %{result}."
+      approve_hint_adjusted: "Result with your changes: %{result}."
       adjust_heading: "Change an amount"
       adjust_field: "Amount to change"
       select: "- Select -"

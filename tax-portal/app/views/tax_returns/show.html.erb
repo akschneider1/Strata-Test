@@ -5,12 +5,13 @@
 <% hero t(".title", tax_year: year), intro: t(".lead") %>
 
 <% if @calculation %>
-  <section aria-labelledby="estimate-heading" class="border-left-05 border-primary bg-primary-lighter padding-2 margin-bottom-3">
+  <section aria-labelledby="estimate-heading" class="border-left-05 border-primary bg-primary-lighter padding-x-3 padding-y-2 margin-bottom-3">
     <h2 id="estimate-heading" class="margin-0 font-body-sm text-normal">
       <%= @calculation.owes? ? t(".estimate_owed_heading") : t(".estimate_refund_heading") %>
     </h2>
     <p class="margin-0 font-heading-2xl text-bold" data-testid="estimate"><%= money(@calculation.owes? ? @calculation.amount_owed : @calculation.refund) %></p>
-    <p class="margin-top-1 margin-bottom-0 font-body-xs"><%= t(".estimate_body") %> <%= link_to t(".see_calculation"), summary_tax_return_path(@tax_return), class: "usa-link display-inline-block padding-y-105" %></p>
+    <p class="margin-top-1 margin-bottom-0 font-body-xs"><%= t(".estimate_body") %></p>
+    <p class="margin-top-2 margin-bottom-0"><%= link_to t(".see_calculation"), summary_tax_return_path(@tax_return), class: "usa-button usa-button--outline cods-button cods-button--secondary bg-white" %></p>
   </section>
 <% end %>
 
@@ -25,16 +26,19 @@
         <h3 class="usa-card__heading cods-card__heading margin-0"><%= index + 1 %>. <%= t("#{prefix}.title") %></h3>
         <span class="text-no-wrap"><%= cods_tag(t(".status.#{state}"), { completed: "green", in_progress: "yellow" }[state]) %></span>
       </div>
-      <p class="margin-top-1 measure-5"><%= t("#{prefix}.description") %></p>
-      <% if state == :cannot_start_yet %><p class="text-base-darker margin-bottom-0"><%= t(".cannot_start_hint") %></p><% end %>
-      <% case state %>
-      <% when :completed %>
-        <%= link_to t(".actions.edit"), task.path(@tax_return), class: "usa-link display-inline-block padding-y-105", "aria-label": "#{t('.actions.edit')}: #{t("#{prefix}.title")}" %>
-      <% when :in_progress %>
-        <%= link_to t(".actions.continue"), task.path(@tax_return), class: "usa-button cods-button", "aria-label": "#{t('.actions.continue')}: #{t("#{prefix}.title")}" %>
-      <% when :not_started %>
-        <%= link_to t(".actions.start"), task.path(@tax_return), class: "usa-button cods-button", "aria-label": "#{t('.actions.start')}: #{t("#{prefix}.title")}" %>
-      <% end %>
+      <p class="margin-top-1 margin-bottom-0 measure-5"><%= t("#{prefix}.description") %></p>
+      <p class="margin-top-2 margin-bottom-0">
+        <% case state %>
+        <% when :completed %>
+          <%= link_to t(".actions.edit"), task.path(@tax_return), class: "usa-link display-inline-block padding-y-1", "aria-label": "#{t('.actions.edit')}: #{t("#{prefix}.title")}" %>
+        <% when :in_progress %>
+          <%= link_to t(".actions.continue"), task.path(@tax_return), class: "usa-button cods-button", "aria-label": "#{t('.actions.continue')}: #{t("#{prefix}.title")}" %>
+        <% when :not_started %>
+          <%= link_to t(".actions.start"), task.path(@tax_return), class: "usa-button cods-button", "aria-label": "#{t('.actions.start')}: #{t("#{prefix}.title")}" %>
+        <% else %>
+          <span class="text-base-darker"><%= t(".cannot_start_hint") %></span>
+        <% end %>
+      </p>
      </div>
     </li>
   <% end %>
@@ -43,5 +47,5 @@
 <% if @flow.completed? %>
   <p class="margin-top-3"><%= link_to t(".review_and_sign"), review_tax_return_path(@tax_return), class: "usa-button usa-button--big cods-button" %></p>
 <% else %>
-  <p class="text-base-dark"><%= t(".finish_sections_first") %></p>
+  <p class="margin-top-3 text-base-dark"><%= t(".finish_sections_first") %></p>
 <% end %>

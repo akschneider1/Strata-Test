@@ -31,13 +31,13 @@ module TaxHelper
 
   # Colorado Design System in-page alert. Initial-render alerts carry no
   # live-region role (see the CoDS in-page-alert fixture).
-  def cods_alert(type, heading: nil, **options, &block)
+  def cods_alert(type, heading: nil, heading_level: 2, **options, &block)
     cods_type = { error: "urgent" }.fetch(type, type.to_s)
     classes = class_names("usa-alert", "usa-alert--#{type}", "cods-in-page-alert", "cods-in-page-alert--#{cods_type}", options.delete(:class))
     content_tag(:div, class: classes, **options) do
       content_tag(:div, class: "usa-alert__body cods-in-page-alert__body") do
         safe_join([
-          (content_tag(:h2, heading, class: "usa-alert__heading cods-in-page-alert__heading") if heading),
+          (content_tag(:"h#{heading_level}", heading, class: "usa-alert__heading cods-in-page-alert__heading") if heading),
           content_tag(:div, capture(&block), class: "usa-alert__text cods-in-page-alert__text")
         ].compact)
       end
@@ -47,7 +47,10 @@ module TaxHelper
   # Puts the page title in the dark band across the top of the page, as on
   # tax.colorado.gov. `crumbs` are the pages above this one, after Home:
   # [[name, path], ...]. Pass `home: false` on the home page itself.
+  # Someone who is signed in is sent from Home to their own return, so on
+  # those pages a Home link would lead back to the page they are on.
   def hero(title, intro: nil, crumbs: [], home: true)
+    home = false if user_signed_in? && controller_name == "tax_returns"
     @hero = { title: title, intro: intro, crumbs: (home ? [ [ t("breadcrumbs.home"), root_path ] ] : []) + crumbs }
     nil
   end

@@ -168,7 +168,7 @@ test.describe('Taxpayer on a phone', () => {
     await expectAccessible(page);
     await page.getByRole('link', { name: 'Back' }).first().click();
 
-    await page.getByRole('button', { name: 'Español' }).first().click();
+    await page.getByRole('link', { name: 'Español' }).first().click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'es-US');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Cómo calculamos su impuesto de Colorado'
@@ -195,6 +195,7 @@ test.describe('Examiner', () => {
     await expectAccessible(page);
 
     // Ask the taxpayer
+    await page.getByRole('button', { name: 'Ask the taxpayer' }).click();
     await page
       .getByRole('textbox', { name: 'Question' })
       .fill(
@@ -222,13 +223,14 @@ test.describe('Examiner', () => {
       .first()
       .click();
     await expect(page.getByTestId('taxpayer-answer')).toContainText('My W-2 says $2,900');
+    await page.getByRole('button', { name: 'Change an amount' }).click();
     await page.getByLabel('Amount to change').selectOption('colorado_tax_withheld');
     await page.getByLabel('New amount (in dollars)').fill('2900');
     await page
       .getByRole('textbox', { name: 'Reason', exact: true })
       .fill('Changed to the amount on the W-2 your employer filed, which you confirmed.');
     await page.getByRole('button', { name: 'Change and recalculate' }).click();
-    await expect(page.getByTestId('current-result')).toHaveText('refund $705');
+    await expect(page.getByTestId('current-result')).toHaveText('Refund $705');
     await expect(page.getByTestId('second-approval-note')).toContainText('a second examiner');
     await page.getByRole('button', { name: 'Accept with adjustments' }).click();
     await expect(page.getByTestId('case-step')).toHaveAttribute('data-step', 'second_review');

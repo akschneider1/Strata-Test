@@ -242,6 +242,32 @@
   }
 
   // ---------------------------------------------------------------------
+  // Question pages (one question per page, Back / Save and continue)
+  // ---------------------------------------------------------------------
+  // USWDS gives every button in a form a top margin, and stretches buttons
+  // in a button group to the height of their row. Together they made Back
+  // and Save and continue 64px tall, beside 40px buttons elsewhere. Put the
+  // space on the group instead.
+  .usa-form .usa-button-group {
+    margin-top: 1.5rem;
+  }
+
+  .usa-form .usa-button-group .usa-button {
+    margin-top: 0;
+  }
+
+  // When the question is the page title (an <h1> in a large legend), the
+  // hint and the answers sat directly against it. Give them room.
+  .usa-legend--large {
+    margin-bottom: 0.75rem;
+  }
+
+  .usa-legend--large ~ .usa-hint {
+    margin-bottom: 1rem;
+    max-width: 30rem;
+  }
+
+  // ---------------------------------------------------------------------
   // State site look (matches tax.colorado.gov)
   // ---------------------------------------------------------------------
   // tax.colorado.gov is built on USWDS with the same fonts and colors as
@@ -456,4 +482,61 @@
   .co-site .cods-hero__content {
     padding-inline: 2rem;
   }
+}
+
+// --- Site chrome (home page, title band, header) -----------------------
+// Plain paragraphs inherit the 1.15 line height USWDS puts on <body>, so
+// they looked cramped beside lists and card text (1.5 to 1.6). :where()
+// keeps specificity at zero, so any component's own rule still wins.
+:where(.co-site main p) {
+  line-height: 1.5;
+}
+
+// The CoDS hero puts no space between the title and the intro under it.
+.co-site .cods-hero__heading + .cods-hero__intro {
+  margin-top: 0.5rem;
+}
+
+// CoDS has no summary box. Give the USWDS one CoDS colors, and keep the
+// site's heading scale from enlarging its heading.
+.usa-summary-box {
+  background-color: var(--cods-color-co-blue-5, var(--cods-color-co-blue-10));
+  border-color: var(--cods-color-co-blue-20);
+  color: var(--cods-color-text-primary);
+}
+
+.co-site main .usa-summary-box .usa-summary-box__heading {
+  font-size: var(--cods-font-size-mobile-h5);
+  line-height: var(--cods-line-height-mobile-h5);
+}
+
+// --- Narrow screens and keyboard focus ----------------------------------
+// USWDS `grid-gap-6` pulls a row 1.5rem past each side of its container,
+// but `.grid-container` only has 1rem of padding below desktop width. The
+// page then scrolled sideways by 8px on phones and tablets (home page,
+// examiner pages). Below desktop the columns stack, so use the 1rem gutter.
+@media (max-width: 63.99em) {
+  .grid-row.grid-gap-6 {
+    margin-inline: -0.5rem;
+  }
+
+  .grid-row.grid-gap-6 > * {
+    padding-inline: 0.5rem;
+  }
+}
+
+// USWDS table cells have 1rem of side padding. On a phone that pushes the
+// last column of a four-column table off screen (worse in Spanish, where
+// the words are longer). Halve it on small screens.
+@media (max-width: 29.99em) {
+  .usa-table th,
+  .usa-table td {
+    padding-inline: 0.5rem;
+  }
+}
+
+// The CoDS focus ring is dark blue, which disappears on the dark title
+// band. Links there get a white ring.
+.cods-hero a:focus-visible {
+  outline-color: var(--cods-color-white, #fff);
 }

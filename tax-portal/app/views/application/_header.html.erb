@@ -25,14 +25,20 @@
                 <%# The label is for screen readers; sighted users see the name next to "Log out". %>
                 <span class="usa-nav-link text-normal display-block"><span class="usa-sr-only"><%= t("header.signed_in_as_label") %> </span><%= current_user.display_name %></span>
               </li>
+              <% if current_user.provider == "demo" %>
+                <%# In a demo, the way back to the list of people. %>
+                <li class="usa-nav__primary-item">
+                  <%= button_to t("header.switch_person"), demo_sign_out_path(locale: I18n.locale), method: :delete, class: "usa-nav-link", data: { testid: "switch-person" } %>
+                </li>
+              <% end %>
               <li class="usa-nav__primary-item">
-                <%= button_to t('header.logout'), current_user.provider == "demo" ? demo_sign_out_path : destroy_user_session_path, method: :delete, class: "usa-nav-link" %>
+                <%= button_to t('header.logout'), current_user.provider == "demo" ? demo_sign_out_path(locale: I18n.locale) : destroy_user_session_path, method: :delete, class: "usa-nav-link" %>
               </li>
             <% end %>
         </ul>
       </div>
     </nav>
 
-    <%= render partial: "application/language-toggle", locals: { container_class: "usa-language-container display-none desktop:display-block padding-bottom-1" } %>
+    <%= render partial: "application/language-toggle", locals: { container_class: "usa-language-container display-none desktop:display-block margin-top-1" } %>
   </div>
 </header>

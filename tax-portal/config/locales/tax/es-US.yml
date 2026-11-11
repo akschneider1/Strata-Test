@@ -19,6 +19,7 @@ es-US:
     title: "Impuesto sobre el ingreso personal de Colorado"
     signed_in_as: "Sesión iniciada como %{name}"
     signed_in_as_label: "Sesión iniciada como"
+    switch_person: "Cambiar de persona"
     account: "Mi cuenta"
     close: "Cerrar"
   prototype_banner:
@@ -43,6 +44,18 @@ es-US:
     source: "De dónde viene esta regla"
     filer: "Usted"
     spouse: "Su cónyuge"
+    # El SDK de Strata escribe estos textos solo en inglés (indicador de pasos
+    # y campos de fecha). Están aquí para tenerlos en los dos idiomas.
+    step_indicator:
+      label: "Progreso"
+      step: "Paso"
+      of: "de %{total}"
+      completed: "completado"
+      not_completed: "sin completar"
+    date_fields:
+      month: "Mes"
+      day: "Día"
+      year: "Año"
   home:
     index:
       title: "Presente su declaración de impuestos de Colorado de 2025"
@@ -62,7 +75,7 @@ es-US:
       demo_how_heading: "Cómo funciona la demostración"
       demo_how:
         - "Elija a una persona. No necesita contraseña."
-        - "Para cambiar de persona, elija Cerrar sesión. Luego elija a otra persona."
+        - "Para cambiar de persona, elija Cambiar de persona en la parte de arriba de la página. Luego elija a otra persona."
         - "Nada de lo que escriba se envía al Departamento de Hacienda."
         - "Usted recibe su propia copia de la demostración. Lo que haga no cambia lo que ven otras personas."
         - "Su copia se borra después de dos horas sin uso. Luego empieza de nuevo."
@@ -76,7 +89,7 @@ es-US:
       about_link: "Acerca de este prototipo: qué es real y qué es ficticio"
     about:
       title: "Acerca de este prototipo"
-      lead: "Este es un modelo que funciona de cómo podría ser presentar y revisar una declaración de impuestos sobre los ingresos de Colorado. Se creó para mostrar lo que es posible. No es un servicio del Departamento de Hacienda y no puede presentar una declaración real."
+      lead: "Este es un modelo que funciona de cómo podría ser presentar y revisar una declaración del impuesto sobre el ingreso de Colorado. Se creó para mostrar lo que es posible. No es un servicio del Departamento de Hacienda y no puede presentar una declaración real."
       can_heading: "Lo que puede hacer aquí"
       can:
         - "Presentar una declaración de Colorado de 2025 como una persona ficticia, en un teléfono o una computadora."
@@ -126,8 +139,8 @@ es-US:
       engine: "Un viaje al motor de impuestos"
       engine_good: "Menos de 20 milisegundos"
       engine_ready: "El motor de impuestos cargó sus reglas"
-      yes: "Sí"
-      no: "No"
+      "yes": "Sí"
+      "no": "No"
       calculation: "Un cálculo de impuestos nuevo"
       calculation_good: "Menos de 1,000 milisegundos"
       processors: "Procesadores"
@@ -170,6 +183,7 @@ es-US:
     errors:
       tax_engine_unavailable: "No pudimos calcular su declaración en este momento. No se perdió nada. Inténtelo de nuevo en un minuto."
       estimate_unavailable: "No podemos mostrar su cálculo estimado en este momento. Puede seguir trabajando en su declaración, y no se perdió nada."
+      fix_to_continue: "Hay un problema en esta página. Cada mensaje está junto a la respuesta a la que se refiere."
     index:
       title: "Su declaración de impuestos de Colorado de %{tax_year}"
       lead: "Puede detenerse en cualquier momento y continuar donde se quedó."
@@ -252,7 +266,8 @@ es-US:
       hint: "Un dependiente suele ser un hijo o familiar que vivió con usted. Usted pagó la mayor parte de sus gastos."
       who_counts_summary: "¿Quién cuenta como dependiente?"
       who_counts: "Por lo general, su hijo, hijastro, hijo de crianza, nieto, hermano, hermana o padre que vivió con usted más de la mitad del año y que no pagó la mayor parte de su propia manutención. Responderá algunas preguntas sobre cada persona."
-      list_heading: "Personas que agregó"
+      list_title: "Personas que dependieron de usted en %{tax_year}"
+      list_lead: "Revisamos a cada persona según las reglas y le decimos si cuenta."
       age: "%{age} años al final de %{tax_year}"
       add: "Agregar un dependiente"
       add_another: "Agregar otro dependiente"
@@ -286,9 +301,11 @@ es-US:
       change: "Algo es diferente"
       not_mine: "No es mío"
       undo: "Revisar de nuevo"
+      use_on_file: "Usar las cantidades registradas"
       corrected_note: "Sus números son diferentes de los que informó el pagador. Una persona del Departamento puede revisar su declaración antes de aceptarla."
       disputed_note: "No lo incluiremos en su declaración. Alguien del Departamento se comunicará con el pagador."
       add_heading: "¿Falta un formulario?"
+      add_hint: "Agregue cualquier W-2 o 1099 que recibió para %{tax_year} y que no aparece arriba."
       add: "Agregar un formulario de ingresos"
       confirm_label: "Revisé todos los formularios de ingresos que recibí para %{tax_year}"
     edit_interest:
@@ -321,6 +338,10 @@ es-US:
       even_heading: "No debe nada y no le corresponde un reembolso"
       filing_status_heading: "Su estado civil para efectos de la declaración: %{status}"
       credits_heading: "Créditos y reembolsos a los que tiene derecho"
+      glance:
+        tax: "Su impuesto de Colorado"
+        credits: "Créditos y reembolsos"
+        withheld: "Impuesto que ya pagó"
       credits_none_heading: "Créditos que revisamos y a los que no tiene derecho"
       not_qualified: "No aplica"
       adjusted_note: "El Departamento cambió algunas cantidades de su declaración. Este es el cálculo después de esos cambios."
@@ -337,7 +358,7 @@ es-US:
         result: "6. El resultado"
     new_rates:
       title: "Las nuevas tasas del impuesto sobre el ingreso de Colorado"
-      lead: "En noviembre de 2026, los votantes de Colorado aprobaron la Enmienda 87. A partir de las declaraciones de %{year}, el ingreso paga tasas que aumentan con el ingreso, en lugar de una sola tasa de %{flat_rate}."
+      lead: "En noviembre de 2026, los votantes de Colorado aprobaron la Enmienda 87. A partir de las declaraciones de %{year}, el ingreso se grava con tasas que suben a medida que el ingreso aumenta, en lugar de una sola tasa de %{flat_rate}."
       not_final: "La votación aún no se ha certificado, y el Departamento no ha publicado formularios ni instrucciones para las nuevas tasas. Tome esto como un cálculo estimado."
       for_you_heading: "Lo que significaría para usted"
       for_you_lead: "Esto usa los ingresos y la familia de su declaración de %{tax_year}. Usa las deducciones previstas para %{year}."
@@ -421,6 +442,10 @@ es-US:
         reason_heading: "Por qué no pudimos aceptarla"
     status:
       title: "Su declaración de Colorado de %{tax_year}"
+      details_heading: "Los datos de su presentación"
+      stage_label: "Estado"
+      estimated_refund: "Su reembolso estimado"
+      estimated_owed: "Cantidad estimada que debe"
       confirmation: "Número de confirmación"
       submitted_on: "Enviada"
       timeline_heading: "Qué ha pasado"
@@ -500,12 +525,13 @@ es-US:
     qualification:
       counts: "Cuenta como su dependiente"
       does_not_count: "No cuenta como su dependiente"
+      not_decided: "Necesitamos dos respuestas más"
       answer: "Responda dos preguntas más"
       reasons:
         qualifying_child: "Por su edad y porque vivió con usted."
         qualifying_relative: "Porque tuvo pocos ingresos y usted pagó la mayor parte de sus gastos de manutención."
         did_not_live_with_you: "Porque no vivió con usted más de la mitad del año."
-        needs_answers: "Primero necesitamos saber más."
+        needs_answers: "Todavía no podemos saber si esta persona cuenta."
         income_too_high: "Porque sus ingresos fueron demasiado altos."
         not_supported_by_you: "Porque usted no pagó más de la mitad de sus gastos de manutención."
   income_documents:
@@ -623,18 +649,47 @@ es-US:
       amount_owed:
         label: "Cantidad que debe"
         explanation: "Su impuesto es mayor que sus créditos más el impuesto ya retenido. Usted debe la diferencia."
+  # Texto propio del generador de formularios del SDK de Strata.
+  strata:
+    form_builder:
+      select_month: "Elija una opción"
+      memorable_date_hint: "Por ejemplo: enero 19 2000"
   activerecord:
     attributes:
       tax_return:
         filer_name_first: "Nombre"
         filer_name_last: "Apellido"
+        filer_date_of_birth: "Fecha de nacimiento"
+        filer_ssn: "Número de Seguro Social"
+        mailing_address_street_line_1: "Dirección"
+        mailing_address_city: "Ciudad"
+        mailing_address_state: "Estado"
+        mailing_address_zip_code: "Código postal"
+        spouse_name_first: "Nombre de su cónyuge"
+        spouse_name_last: "Apellido de su cónyuge"
+        spouse_date_of_birth: "Fecha de nacimiento de su cónyuge"
+        spouse_ssn: "Número de Seguro Social de su cónyuge"
+        childcare_expenses: "Cantidad que pagó por cuidado de niños"
+        taxable_interest: "Intereses tributables"
+        bank_routing_number: "Número de ruta"
+        bank_account_number: "Número de cuenta"
         signature_name: "Su firma"
+      dependent:
+        name_first: "Nombre"
+        name_last: "Apellido"
+        date_of_birth: "Fecha de nacimiento"
+        ssn: "Número de Seguro Social"
+      income_document:
+        payer_name: "Nombre del empleador o pagador"
+        amount: "Cantidad"
+        colorado_withholding: "Impuesto de Colorado retenido"
       information_request:
         response: "Su respuesta"
     errors:
       messages:
         blank: "Escriba una respuesta para continuar"
         choose_one: "Elija una respuesta"
+        invalid_date: "Escriba el mes, el día y el año con 4 dígitos"
         invalid_ssn: "Escriba los 9 dígitos del número de Seguro Social"
         invalid_zip: "Escriba un código postal de 5 dígitos"
         not_a_number: "Escriba un número, sin centavos"
@@ -685,13 +740,13 @@ es-US:
         dependent:
           format: "%{message}"
           attributes:
-            name_first: { blank: "Escriba su nombre" }
-            name_last: { blank: "Escriba su apellido" }
+            name_first: { blank: "Escriba el nombre de esta persona" }
+            name_last: { blank: "Escriba el apellido de esta persona" }
             date_of_birth:
-              blank: "Escriba su fecha de nacimiento"
+              blank: "Escriba la fecha de nacimiento de esta persona"
               in_future: "Escriba una fecha de nacimiento anterior al final del año tributario"
             ssn:
-              blank: "Escriba su número de Seguro Social"
+              blank: "Escriba el número de Seguro Social de esta persona"
               already_listed: "Ya agregó a alguien con este número"
               same_as_filer: "Escriba el número de esta persona. Este es el suyo."
               same_as_spouse: "Escriba el número de esta persona. Este es el de su cónyuge."

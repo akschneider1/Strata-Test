@@ -9,12 +9,12 @@
 
 <% if @cases.any? %>
   <div class="usa-table-container--scrollable" tabindex="0">
-    <table class="usa-table usa-table--striped width-full">
+    <table class="usa-table usa-table--borderless width-full margin-top-0">
       <caption class="usa-sr-only"><%= t(".title") %></caption>
       <thead>
         <tr>
           <% %w[taxpayer confirmation submitted step flags result].each do |column| %>
-            <th scope="col"><%= t(".columns.#{column}") %></th>
+            <th scope="col"<%= ' class="text-right"'.html_safe if column == "result" %>><%= t(".columns.#{column}") %></th>
           <% end %>
         </tr>
       </thead>
@@ -24,10 +24,10 @@
           <tr>
             <th scope="row"><%= link_to kase.tax_return.filer_full_name, tax_return_case_path(kase), class: "usa-link" %></th>
             <td><%= kase.tax_return.confirmation_number %></td>
-            <td><%= l(kase.tax_return.submitted_at.in_time_zone("America/Denver"), format: :short) %></td>
+            <td><%= staff_time(kase.tax_return.submitted_at) %></td>
             <td><%= case_status_tag(kase) %></td>
             <td><%= kase.review_flags.size.positive? ? kase.review_flags.map { |flag| t("staff.flags.#{flag.code}.title") }.join("; ") : "—" %></td>
-            <td class="text-no-wrap"><%= calculation ? result_phrase(calculation.refund, calculation.amount_owed) : "—" %></td>
+            <td class="text-no-wrap text-right"><%= calculation ? result_label(calculation.refund, calculation.amount_owed) : "—" %></td>
           </tr>
         <% end %>
       </tbody>

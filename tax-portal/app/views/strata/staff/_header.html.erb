@@ -13,14 +13,22 @@
         <img src="<%= asset_path('@uswds/uswds/dist/img/usa-icons/close.svg') %>" alt="<%= t('header.close') %>" />
       </button>
       <ul class="usa-nav__primary usa-accordion">
+        <li class="usa-nav__primary-item">
+          <%= link_to t("staff.header.dashboard"), main_app.staff_path, class: class_names("usa-nav-link", "usa-current": current_page?(main_app.staff_path)), "aria-current": (current_page?(main_app.staff_path) ? "page" : nil) %>
+        </li>
         <% header_links.each do |link| %>
           <li class="usa-nav__primary-item">
             <%= link_to link[:name], link[:path], class: class_names("usa-nav-link", "usa-current": request.path.start_with?(link[:path])) %>
           </li>
         <% end %>
         <li class="usa-nav__primary-item">
-          <span class="usa-nav-link text-normal"><%= current_user.display_name %> · <%= t("staff.header.role") %></span>
+          <span class="display-block padding-2 font-sans-xs line-height-sans-1 text-base-dark" data-testid="signed-in-as"><%= current_user.display_name %> · <%= t("staff.header.role") %></span>
         </li>
+        <% if current_user.provider == "demo" %>
+          <li class="usa-nav__primary-item">
+            <%= button_to t("header.switch_person"), main_app.demo_sign_out_path, method: :delete, class: "usa-nav-link", data: { testid: "switch-person" } %>
+          </li>
+        <% end %>
         <li class="usa-nav__primary-item">
           <%= button_to t("header.logout"), current_user.provider == "demo" ? main_app.demo_sign_out_path : main_app.destroy_user_session_path, method: :delete, class: "usa-nav-link" %>
         </li>
