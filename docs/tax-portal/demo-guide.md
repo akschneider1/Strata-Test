@@ -213,11 +213,12 @@ long it takes a real person has not been measured.
 2. **Pick up next return** opens Jordan Lee's. The page says why it was
    flagged (he claimed $3,900 of withholding; his employer reported $2,900)
    and shows reported and on-file amounts side by side.
-3. Under **Ask the taxpayer**, send a question about the difference.
+3. Under **Other actions**, open **Ask the taxpayer** and send a question
+   about the difference.
 4. Log out, **Continue as Jordan**. His status page shows the question.
    Answer it.
-5. Back as Priya, open the return from **My returns**. Under **Change an
-   amount**, set Colorado tax withheld to `2900` with a reason. The return
+5. Back as Priya, open the return from **My returns**. Open **Change an
+   amount** and set Colorado tax withheld to `2900` with a reason. The return
    is recalculated: refund $1,705 becomes **$705**. The filed return is not
    edited; the change is recorded on top of it.
 6. **Accept with adjustments.** Because the change moves the refund by $500

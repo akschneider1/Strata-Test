@@ -11,10 +11,11 @@
   <% end %>
 <% end %>
 
-<ul class="usa-card-group margin-top-3">
+<%# One form per row at every width, so the amounts never wrap. (The CoDS card group puts two side by side.) %>
+<ul class="usa-list usa-list--unstyled display-flex flex-column gap-2 margin-top-3">
   <% documents.each do |document| %>
     <% kind = "income_documents.kinds.#{document.kind}" %>
-    <li class="usa-card cods-card tablet:grid-col-12" id="income_document_<%= document.id %>">
+    <li class="usa-card cods-card margin-0 maxw-none" id="income_document_<%= document.id %>">
       <div class="usa-card__container cods-card__container">
         <div class="usa-card__header cods-card__header">
           <p class="margin-0 margin-bottom-1">

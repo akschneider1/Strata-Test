@@ -23,6 +23,10 @@
 <% hero t(".title", tax_year: year) %>
 
 <% alert_type = { accepted: :success, needs_information: :warning, not_accepted: :error }.fetch(stage, :info) %>
+<%# An accepted return with tax due is not a "success" for the taxpayer: there is still something to do. %>
+<% alert_type = :info if stage == :accepted && @calculation.owes? %>
+<%# Until the return is accepted the amount can still change, so say it is an estimate. %>
+<% amount_key = @calculation.owes? ? "owed" : "refund" %>
 <%= cods_alert alert_type, heading: t("tax_returns.stages.#{stage}.heading"), data: { testid: "stage", stage: stage } do %>
   <% if stage == :accepted %>
     <% if @calculation.refund? && @tax_return.direct_deposit? %>
@@ -74,7 +78,7 @@
     </div>
     <% unless stage == :not_accepted %>
     <div class="display-flex flex-justify gap-2 border-bottom-1px border-base-lighter padding-y-1">
-      <dt><%= @calculation.owes? ? t("tax_calculation.lines.amount_owed.label") : t("tax_calculation.lines.refund.label") %></dt>
+      <dt><%= stage == :accepted ? t("tax_calculation.lines.#{@calculation.owes? ? 'amount_owed' : 'refund'}.label") : t(".estimated_#{amount_key}") %></dt>
       <dd class="margin-0 text-bold text-right" data-testid="result-amount"><%= money(@calculation.owes? ? @calculation.amount_owed : @calculation.refund) %></dd>
     </div>
     <% end %>

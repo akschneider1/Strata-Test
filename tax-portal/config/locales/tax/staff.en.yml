@@ -305,6 +305,7 @@ en:
       reject_hint: "The taxpayer will see this. Say what is wrong and what they can do."
       reject_submit: "Propose not accepting"
       proposal_heading: "Waiting for a second examiner"
+      confirm_heading: "Confirm this decision"
       proposal:
         accepted_with_adjustments: "%{name} proposes accepting this return with adjustments. The taxpayer would get %{result}."
         not_accepted: "%{name} proposes not accepting this return."

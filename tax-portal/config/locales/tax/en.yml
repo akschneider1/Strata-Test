@@ -13,6 +13,7 @@ en:
     staff_title: "Colorado Department of Revenue · Examiner portal"
     signed_in_as: "Signed in as %{name}"
     signed_in_as_label: "Signed in as"
+    switch_person: "Switch person"
   prototype_banner:
     heading: "Prototype:"
     body: "This is a demonstration with made-up people. It can't file a real tax return."
@@ -421,6 +422,8 @@ en:
       title: "Your %{tax_year} Colorado return"
       details_heading: "Your filing details"
       stage_label: "Status"
+      estimated_refund: "Your estimated refund"
+      estimated_owed: "Estimated amount you owe"
       confirmation: "Confirmation number"
       submitted_on: "Submitted"
       timeline_heading: "What's happened"

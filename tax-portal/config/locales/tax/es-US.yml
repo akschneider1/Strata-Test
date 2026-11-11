@@ -19,6 +19,7 @@ es-US:
     title: "Impuesto sobre el ingreso personal de Colorado"
     signed_in_as: "Sesión iniciada como %{name}"
     signed_in_as_label: "Sesión iniciada como"
+    switch_person: "Cambiar de persona"
     account: "Mi cuenta"
     close: "Cerrar"
   prototype_banner:
@@ -429,6 +430,8 @@ es-US:
       title: "Su declaración de Colorado de %{tax_year}"
       details_heading: "Los datos de su presentación"
       stage_label: "Estado"
+      estimated_refund: "Su reembolso estimado"
+      estimated_owed: "Cantidad estimada que debe"
       confirmation: "Número de confirmación"
       submitted_on: "Enviada"
       timeline_heading: "Qué ha pasado"
